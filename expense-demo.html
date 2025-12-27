@@ -2,7 +2,7 @@
 <html lang="ne">
 <head>
 <meta charset="UTF-8">
-<title>Expense Entry – BPMS</title>
+<title>Expense Entry – BPMS (Final)</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
@@ -43,6 +43,7 @@ th{
   color:#555;
   margin-top:8px;
 }
+.depr-col{ text-align:right; }
 </style>
 </head>
 
@@ -50,7 +51,7 @@ th{
 
 <h2>💰 खर्च विवरण (Expense Entry)</h2>
 
-<!-- MODE -->
+<!-- MODE TOGGLE -->
 <label>
   <input type="checkbox" id="advancedMode">
   Advanced Mode (ह्रासकट्टी सहित)
@@ -72,7 +73,7 @@ th{
 <button onclick="addExpense()">➕ Add</button>
 
 <div class="note">
-✔ मेशीन औजार / पूर्वाधारमा मात्र ह्रासकट्टी लागू हुन्छ<br>
+✔ मेशीन औजार / पूर्वाधार निर्माणमा मात्र ह्रासकट्टी लाग्छ<br>
 ✔ कच्चापदार्थ, विविध, चालु खर्चमा ह्रासकट्टी हुँदैन
 </div>
 
@@ -83,19 +84,23 @@ th{
   <th>विधा</th>
   <th>शीर्षक</th>
   <th>रकम</th>
+  <th class="depr-col">ह्रासकट्टी (वार्षिक)</th>
   <th></th>
 </tr>
 </thead>
+
 <tbody id="rows"></tbody>
+
 <tfoot>
 <tr class="total-row">
-  <td colspan="2">कुल खर्च</td>
+  <td colspan="2">कुल खर्च (Cash)</td>
   <td id="totalExpense">0</td>
+  <td class="depr-col"></td>
   <td></td>
 </tr>
 <tr class="total-row">
-  <td colspan="2">वार्षिक ह्रासकट्टी</td>
-  <td id="totalDepr">0</td>
+  <td colspan="3">कुल वार्षिक ह्रासकट्टी</td>
+  <td class="depr-col" id="totalDepr">0</td>
   <td></td>
 </tr>
 </tfoot>
@@ -149,7 +154,7 @@ function saveAndRender(){
   render();
 }
 
-/* ================= RENDER (GROUPED) ================= */
+/* ================= RENDER (GROUPED + DEPRECIATION) ================= */
 function render(){
   const grouped = {};
   let cashTotal = 0;
@@ -170,15 +175,22 @@ function render(){
   Object.keys(grouped).forEach(cat=>{
     html += `
       <tr class="group-row">
-        <td colspan="4">◆ ${cat}</td>
+        <td colspan="5">◆ ${cat}</td>
       </tr>
     `;
+
     grouped[cat].forEach(e=>{
+      const depr =
+        (MODE==="advanced" && DEPR_RULES[e.category])
+          ? Math.round(e.amount * DEPR_RULES[e.category]).toLocaleString()
+          : "";
+
       html += `
         <tr>
           <td>${e.category}</td>
           <td>${e.title}</td>
-          <td>${e.amount}</td>
+          <td>${e.amount.toLocaleString()}</td>
+          <td class="depr-col">${depr}</td>
           <td><button onclick="del(${expenses.indexOf(e)})">❌</button></td>
         </tr>
       `;
@@ -189,6 +201,11 @@ function render(){
   totalExpense.innerText = cashTotal.toLocaleString();
   totalDepr.innerText =
     MODE==="advanced" ? Math.round(deprTotal).toLocaleString() : "0";
+
+  // Show / Hide depreciation column
+  document.querySelectorAll(".depr-col").forEach(el=>{
+    el.style.display = MODE==="advanced" ? "" : "none";
+  });
 }
 
 /* INIT */
