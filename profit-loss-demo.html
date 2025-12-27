@@ -2,52 +2,68 @@
 <html lang="ne">
 <head>
 <meta charset="UTF-8">
-<title>नाफा / नोक्सान</title>
-
+<title>Profit / Loss | BPMS</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
-body{font-family:"Noto Sans Devanagari","Kalimati";background:#f4f7f6;padding:20px}
-h1{color:#2e7d32}
-table{width:60%;border-collapse:collapse}
-td{border:1px solid #cfd8dc;padding:10px}
-th{background:#e8f5e9;padding:10px}
-.result{background:#d9f2dc;font-weight:bold}
+body{font-family:"Noto Sans Devanagari","Kalimati";background:#f4f7f6;margin:0}
+.wrap{max-width:950px;margin:25px auto;background:#fff;padding:25px;border-radius:10px}
+h2{color:#2e7d32}
+table{width:100%;border-collapse:collapse}
+th,td{border:1px solid #ccc;padding:8px}
+th{background:#f0f0f0}
+.big{font-size:22px;font-weight:700}
+.green{background:#e8f5e9}
+.nav{display:flex;justify-content:space-between;margin-top:25px}
+button{padding:8px 16px;border:none;border-radius:6px;background:#2e7d32;color:#fff;cursor:pointer}
 </style>
 </head>
 
 <body>
+<div class="wrap">
 
-<h1>📊 नाफा / नोक्सान विश्लेषण</h1>
+<h2>📊 नाफा / नोक्सान (वार्षिक)</h2>
 
 <table>
-<tr><th>विवरण</th><th>रकम (रु.)</th></tr>
-<tr><td>कुल आम्दानी</td><td id="income">0</td></tr>
-<tr><td>कुल खर्च (Cash)</td><td id="cash">0</td></tr>
-<tr><td>ह्रासकट्टी</td><td id="dep">0</td></tr>
-<tr><td>बैंक ब्याज</td><td><input id="interest" value="0"></td></tr>
-<tr><td>कर %</td><td><input id="tax" value="0"></td></tr>
-<tr class="result"><td>शुद्ध नाफा</td><td id="net">0</td></tr>
+<tr><th>कुल आम्दानी</th><td id="income">0</td></tr>
+<tr><th>चालु खर्च</th><td id="cash">0</td></tr>
+<tr><th>ह्रासकट्टी</th><td id="depr">0</td></tr>
+<tr><th>कुल खर्च</th><td id="total">0</td></tr>
+<tr class="green big"><th>नाफा / नोक्सान</th><td id="profit">0</td></tr>
 </table>
 
+<div class="nav">
+  <button onclick="location.href='income-demo.html'">⬅ Previous</button>
+  <button onclick="location.href='five-year-roi.html'">Next ➡</button>
+</div>
+
+</div>
+
 <script>
-const income = Number(localStorage.getItem("TOTAL_INCOME")||0);
-const cash = Number(localStorage.getItem("EXPENSE_CASH")||0);
-const dep = Number(localStorage.getItem("EXPENSE_DEP")||0);
+let key=localStorage.getItem("activeProject");
+if(!key){alert("पहिले Project खोल्नुहोस्");location.href="index.html";}
+let p=JSON.parse(localStorage.getItem(key));
 
-document.getElementById("income").innerText=income;
-document.getElementById("cash").innerText=cash;
-document.getElementById("dep").innerText=dep;
+let income=0;
+(p.incomeData||[]).forEach(i=>income+=Number(i.amount||0));
 
-function calc(){
-  const interest = Number(document.getElementById("interest").value||0);
-  const taxRate = Number(document.getElementById("tax").value||0);
-  let profit = income - cash - dep - interest;
-  let tax = profit>0 ? profit*(taxRate/100) : 0;
-  net.innerText = (profit-tax).toFixed(0);
-}
+let cash=0,depr=0;
+(p.expenseData||[]).forEach(e=>{
+  if(e.category==="मेशीन औजार / प्रविधि"||e.category==="पूर्वाधार निर्माण")
+    depr+=e.amount*0.15;
+  else cash+=e.amount;
+});
 
-document.querySelectorAll("input").forEach(i=>i.oninput=calc);
-calc();
+incomeEl=income;
+cashEl=cash;
+deprEl=Math.round(depr);
+totalEl=Math.round(cash+depr);
+profitEl=Math.round(income-totalEl);
+
+income.textContent=incomeEl;
+cash.textContent=cashEl;
+depr.textContent=deprEl;
+total.textContent=totalEl;
+profit.textContent=profitEl;
 </script>
-
 </body>
 </html>
