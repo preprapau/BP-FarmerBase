@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+<meta charset="UTF-8">
+<title>Profit Allocation | BPMS</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+body{
+  font-family:"Noto Sans Devanagari","Kalimati","Mangal","Nirmala UI",system-ui,Arial;
+  background:#f4f7f6;
+  margin:0;
+}
+.container{
+  max-width:900px;
+  margin:25px auto;
+  background:#fff;
+  padding:25px;
+  border-radius:10px;
+}
+h2{margin-top:0;color:#2e7d32}
+
+/* ===== BOX ===== */
+.box{
+  border:1px solid #ddd;
+  border-radius:8px;
+  padding:15px;
+  margin-bottom:15px;
+}
+.green{background:#e8f5e9}
+.yellow{background:#fffde7}
+.red{background:#ffebee}
+
+.big{font-size:18px;font-weight:700}
+
+/* ===== TABLE ===== */
+table{width:100%;border-collapse:collapse;margin-top:10px}
+th,td{border:1px solid #ccc;padding:6px;text-align:center}
+th{background:#f0f0f0}
+.right{text-align:right}
+
+/* ===== INPUT ===== */
+input[type=text]{width:100%}
+input[type=number]{width:80px}
+
+/* ===== BUTTON ===== */
+button{
+  padding:6px 14px;
+  border:none;
+  border-radius:6px;
+  cursor:pointer;
+  background:#2e7d32;
+  color:#fff;
+}
+.del{background:#c62828}
+
+/* ===== NAV ===== */
+.nav{
+  display:flex;
+  justify-content:space-between;
+  margin-top:25px;
+}
+
+@media print{
+  button,.nav{display:none}
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>🔹 लाभांश / नाफा वितरण (Profit Allocation)</h2>
+
+<!-- PROFIT INFO -->
+<div class="box green">
+  <div>उपलब्ध नाफा (Final Profit)</div>
+  <div class="big" id="profitAmt">0</div>
+</div>
+
+<!-- NOTICE -->
+<div id="notice" class="box yellow" style="display:none"></div>
+
+<!-- ALLOCATION TABLE -->
+<table>
+<thead>
+<tr>
+  <th>विधा / प्रयोजन</th>
+  <th>%</th>
+  <th>रकम</th>
+  <th></th>
+</tr>
+</thead>
+<tbody id="allocBody"></tbody>
+<tfoot>
+<tr class="big">
+  <td>जम्मा</td>
+  <td id="totalPercent">0%</td>
+  <td id="totalAmount">0</td>
+  <td></td>
+</tr>
+</tfoot>
+</table>
+
+<br>
+
+<!-- ADD -->
+<input id="method" type="text" placeholder="जस्तै: मालिक / पुनः लगानी / सहकारी">
+<input id="percent" type="number" min="0" max="100" placeholder="%">
+<button onclick="addAlloc()">＋ Add</button>
+
+<!-- NAV -->
+<div class="nav">
+  <button onclick="goPrev()">⬅ Profit/Loss</button>
+  <button onclick="goNext()">Next ➡ ROI</button>
+</div>
+
+</div>
+
+<script>
+/* ===== SAFETY ===== */
+let key = localStorage.getItem("activeProject");
+if(!key){
+  alert("पहिले Project खोल्नुहोस्");
+  location.href="index.html";
+}
+let project = JSON.parse(localStorage.getItem(key));
+
+/* ===== GET PROFIT ===== */
+let profit = project.profitLoss?.profit || 0;
+profitAmt.innerText = "रु. " + profit;
+
+/* ===== DATA ===== */
+let alloc = project.profitAllocation || [];
+
+/* ===== RENDER ===== */
+function render(){
+  allocBody.innerHTML="";
+  let sumP=0, sumA=0;
+
+  alloc.forEach((a,i)=>{
+    let amt = profit * (a.percent/100);
+    sumP += Number(a.percent);
+    sumA += amt;
+
+    allocBody.innerHTML += `
+      <tr>
+        <td>${a.method}</td>
+        <td>${a.percent}%</td>
+        <td class="right">${Math.round(amt)}</td>
+        <td><button class="del" onclick="removeAlloc(${i})">✖</button></td>
+      </tr>`;
+  });
+
+  totalPercent.innerText = sumP + "%";
+  totalAmount.innerText = Math.round(sumA);
+
+  notice.style.display = sumP!==100 ? "block":"none";
+  notice.className = sumP===100 ? "box green":"box yellow";
+  notice.innerText = sumP===100
+    ? "✔ कुल 100% मिलेको छ"
+    : "⚠️ कुल प्रतिशत 100% हुनुपर्छ (अहिले "+sumP+"%)";
+}
+render();
+
+/* ===== ADD ===== */
+function addAlloc(){
+  if(!method.value || !percent.value) return;
+  alloc.push({
+    method:method.value,
+    percent:Number(percent.value)
+  });
+  method.value="";percent.value="";
+  save();
+}
+
+/* ===== REMOVE ===== */
+function removeAlloc(i){
+  alloc.splice(i,1);
+  save();
+}
+
+/* ===== SAVE ===== */
+function save(){
+  project.profitAllocation = alloc;
+  project.lastEdited = new Date().toLocaleString("ne-NP");
+  localStorage.setItem(key, JSON.stringify(project));
+  render();
+}
+
+/* ===== NAV ===== */
+function goPrev(){location.href="profit-loss-demo.html";}
+function goNext(){
+  if(Number(totalPercent.innerText.replace("%",""))!==100){
+    alert("कुल प्रतिशत 100% हुनुपर्छ");
+    return;
+  }
+  save();
+  location.href="five-year-roi.html";
+}
+</script>
+
+</body>
+</html>
