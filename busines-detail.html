@@ -2,7 +2,7 @@
 <html lang="ne">
 <head>
 <meta charset="UTF-8">
-<title>FarmerBase BPMS – Dashboard</title>
+<title>Business Detail | BPMS</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
@@ -11,272 +11,204 @@ body{
   background:#f4f7f6;
   margin:0;
 }
-.wrap{
-  max-width:1100px;
+.container{
+  max-width:900px;
   margin:25px auto;
   background:#fff;
   padding:25px;
   border-radius:10px;
 }
-h1{margin-top:0;color:#2e7d32}
+h2{margin-top:0;color:#2e7d32}
+h3{margin-top:25px}
 
-/* BOX */
-.box{
+/* ===== PROGRESS ===== */
+.progress-wrap{
   background:#e8f5e9;
   border:1px solid #c8e6c9;
   padding:12px;
   border-radius:8px;
   margin-bottom:15px;
 }
-.status{
-  background:#fff3e0;
-  border:1px solid #ffcc80;
+.progress-title{font-weight:700;margin-bottom:6px}
+.steps{font-size:13px}
+.steps span{
+  padding:3px 6px;
+  border-radius:10px;
+  background:#eee;
 }
-
-/* BUTTON */
-button{
-  padding:6px 12px;
-  border:none;
-  border-radius:5px;
-  cursor:pointer;
+.steps .active{
+  background:#2e7d32;
+  color:#fff;
 }
-.btn{background:#2e7d32;color:#fff}
-.btn2{background:#0277bd;color:#fff}
-.btn3{background:#6a1b9a;color:#fff}
-
-/* TABLE */
-table{width:100%;border-collapse:collapse;margin-top:15px}
-th,td{border:1px solid #ccc;padding:6px}
-th{background:#f0f0f0}
-
-/* PROGRESS */
-.progress-wrap{
-  background:#ddd;
+.bar-wrap{
   height:8px;
+  background:#ddd;
   border-radius:6px;
   overflow:hidden;
+  margin-top:8px;
 }
-.progress-bar{
+.bar{
   height:100%;
   background:#2e7d32;
-  width:0%;
+  width:28%;
+}
+
+/* ===== FORM ===== */
+label{
+  display:block;
+  font-weight:600;
+  margin-top:15px;
+}
+input,textarea{
+  width:100%;
+  padding:8px;
+  margin-top:6px;
+  font-family:inherit;
+}
+textarea{min-height:80px}
+
+#autosaveStatus{
+  font-size:13px;
+  color:#2e7d32;
+  margin-bottom:10px;
+}
+
+.topic-box{
+  border:1px solid #ddd;
+  padding:15px;
+  border-radius:8px;
+  margin-top:15px;
+}
+
+button{
+  padding:8px 16px;
+  border:none;
+  border-radius:6px;
+  cursor:pointer;
+  background:#2e7d32;
+  color:#fff;
+  margin-top:15px;
+}
+
+.nav{
+  display:flex;
+  justify-content:space-between;
+  margin-top:30px;
 }
 </style>
 </head>
 
 <body>
 
-<div class="wrap">
-<h1>🌾 FarmerBase – Business Plan Management System</h1>
+<div class="container">
 
-<!-- ===== CREATE / IMPORT / EXPORT ===== -->
-<div class="box">
-  <b>📁 Business / Project Management</b><br><br>
-
-  <input id="projectName" placeholder="नयाँ व्यवसाय / परियोजनाको नाम">
-
-  <button class="btn" onclick="createProject()">➕ Create New</button>
-
-  <input type="file" id="importFile" style="display:none" onchange="importProject(event)">
-  <button class="btn3" onclick="document.getElementById('importFile').click()">⬆ Import</button>
-  <button class="btn3" onclick="exportActive()">⬇ Export</button>
-</div>
-
-<!-- ===== STATUS ===== -->
-<div class="box status" id="statusBox" style="display:none">
-  📌 Status :
-  <b><span id="pStatus">Draft</span></b>
-  | Version : v<span id="pVersion">1.0</span><br>
-
-  🗓️ Created : <span id="pCreated"></span><br>
-  ✏️ Last Edited : <span id="pEdited"></span><br><br>
-
-  <button class="btn2" onclick="toggleProjectStatus()">Draft / Final</button>
-  <button class="btn3" onclick="changeAdminPassword()">Change Admin Password</button>
-</div>
-
-<!-- ===== PROGRESS ===== -->
-<div class="box">
-  📊 Project Progress :
-  <b><span id="completePercent">0</span>%</b>
-  <div class="progress-wrap">
-    <div class="progress-bar" id="homeProgress"></div>
+<!-- PROGRESS -->
+<div class="progress-wrap">
+  <div class="progress-title">चरण २ / ७ (२८%)</div>
+  <div class="steps">
+    <span>Short Info</span> →
+    <span class="active">Detail</span> →
+    <span>Expense</span> →
+    <span>Income</span> →
+    <span>Profit</span> →
+    <span>ROI</span> →
+    <span>Proposal</span>
   </div>
+  <div class="bar-wrap"><div class="bar"></div></div>
 </div>
 
-<!-- ===== NAV ===== -->
-<div class="box">
-  <button onclick="openPage('short-info.html')">Short Info</button>
-  <button onclick="openPage('business-detail.html')">Business Detail</button>
-  <button onclick="openPage('expense-demo.html')">Expense</button>
-  <button onclick="openPage('income-demo.html')">Income</button>
-  <button onclick="openPage('profit-loss-demo.html')">Profit/Loss</button>
-  <button onclick="openPage('five-year-roi.html')">5-Year ROI</button>
-  <button onclick="openPage('full-proposal.html')">Full Proposal</button>
+<div id="autosaveStatus">💾 Saved</div>
+
+<h2>📋 व्यवसाय / परियोजनाको विस्तृत विवरण</h2>
+
+<!-- ADD TOPIC -->
+<div class="topic-box">
+  <label>विषय (Topic)</label>
+  <input id="topicInput" placeholder="जस्तै: व्यवसायको पृष्ठभूमि">
+
+  <label>विवरण (Content)</label>
+  <textarea id="contentInput" placeholder="यस विषयको विस्तृत विवरण लेख्नुहोस्"></textarea>
+
+  <button onclick="addTopic()">＋ Add Topic</button>
 </div>
 
-<!-- ===== DASHBOARD ===== -->
-<h3>📂 My Projects</h3>
-<table>
-<thead>
-<tr>
-  <th>Name</th>
-  <th>Status</th>
-  <th>Ver</th>
-  <th>Last Edited</th>
-  <th>Action</th>
-</tr>
-</thead>
-<tbody id="projectList"></tbody>
-</table>
+<!-- DISPLAY -->
+<div id="topicList"></div>
+
+<!-- NAV -->
+<div class="nav">
+  <button onclick="goPrev()">⬅ Short Info</button>
+  <button onclick="goNext()">Next ➡</button>
+</div>
 
 </div>
 
 <script>
-// 🔒 IMPORTANT: Home load हुँदा active project clear
-localStorage.removeItem("activeProject");
+/* ===== SAFETY ===== */
+let activeKey = localStorage.getItem("activeProject");
+if(!activeKey){
+  alert("पहिले Home बाट Project खोल्नुहोस्");
+  location.href="index.html";
+}
+let project = JSON.parse(localStorage.getItem(activeKey));
 
-/* ===== CREATE ===== */
-function createProject(){
-  let name = projectName.value.trim();
-  if(!name) return alert("व्यवसायको नाम लेख्नुहोस्");
-
-  let key = "bpms_"+name.replace(/\s+/g,"_");
-  if(localStorage.getItem(key)) return alert("यो नामको Project पहिले नै छ");
-
-  let data={
-    shortInfo:{},
-    businessDetail:[],
-    expenseData:[],
-    incomeData:[],
-    status:"draft",
-    version:"1.0",
-    adminPassword:"1234",
-    createdAt:new Date().toLocaleString("ne-NP"),
-    lastEdited:new Date().toLocaleString("ne-NP")
-  };
-  localStorage.setItem(key,JSON.stringify(data));
-  alert("नयाँ Project तयार भयो");
-  listProjects();
+if(!project.businessDetail){
+  project.businessDetail = [];
 }
 
-/* ===== OPEN ===== */
-function openSelected(key){
-  localStorage.setItem("activeProject",key);
-  loadActiveProject();
-}
+/* ===== RENDER ===== */
+function renderTopics(){
+  let list = document.getElementById("topicList");
+  list.innerHTML = "";
 
-/* ===== LOAD ACTIVE ===== */
-function loadActiveProject(){
-  let key=localStorage.getItem("activeProject");
-  if(!key) return;
-  let p=JSON.parse(localStorage.getItem(key));
-  statusBox.style.display="block";
-  pStatus.innerText=p.status;
-  pVersion.innerText=p.version;
-  pCreated.innerText=p.createdAt;
-  pEdited.innerText=p.lastEdited;
-  calcCompleteness();
-}
-
-/* ===== DRAFT / FINAL ===== */
-function toggleProjectStatus(){
-  let key=localStorage.getItem("activeProject");
-  let p=JSON.parse(localStorage.getItem(key));
-  if(p.status==="final"){
-    let pass=prompt("Admin Password:");
-    if(pass!==p.adminPassword) return alert("Password गलत");
-    p.status="draft";
-  }else{
-    if(p.finalDate) p.version=(parseFloat(p.version)+0.1).toFixed(1);
-    p.status="final";
-    p.finalDate=new Date().toLocaleString("ne-NP");
+  if(project.businessDetail.length === 0){
+    list.innerHTML = `
+      <div style="color:#777;font-style:italic;margin-top:15px">
+        📌 कुनै विवरण थपिएको छैन
+      </div>
+    `;
+    return;
   }
-  p.lastEdited=new Date().toLocaleString("ne-NP");
-  localStorage.setItem(key,JSON.stringify(p));
-  loadActiveProject();
-}
 
-/* ===== PASSWORD ===== */
-function changeAdminPassword(){
-  let key=localStorage.getItem("activeProject");
-  let p=JSON.parse(localStorage.getItem(key));
-  let old=prompt("Old Password:");
-  if(old!==p.adminPassword) return alert("गलत");
-  let neu=prompt("New Password:");
-  if(!neu) return;
-  p.adminPassword=neu;
-  localStorage.setItem(key,JSON.stringify(p));
-  alert("Password Changed");
+  project.businessDetail.forEach((t,i)=>{
+    let div = document.createElement("div");
+    div.className = "topic-box";
+    div.innerHTML = `
+      <h3>${i+1}. ${t.topic}</h3>
+      <p>${t.content.replace(/\\n/g,"<br>")}</p>
+    `;
+    list.appendChild(div);
+  });
 }
+renderTopics();
 
-/* ===== COMPLETENESS ===== */
-function calcCompleteness(){
-  let p=JSON.parse(localStorage.getItem(localStorage.getItem("activeProject")));
-  let score=0;
-  if(Object.keys(p.shortInfo).length) score++;
-  if(p.businessDetail.length) score++;
-  if(p.expenseData.length) score++;
-  if(p.incomeData.length) score++;
-  if(p.finalDate) score++;
-  let percent=Math.round(score/5*100);
-  completePercent.innerText=percent;
-  homeProgress.style.width=percent+"%";
-}
-
-/* ===== DASHBOARD ===== */
-function listProjects(){
-  projectList.innerHTML="";
-  for(let k in localStorage){
-    if(!k.startsWith("bpms_")) continue;
-    let p=JSON.parse(localStorage.getItem(k));
-    projectList.innerHTML+=`
-      <tr>
-        <td>${k.replace("bpms_","")}</td>
-        <td>${p.status}</td>
-        <td>${p.version}</td>
-        <td>${p.lastEdited}</td>
-        <td><button onclick="openSelected('${k}')">Open</button></td>
-      </tr>`;
+/* ===== ADD ===== */
+function addTopic(){
+  let topic = topicInput.value.trim();
+  let content = contentInput.value.trim();
+  if(!topic || !content){
+    alert("विषय र विवरण दुवै लेख्नुहोस्");
+    return;
   }
+
+  project.businessDetail.push({topic,content});
+  saveDetail();
+
+  topicInput.value="";
+  contentInput.value="";
+  renderTopics();
 }
 
-/* ===== IMPORT ===== */
-function importProject(e){
-  let file=e.target.files[0];
-  if(!file) return;
-  let r=new FileReader();
-  r.onload=()=>{
-    let data=JSON.parse(r.result);
-    let name=prompt("Import Project Name:");
-    if(!name) return;
-    let key="bpms_"+name.replace(/\s+/g,"_");
-    localStorage.setItem(key,JSON.stringify(data));
-    alert("Project Import भयो");
-    listProjects();
-  };
-  r.readAsText(file);
-}
-
-/* ===== EXPORT ===== */
-function exportActive(){
-  let key=localStorage.getItem("activeProject");
-  if(!key) return alert("पहिले Project खोल्नुहोस्");
-  let blob=new Blob([localStorage.getItem(key)],{type:"application/json"});
-  let a=document.createElement("a");
-  a.href=URL.createObjectURL(blob);
-  a.download=key+".json";
-  a.click();
+/* ===== SAVE ===== */
+function saveDetail(){
+  project.lastEdited = new Date().toLocaleString("ne-NP");
+  localStorage.setItem(activeKey,JSON.stringify(project));
+  autosaveStatus.innerText="✔ Saved";
 }
 
 /* ===== NAV ===== */
-function openPage(p){
-  if(!localStorage.getItem("activeProject"))
-    return alert("पहिले Project खोल्नुहोस्");
-  window.open(p,"_blank");
-}
-
-window.onload=listProjects;
+function goPrev(){ location.href="short-info.html"; }
+function goNext(){ saveDetail(); location.href="expense-demo.html"; }
 </script>
 
 </body>
