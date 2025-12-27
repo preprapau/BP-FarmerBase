@@ -2,237 +2,89 @@
 <html lang="ne">
 <head>
 <meta charset="UTF-8">
-<title>Profit / Loss | FarmerBase BPMS</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-
+<title>खर्च विवरण</title>
 <style>
-body{
-  font-family:"Noto Sans Devanagari","Kalimati","Mangal","Nirmala UI",system-ui,Arial;
-  background:#f4f7f6;
-  margin:0;
-}
-.container{
-  max-width:950px;
-  margin:25px auto;
-  background:#fff;
-  padding:25px;
-  border-radius:10px;
-}
-h2{margin-top:0;color:#2e7d32}
-
-/* ===== PROGRESS ===== */
-.progress{
-  background:#e8f5e9;
-  border:1px solid #c8e6c9;
-  padding:12px;
-  border-radius:8px;
-  margin-bottom:15px;
-}
-.bar{height:8px;background:#2e7d32;width:71%;border-radius:6px;margin-top:8px}
-
-/* ===== BOX ===== */
-.box{
-  border:1px solid #ddd;
-  border-radius:8px;
-  padding:15px;
-  margin-bottom:15px;
-}
-.green{background:#e8f5e9}
-.blue{background:#e3f2fd}
-.yellow{background:#fffde7}
-.gray{background:#fafafa}
-.big{font-size:20px;font-weight:700}
-.right{text-align:right}
-
-/* ===== TABLE ===== */
-table{width:100%;border-collapse:collapse}
-th,td{border:1px solid #ccc;padding:6px}
-th{background:#f0f0f0}
-
-/* ===== INPUT ===== */
-input[type=text]{width:100%}
-input[type=number]{width:80px}
-
-/* ===== BUTTON ===== */
-button{
-  padding:6px 14px;
-  border:none;
-  border-radius:6px;
-  cursor:pointer;
-  background:#2e7d32;
-  color:#fff;
-}
-.del{background:#c62828}
-
-/* ===== NAV ===== */
-.nav{
-  display:flex;
-  justify-content:space-between;
-  margin-top:30px;
-}
-
-@media print{
-  button,.progress,.nav{display:none}
-}
+body{font-family:system-ui;background:#f4f7f6;padding:20px}
+h2{color:#2e7d32}
+input,select,button{padding:8px;margin:4px}
+table{width:100%;border-collapse:collapse;margin-top:15px}
+th,td{border:1px solid #ccc;padding:8px}
+th{background:#e8f5e9}
+.total{font-weight:bold;background:#f1f8e9}
 </style>
 </head>
-
 <body>
 
-<div class="container">
+<h2>💰 खर्च विवरण (वार्षिक)</h2>
 
-<div class="progress">
-  <b>चरण ५ / ७ (७१%)</b><br>
-  Short Info → Detail → Expense → Income → <b>Profit/Loss</b> → ROI → Proposal
-  <div class="bar"></div>
-</div>
+<select id="group">
+  <option>कच्चापदार्थ</option>
+  <option>विविध</option>
+  <option>चालु खर्च</option>
+  <option>प्रारम्भिक लगानी</option>
+</select>
 
-<h2>📊 नाफा / नोक्सान विश्लेषण (वार्षिक)</h2>
+<input id="title" placeholder="खर्च शीर्षक">
+<input id="amount" type="number" placeholder="रकम">
+<button onclick="addExpense()">➕ Add</button>
 
-<!-- SUMMARY -->
-<div class="box gray">
 <table>
+<thead>
 <tr>
-  <th>कुल आम्दानी</th>
-  <td class="right" id="totalIncome">0</td>
+<th>विधा</th>
+<th>शीर्षक</th>
+<th>रकम</th>
+<th></th>
 </tr>
-<tr>
-  <th>चालु खर्च</th>
-  <td class="right" id="cashExpense">0</td>
+</thead>
+<tbody id="rows"></tbody>
+<tfoot>
+<tr class="total">
+<td colspan="2">कुल खर्च</td>
+<td id="totalExpense">0</td>
+<td></td>
 </tr>
-<tr>
-  <th>ह्रासकट्टी (Depreciation)</th>
-  <td class="right" id="depreciation">0</td>
-</tr>
-<tr>
-  <th>कुल खर्च</th>
-  <td class="right" id="totalExpense">0</td>
-</tr>
+</tfoot>
 </table>
-</div>
-
-<!-- FINAL PROFIT -->
-<div id="profitBox" class="box green">
-  <div>✔ नाफा (Final)</div>
-  <div class="big" id="netProfit">0</div>
-</div>
-
-<!-- PROFIT ALLOCATION (BOTTOM) -->
-<div class="box blue">
-  <h3>🔹 नाफा वितरण / लाभांश (Profit Allocation)</h3>
-
-  <div class="big">उपलब्ध नाफा: <span id="profitBase">0</span></div><br>
-
-  <table>
-    <thead>
-      <tr>
-        <th>विधा / प्रयोजन</th>
-        <th>%</th>
-        <th>रकम</th>
-        <th></th>
-      </tr>
-    </thead>
-    <tbody id="allocBody"></tbody>
-    <tfoot>
-      <tr class="big">
-        <td>जम्मा</td>
-        <td id="totalPercent">0%</td>
-        <td id="totalAmount">0</td>
-        <td></td>
-      </tr>
-    </tfoot>
-  </table>
-
-  <br>
-  <input id="method" type="text" placeholder="जस्तै: मालिक / पुनः लगानी / सहकारी">
-  <input id="percent" type="number" min="0" max="100" placeholder="%">
-  <button onclick="addAlloc()">＋ Add</button>
-
-  <div id="notice" class="box yellow" style="display:none;margin-top:10px"></div>
-</div>
-
-<div class="nav">
-  <button onclick="location.href='income-demo.html'">⬅ Previous</button>
-  <button onclick="location.href='five-year-roi.html'">Next ➡</button>
-</div>
-
-</div>
 
 <script>
-let key = localStorage.getItem("activeProject");
-if(!key){
-  alert("पहिले Project खोल्नुहोस्");
-  location.href="index.html";
-}
-let p = JSON.parse(localStorage.getItem(key));
+let expenses = JSON.parse(localStorage.getItem("expenses")||"[]");
 
-/* ===== INCOME ===== */
-let income = 0;
-(p.incomeData||[]).forEach(i=> income += Number(i.amount||0));
-
-/* ===== EXPENSE ===== */
-let cash = 0, depr = 0;
-(p.expenseData||[]).forEach(e=>{
-  if(e.category==="प्रारम्भिक लगानी") depr += Number(e.amount||0)*0.10;
-  else cash += Number(e.amount||0);
-});
-
-/* ===== PROFIT ===== */
-let profit = income - (cash + depr);
-
-/* DISPLAY SUMMARY */
-totalIncome.innerText = income;
-cashExpense.innerText = cash;
-depreciation.innerText = Math.round(depr);
-totalExpense.innerText = Math.round(cash + depr);
-netProfit.innerText = profit>=0 ? "रु. "+Math.round(profit) : "नोक्सान : रु. "+Math.abs(Math.round(profit));
-profitBase.innerText = Math.round(profit);
-
-/* ===== ALLOCATION ===== */
-let alloc = p.profitAllocation || [];
-
-function renderAlloc(){
-  allocBody.innerHTML="";
-  let sumP=0,sumA=0;
-
-  alloc.forEach((a,i)=>{
-    let amt = profit * (a.percent/100);
-    sumP += a.percent;
-    sumA += amt;
-
-    allocBody.innerHTML+=`
+function render(){
+  let html="", total=0;
+  expenses.forEach((e,i)=>{
+    total += e.amount;
+    html += `
       <tr>
-        <td>${a.method}</td>
-        <td>${a.percent}%</td>
-        <td class="right">${Math.round(amt)}</td>
-        <td><button class="del" onclick="removeAlloc(${i})">✖</button></td>
+        <td>${e.group}</td>
+        <td>${e.title}</td>
+        <td>${e.amount}</td>
+        <td><button onclick="del(${i})">❌</button></td>
       </tr>`;
   });
+  rows.innerHTML = html;
+  totalExpense.innerText = total;
+  localStorage.setItem("expenses",JSON.stringify(expenses));
+}
 
-  totalPercent.innerText = sumP+"%";
-  totalAmount.innerText = Math.round(sumA);
+function addExpense(){
+  const e={
+    group:group.value,
+    title:title.value,
+    amount:Number(amount.value)
+  };
+  if(!e.title||!e.amount) return alert("सबै भर्नुहोस्");
+  expenses.push(e);
+  title.value="";amount.value="";
+  render();
+}
 
-  notice.style.display = sumP===100?"none":"block";
-  notice.innerText = "⚠️ कुल वितरण 100% हुनुपर्छ (अहिले "+sumP+"%)";
+function del(i){
+  expenses.splice(i,1);
+  render();
 }
-renderAlloc();
 
-function addAlloc(){
-  if(!method.value||!percent.value) return;
-  alloc.push({method:method.value,percent:Number(percent.value)});
-  method.value="";percent.value="";
-  saveAlloc();
-}
-function removeAlloc(i){
-  alloc.splice(i,1);
-  saveAlloc();
-}
-function saveAlloc(){
-  p.profitAllocation = alloc;
-  p.lastEdited = new Date().toLocaleString("ne-NP");
-  localStorage.setItem(key, JSON.stringify(p));
-  renderAlloc();
-}
+render();
 </script>
 
 </body>
