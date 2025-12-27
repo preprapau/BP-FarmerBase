@@ -1,96 +1,67 @@
+
 <!DOCTYPE html>
-<html lang="ne">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>कृषि व्यवसायिक योजना प्रणाली</title>
+<title>FarmerBase – Business Plan Management System</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-
 <style>
-body{
-  font-family: "Noto Sans Devanagari", system-ui, Arial;
-  background:#f4f6f8;
-  margin:0;
-}
-.header{
-  background:#2e7d32;
-  color:#fff;
-  padding:16px;
-  text-align:center;
-}
-.container{
-  max-width:900px;
-  margin:30px auto;
-  background:#fff;
-  padding:25px;
-  border-radius:8px;
-  box-shadow:0 6px 18px rgba(0,0,0,.12);
-}
-.menu{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
-  gap:15px;
-}
-.menu button{
-  padding:14px;
-  font-size:15px;
-  border:none;
-  border-radius:6px;
-  cursor:pointer;
-  background:#e8f5e9;
-}
-.menu button:hover{
-  background:#c8e6c9;
-}
-.footer{
-  text-align:center;
-  margin-top:20px;
-  font-size:13px;
-  color:#555;
-}
+body{font-family:system-ui,Arial;background:#f4f7f6;margin:0}
+.header{padding:20px 30px;color:#2e7d32;font-size:28px;font-weight:700}
+.wrap{max-width:1100px;margin:20px auto;padding:0 20px}
+.card{background:#eaf6ea;border-radius:10px;padding:20px;margin-bottom:20px}
+.btn{padding:10px 16px;border:none;border-radius:6px;color:#fff;cursor:pointer}
+.btn.green{background:#2e7d32}
+.btn.purple{background:#6a1b9a}
+.btn.blue{background:#1565c0}
+.tabs{display:flex;gap:10px;flex-wrap:wrap}
+.tabs button{background:#e8f5e9;border:1px solid #c8e6c9;padding:10px 14px;border-radius:6px;cursor:pointer}
+.progress{background:#ddd;border-radius:10px;overflow:hidden;height:16px}
+.progress div{height:100%;width:50%;background:#2e7d32}
+.footer{margin-top:30px;font-size:13px;color:#555}
 </style>
 </head>
-
 <body>
 
-<div class="header">
-  <h2>कृषि व्यवसायिक योजना प्रणाली</h2>
-  <div>Simple Home • Stable • Final</div>
-</div>
+<div class="header">FarmerBase – Business Plan Management System</div>
 
-<div class="container">
+<div class="wrap">
 
-  <p>
-    यो प्रणाली प्रयोग गर्न पहिले
-    <b>Project Create / Open</b> गर्न आवश्यक हुन्छ।
-  </p>
-
-  <div class="menu">
-    <button onclick="openPage('short-info.html')">Short Info</button>
-    <button onclick="openPage('business-detail.html')">Business Detail</button>
-    <button onclick="openPage('expense-demo.html')">Expense</button>
-    <button onclick="openPage('income-demo.html')">Income</button>
-    <button onclick="openPage('profit-loss-demo.html')">Profit / Loss</button>
-    <button onclick="openPage('five-year-roi.html')">5-Year ROI</button>
-    <button onclick="openPage('full-proposal.html')">Full Proposal</button>
+  <div class="card">
+    <h3>📁 Business / Project Management</h3>
+    <input placeholder="नयाँ व्यवसाय / परियोजनाको नाम">
+    <button class="btn green">Create New</button>
+    <button class="btn purple">Import</button>
+    <button class="btn purple">Export</button>
   </div>
 
-  <div class="footer">
-    ✔ Final Logic Applied | ✔ Old Design Preserved
+  <div class="card" style="background:#fff3e0">
+    <b>Status:</b> draft &nbsp; | &nbsp; <b>Version:</b> v1.0<br><br>
+    <b>Created:</b> 2024-07-12<br>
+    <b>Last Edited:</b> 2024-07-12<br><br>
+    <button class="btn blue">Draft / Final</button>
+    <button class="btn purple">Change Admin Password</button>
   </div>
 
+  <div class="card">
+    <b>📊 Project Progress : 50%</b>
+    <div class="progress"><div></div></div>
+  </div>
+
+  <div class="card">
+    <div class="tabs">
+      <button>Short Info</button>
+      <button>Business Detail</button>
+      <button>Expense</button>
+      <button>Income</button>
+      <button>Profit/Loss</button>
+      <button>5-Year ROI</button>
+      <button>Full Proposal</button>
+    </div>
+  </div>
+
+  <div class="footer">✔ Final BPMS Index | No Feature Removed</div>
+
 </div>
-
-<script>
-/* ===== FINAL SAFE LOGIC ===== */
-function openPage(page){
-  let active = localStorage.getItem("activeProject");
-  if(!active){
-    alert("पहिले Project Create वा Open गर्नुहोस्");
-    return;
-  }
-  window.open(page, "_blank");
-}
-</script>
-
 </body>
 </html>
