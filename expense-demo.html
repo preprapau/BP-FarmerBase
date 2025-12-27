@@ -2,250 +2,89 @@
 <html lang="ne">
 <head>
 <meta charset="UTF-8">
-<title>Expense Detail | BPMS</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-
+<title>खर्च विवरण</title>
 <style>
-body{
-  font-family:"Noto Sans Devanagari","Kalimati","Mangal","Nirmala UI",system-ui,Arial;
-  background:#f4f7f6;
-  margin:0;
-}
-.wrap{
-  max-width:1000px;
-  margin:25px auto;
-  background:#fff;
-  padding:25px;
-  border-radius:10px;
-}
-h2{color:#2e7d32;margin-top:0}
-
-/* ===== PROGRESS ===== */
-.progress{
-  background:#e8f5e9;
-  border:1px solid #c8e6c9;
-  padding:12px;
-  border-radius:8px;
-  margin-bottom:15px;
-}
-.steps span{
-  padding:4px 8px;
-  border-radius:10px;
-  background:#eee;
-  font-size:13px;
-}
-.steps .done{background:#a5d6a7}
-.steps .active{background:#2e7d32;color:#fff}
-.bar{
-  height:8px;
-  background:#ddd;
-  border-radius:6px;
-  overflow:hidden;
-  margin-top:8px;
-}
-.bar span{display:block;height:100%;width:43%;background:#2e7d32}
-
-/* ===== FORM ===== */
-.form{
-  display:grid;
-  grid-template-columns:2fr 3fr 1fr 1fr auto;
-  gap:8px;
-  margin-bottom:12px;
-}
-input,select{padding:8px;font-family:inherit}
-.add{
-  background:#2e7d32;
-  color:#fff;
-  border:none;
-  border-radius:6px;
-  padding:8px 14px;
-  cursor:pointer;
-}
-
-/* ===== TABLE ===== */
-table{width:100%;border-collapse:collapse;margin-top:8px}
-th,td{border:1px solid #ccc;padding:6px;text-align:right}
-th{background:#f0f0f0}
-.left{text-align:left}
-
-/* ===== CATEGORY ===== */
-.cat-head{background:#e8f5e9;font-weight:700}
-.subtotal{font-weight:700;background:#fafafa}
-.depr{background:#fff8e1;font-weight:700}
-
-/* ===== NAV ===== */
-.nav{display:flex;justify-content:space-between;margin-top:25px}
-button{
-  padding:8px 16px;border:none;border-radius:6px;
-  cursor:pointer;background:#2e7d32;color:#fff
-}
-.del{
-  background:#c62828;color:#fff;border:none;
-  border-radius:4px;padding:4px 8px
-}
-
-@media print{
-  button,.progress,.form{display:none}
-}
+body{font-family:system-ui;background:#f4f7f6;padding:20px}
+h2{color:#2e7d32}
+input,select,button{padding:8px;margin:4px}
+table{width:100%;border-collapse:collapse;margin-top:15px}
+th,td{border:1px solid #ccc;padding:8px}
+th{background:#e8f5e9}
+.total{font-weight:bold;background:#f1f8e9}
 </style>
 </head>
-
 <body>
-
-<div class="wrap">
-
-<!-- PROGRESS -->
-<div class="progress">
-  <b>चरण ३ / ७</b><br><br>
-  <div class="steps">
-    <span class="done">Short Info</span> →
-    <span class="done">Detail</span> →
-    <span class="active">Expense</span> →
-    <span>Income</span> →
-    <span>Profit</span> →
-    <span>ROI</span> →
-    <span>Proposal</span>
-  </div>
-  <div class="bar"><span></span></div>
-</div>
 
 <h2>💰 खर्च विवरण (वार्षिक)</h2>
 
-<!-- ENTRY -->
-<div class="form">
-  <select id="category">
-    <option>प्रारम्भिक लगानी</option>
-    <option>मेशीन औजार / प्रविधि</option>
-    <option>पूर्वाधार निर्माण</option>
-    <option>कच्चा पदार्थ</option>
-    <option>कामदार खर्च</option>
-    <option>विविध खर्च</option>
-  </select>
-  <input id="title" placeholder="खर्च शीर्षक">
-  <input id="qty" type="number" placeholder="परिमाण">
-  <input id="rate" type="number" placeholder="दर">
-  <button class="add" onclick="addExpense()">+ Add</button>
-</div>
+<select id="group">
+  <option>कच्चापदार्थ</option>
+  <option>विविध</option>
+  <option>चालु खर्च</option>
+  <option>प्रारम्भिक लगानी</option>
+</select>
+
+<input id="title" placeholder="खर्च शीर्षक">
+<input id="amount" type="number" placeholder="रकम">
+<button onclick="addExpense()">➕ Add</button>
 
 <table>
 <thead>
 <tr>
-  <th class="left">शीर्षक</th>
-  <th>परिमाण</th>
-  <th>दर</th>
-  <th>रकम</th>
-  <th></th>
+<th>विधा</th>
+<th>शीर्षक</th>
+<th>रकम</th>
+<th></th>
 </tr>
 </thead>
-<tbody id="expenseBody"></tbody>
+<tbody id="rows"></tbody>
 <tfoot>
-<tr class="subtotal">
-  <td colspan="3" class="left">कुल खर्च (Cash)</td>
-  <td id="cashTotal">0</td>
-  <td></td>
-</tr>
-<tr class="depr">
-  <td colspan="3" class="left">ह्रासकट्टी (वार्षिक)</td>
-  <td id="deprTotal">0</td>
-  <td></td>
-</tr>
-<tr class="subtotal">
-  <td colspan="3" class="left">कुल खर्च (Cash + ह्रासकट्टी)</td>
-  <td id="grandTotal">0</td>
-  <td></td>
+<tr class="total">
+<td colspan="2">कुल खर्च</td>
+<td id="totalExpense">0</td>
+<td></td>
 </tr>
 </tfoot>
 </table>
 
-<div class="nav">
-  <button onclick="goPrev()">⬅ Previous</button>
-  <button onclick="goNext()">Next ➡</button>
-</div>
-
-</div>
-
 <script>
-let key=localStorage.getItem("activeProject");
-if(!key){alert("पहिले Project खोल्नुहोस्");location.href="index.html";}
-let project=JSON.parse(localStorage.getItem(key));
-let expenses=project.expenseData||[];
+let expenses = JSON.parse(localStorage.getItem("expenses")||"[]");
 
-/* ADD */
-function addExpense(){
-  if(!title.value) return;
-  let amt=(qty.value||0)*(rate.value||0);
-  expenses.push({
-    category:category.value,
-    title:title.value,
-    qty:qty.value||0,
-    rate:rate.value||0,
-    amount:amt
+function render(){
+  let html="", total=0;
+  expenses.forEach((e,i)=>{
+    total += e.amount;
+    html += `
+      <tr>
+        <td>${e.group}</td>
+        <td>${e.title}</td>
+        <td>${e.amount}</td>
+        <td><button onclick="del(${i})">❌</button></td>
+      </tr>`;
   });
-  title.value="";qty.value="";rate.value="";
-  save();
+  rows.innerHTML = html;
+  totalExpense.innerText = total;
+  localStorage.setItem("expenses",JSON.stringify(expenses));
 }
 
-/* REMOVE */
-function removeExpense(i){
-  expenses.splice(i,1);
-  save();
-}
-
-/* SAVE */
-function save(){
-  project.expenseData=expenses;
-  project.lastEdited=new Date().toLocaleString("ne-NP");
-  localStorage.setItem(key,JSON.stringify(project));
+function addExpense(){
+  const e={
+    group:group.value,
+    title:title.value,
+    amount:Number(amount.value)
+  };
+  if(!e.title||!e.amount) return alert("सबै भर्नुहोस्");
+  expenses.push(e);
+  title.value="";amount.value="";
   render();
 }
 
-/* RENDER */
-function render(){
-  expenseBody.innerHTML="";
-  let groups={};
-  expenses.forEach(e=>{
-    if(!groups[e.category]) groups[e.category]=[];
-    groups[e.category].push(e);
-  });
-
-  let cash=0, depr=0;
-
-  for(let cat in groups){
-    expenseBody.innerHTML+=`
-      <tr class="cat-head"><td colspan="5">🔹 ${cat}</td></tr>`;
-    let sub=0;
-
-    groups[cat].forEach((e,i)=>{
-      sub+=Number(e.amount);
-      if(cat==="प्रारम्भिक लगानी") depr+=Number(e.amount)*0.1;
-      else cash+=Number(e.amount);
-
-      expenseBody.innerHTML+=`
-        <tr>
-          <td class="left">${e.title}</td>
-          <td>${e.qty}</td>
-          <td>${e.rate}</td>
-          <td>${e.amount}</td>
-          <td><button class="del" onclick="removeExpense(${i})">✖</button></td>
-        </tr>`;
-    });
-
-    expenseBody.innerHTML+=`
-      <tr class="subtotal">
-        <td colspan="3" class="left">उप–जम्मा (${cat})</td>
-        <td>${sub}</td><td></td>
-      </tr>`;
-  }
-
-  cashTotal.innerText=cash;
-  deprTotal.innerText=Math.round(depr);
-  grandTotal.innerText=cash+Math.round(depr);
+function del(i){
+  expenses.splice(i,1);
+  render();
 }
-render();
 
-/* NAV */
-function goPrev(){location.href="business-detail.html";}
-function goNext(){save();location.href="income-demo.html";}
+render();
 </script>
 
 </body>
