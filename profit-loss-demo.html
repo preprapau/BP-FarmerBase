@@ -2,192 +2,169 @@
 <html lang="ne">
 <head>
 <meta charset="UTF-8">
-<title>Profit / Loss | BPMS</title>
+<title>Profit / Loss Analysis</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
 body{
-  font-family:"Noto Sans Devanagari","Kalimati","Mangal",Arial;
+  font-family: system-ui, Arial, sans-serif;
   background:#f4f7f6;
   margin:0;
 }
 
-/* ===== TOP MENU ===== */
+/* ===== TOP MENU (FIXED & SAFE) ===== */
 .top-menu{
+  position:sticky;
+  top:0;
+  z-index:999;
   background:#2e7d32;
-  padding:12px 20px;
+  padding:12px 16px;
   display:flex;
   justify-content:space-between;
+  align-items:center;
 }
 .top-menu a{
-  color:#fff;
+  background:#fff;
+  color:#2e7d32;
+  padding:8px 16px;
+  border-radius:20px;
   text-decoration:none;
-  font-weight:bold;
+  font-weight:600;
 }
 
-/* ===== CONTENT ===== */
+/* ===== MAIN WRAP ===== */
 .wrap{
   max-width:950px;
   margin:20px auto;
   background:#fff;
-  padding:25px;
-  border-radius:10px;
+  border-radius:12px;
+  padding:20px;
 }
 
-h2{color:#2e7d32;margin-top:0}
+/* ===== SECTION ===== */
+.section-title{
+  font-size:22px;
+  font-weight:700;
+  color:#2e7d32;
+  margin-bottom:16px;
+}
 
+/* ===== TABLE ===== */
 table{
   width:100%;
   border-collapse:collapse;
-  margin-top:10px;
+  margin-bottom:20px;
 }
 th,td{
-  border:1px solid #ccc;
-  padding:8px;
+  border:1px solid #cfd8dc;
+  padding:10px;
 }
-th{background:#f0f0f0;text-align:left}
-.right{text-align:right}
-.big{font-size:18px;font-weight:700}
-.green{background:#e8f5e9}
-.blue{background:#e3f2fd}
-input{padding:6px;width:90px}
+th{
+  background:#f1f8e9;
+  text-align:left;
+}
 
-/* ===== BOTTOM MENU ===== */
-.bottom-menu{
-  position:fixed;
-  bottom:0;
-  left:0;
-  width:100%;
-  background:#2e7d32;
-  padding:12px 20px;
-  display:flex;
-  justify-content:space-between;
+/* ===== SUMMARY BOX ===== */
+.summary{
+  background:#e8f5e9;
+  padding:16px;
+  border-radius:10px;
+  margin-bottom:20px;
 }
-.bottom-menu a{
-  background:#fff;
-  color:#2e7d32;
-  padding:8px 16px;
-  border-radius:6px;
-  text-decoration:none;
-  font-weight:bold;
+.summary strong{
+  font-size:18px;
+}
+
+/* ===== DIVIDEND ===== */
+.dividend-box{
+  background:#fffde7;
+  padding:16px;
+  border-radius:10px;
+  margin-bottom:20px;
+}
+.dividend-box input{
+  width:80px;
+  padding:6px;
+}
+
+/* ===== NOTE ===== */
+.note{
+  font-size:14px;
+  color:#555;
+  line-height:1.6;
 }
 </style>
 </head>
 
 <body>
 
-<!-- ===== TOP MENU (VISIBLE ALWAYS) ===== -->
+<!-- ================= TOP NAVIGATION ================= -->
 <div class="top-menu">
-  <a href="income-demo.html">⬅ Income</a>
-  <a href="five-year-roi.html">ROI ➡</a>
+  <a href="income-demo.html">← Income</a>
+  <a href="five-year-roi.html">ROI →</a>
 </div>
 
+<!-- ================= CONTENT ================= -->
 <div class="wrap">
-<h2>📊 नाफा / नोक्सान विवरण</h2>
 
-<table>
-<tr><th>कुल आम्दानी</th><td class="right" id="income">0</td></tr>
-<tr><th>कुल खर्च (Cash)</th><td class="right" id="cash">0</td></tr>
-<tr><th>ह्रासकट्टी</th><td class="right" id="depr">0</td></tr>
-<tr>
-  <th>बैंक ब्याज</th>
-  <td class="right"><input id="interest" value="0"></td>
-</tr>
-<tr class="green big">
-  <th>कर पूर्व नाफा</th>
-  <td class="right" id="pbt">0</td>
-</tr>
-<tr>
-  <th>आम्दानी कर (%)</th>
-  <td class="right"><input id="taxRate" value="0"></td>
-</tr>
-<tr>
-  <th>आम्दानी कर रकम</th>
-  <td class="right" id="taxAmt">0</td>
-</tr>
-<tr class="green big">
-  <th>कर पश्चात नाफा</th>
-  <td class="right" id="netProfit">0</td>
-</tr>
-</table>
+  <div class="section-title">📊 नाफा / नोक्सान विश्लेषण (वार्षिक)</div>
 
-<h3 style="margin-top:25px;color:#2e7d32">💰 लाभांश वितरण</h3>
+  <!-- ===== AUTO TOTALS (Demo values – replace with localStorage later) ===== -->
+  <table>
+    <tr>
+      <th>कुल आम्दानी</th>
+      <td id="totalIncome">2,500,000</td>
+    </tr>
+    <tr>
+      <th>कुल खर्च (Cash)</th>
+      <td id="totalExpense">1,750,000</td>
+    </tr>
+    <tr>
+      <th>वार्षिक ह्रासकट्टी</th>
+      <td id="totalDep">150,000</td>
+    </tr>
+  </table>
 
-<table class="blue">
-<tr>
-  <th>विवरण</th>
-  <th class="right">%</th>
-  <th class="right">रकम</th>
-</tr>
-<tr>
-  <td>लाभांश वितरण</td>
-  <td class="right"><input id="divRate" value="0"></td>
-  <td class="right" id="divAmt">0</td>
-</tr>
-<tr class="big">
-  <td>व्यवसायमा पुनः लगानी</td>
-  <td></td>
-  <td class="right" id="retained">0</td>
-</tr>
-</table>
+  <!-- ===== RESULT ===== -->
+  <div class="summary">
+    <strong>नाफा (कर अघि):</strong>
+    <span id="profitBeforeTax">600,000</span>
+  </div>
+
+  <!-- ===== DIVIDEND DISTRIBUTION ===== -->
+  <div class="dividend-box">
+    <h3>💰 लाभांश वितरण</h3>
+
+    <table>
+      <tr>
+        <th>विधा</th>
+        <th>%</th>
+        <th>रकम</th>
+      </tr>
+      <tr>
+        <td>स्वामित्व साझेदार</td>
+        <td><input type="number" value="50"></td>
+        <td>300,000</td>
+      </tr>
+      <tr>
+        <td>पुनः लगानी (Retained)</td>
+        <td><input type="number" value="50"></td>
+        <td>300,000</td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- ===== NOTE ===== -->
+  <div class="note">
+    <b>नोट:</b>
+    <ul>
+      <li>नाफा = आम्दानी − (Cash खर्च + ह्रासकट्टी)</li>
+      <li>लाभांश वितरण नाफा पछि देखाइन्छ</li>
+      <li>यस पेजमा direct edit बन्द छ</li>
+    </ul>
+  </div>
+
 </div>
-
-<!-- ===== BOTTOM MENU (FIXED) ===== -->
-<div class="bottom-menu">
-  <a href="income-demo.html">⬅ Income</a>
-  <a href="five-year-roi.html">ROI ➡</a>
-</div>
-
-<script>
-/* SAFE DATA LOAD (NO CRASH) */
-let income=0, cash=0, depr=0;
-try{
-  let key=localStorage.getItem("activeProject");
-  if(key){
-    let p=JSON.parse(localStorage.getItem(key));
-    (p.incomeData||[]).forEach(i=>income+=Number(i.amount||0));
-    (p.expenseData||[]).forEach(e=>{
-      if(e.category==="मेशीन औजार / प्रविधि"||e.category==="पूर्वाधार निर्माण")
-        depr+=e.amount*0.15;
-      else cash+=e.amount;
-    });
-  }
-}catch(e){}
-
-function calc(){
-  let interest=Number(document.getElementById("interest").value||0);
-  let taxRate=Number(document.getElementById("taxRate").value||0);
-  let divRate=Number(document.getElementById("divRate").value||0);
-
-  let pbt=income-cash-depr-interest;
-  let tax=pbt>0?pbt*(taxRate/100):0;
-  let net=pbt-tax;
-  let div=net>0?net*(divRate/100):0;
-
-  incomeEl.innerText=income;
-  cashEl.innerText=cash;
-  deprEl.innerText=Math.round(depr);
-  pbtEl.innerText=Math.round(pbt);
-  taxAmtEl.innerText=Math.round(tax);
-  netProfitEl.innerText=Math.round(net);
-  divAmtEl.innerText=Math.round(div);
-  retainedEl.innerText=Math.round(net-div);
-}
-
-const incomeEl=document.getElementById("income");
-const cashEl=document.getElementById("cash");
-const deprEl=document.getElementById("depr");
-const pbtEl=document.getElementById("pbt");
-const taxAmtEl=document.getElementById("taxAmt");
-const netProfitEl=document.getElementById("netProfit");
-const divAmtEl=document.getElementById("divAmt");
-const retainedEl=document.getElementById("retained");
-
-["interest","taxRate","divRate"].forEach(id=>{
-  document.getElementById(id).addEventListener("input",calc);
-});
-calc();
-</script>
 
 </body>
 </html>
