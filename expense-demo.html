@@ -2,88 +2,196 @@
 <html lang="ne">
 <head>
 <meta charset="UTF-8">
-<title>खर्च विवरण</title>
+<title>Expense Entry – BPMS</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
 <style>
-body{font-family:system-ui;background:#f4f7f6;padding:20px}
-h2{color:#2e7d32}
-input,select,button{padding:8px;margin:4px}
-table{width:100%;border-collapse:collapse;margin-top:15px}
-th,td{border:1px solid #ccc;padding:8px}
-th{background:#e8f5e9}
-.total{font-weight:bold;background:#f1f8e9}
+body{
+  font-family:system-ui,Arial;
+  background:#f4f7f6;
+  padding:20px;
+}
+h2{color:#2e7d32;margin-bottom:10px}
+
+select,input,button{
+  padding:8px;
+  margin:4px;
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  margin-top:15px;
+}
+th,td{
+  border:1px solid #ccc;
+  padding:8px;
+}
+th{
+  background:#e8f5e9;
+}
+.group-row{
+  background:#c8e6c9;
+  font-weight:bold;
+}
+.total-row{
+  background:#f1f8e9;
+  font-weight:bold;
+}
+.note{
+  font-size:13px;
+  color:#555;
+  margin-top:8px;
+}
 </style>
 </head>
+
 <body>
 
-<h2>💰 खर्च विवरण (वार्षिक)</h2>
+<h2>💰 खर्च विवरण (Expense Entry)</h2>
 
-<select id="group">
-  <option>कच्चापदार्थ</option>
-  <option>विविध</option>
-  <option>चालु खर्च</option>
-  <option>प्रारम्भिक लगानी</option>
+<!-- MODE -->
+<label>
+  <input type="checkbox" id="advancedMode">
+  Advanced Mode (ह्रासकट्टी सहित)
+</label>
+
+<br><br>
+
+<!-- ENTRY FORM -->
+<select id="category">
+  <option value="मेशीन औजार / प्रविधि">मेशीन औजार / प्रविधि</option>
+  <option value="पूर्वाधार निर्माण">पूर्वाधार निर्माण</option>
+  <option value="कच्चापदार्थ">कच्चापदार्थ</option>
+  <option value="विविध">विविध</option>
+  <option value="चालु खर्च">चालु खर्च</option>
 </select>
 
 <input id="title" placeholder="खर्च शीर्षक">
-<input id="amount" type="number" placeholder="रकम">
+<input id="amount" type="number" placeholder="रकम (रु.)">
 <button onclick="addExpense()">➕ Add</button>
 
+<div class="note">
+✔ मेशीन औजार / पूर्वाधारमा मात्र ह्रासकट्टी लागू हुन्छ<br>
+✔ कच्चापदार्थ, विविध, चालु खर्चमा ह्रासकट्टी हुँदैन
+</div>
+
+<!-- TABLE -->
 <table>
 <thead>
 <tr>
-<th>विधा</th>
-<th>शीर्षक</th>
-<th>रकम</th>
-<th></th>
+  <th>विधा</th>
+  <th>शीर्षक</th>
+  <th>रकम</th>
+  <th></th>
 </tr>
 </thead>
 <tbody id="rows"></tbody>
 <tfoot>
-<tr class="total">
-<td colspan="2">कुल खर्च</td>
-<td id="totalExpense">0</td>
-<td></td>
+<tr class="total-row">
+  <td colspan="2">कुल खर्च</td>
+  <td id="totalExpense">0</td>
+  <td></td>
+</tr>
+<tr class="total-row">
+  <td colspan="2">वार्षिक ह्रासकट्टी</td>
+  <td id="totalDepr">0</td>
+  <td></td>
 </tr>
 </tfoot>
 </table>
 
 <script>
-let expenses = JSON.parse(localStorage.getItem("expenses")||"[]");
+/* ================= DATA ================= */
+let expenses = JSON.parse(localStorage.getItem("expenses") || "[]");
 
-function render(){
-  let html="", total=0;
-  expenses.forEach((e,i)=>{
-    total += e.amount;
-    html += `
-      <tr>
-        <td>${e.group}</td>
-        <td>${e.title}</td>
-        <td>${e.amount}</td>
-        <td><button onclick="del(${i})">❌</button></td>
-      </tr>`;
-  });
-  rows.innerHTML = html;
-  totalExpense.innerText = total;
-  localStorage.setItem("expenses",JSON.stringify(expenses));
-}
+/* ================= DEPRECIATION RULE ================= */
+const DEPR_RULES = {
+  "मेशीन औजार / प्रविधि": 0.15,   // 15%
+  "पूर्वाधार निर्माण": 0.05       // 5%
+};
 
-function addExpense(){
-  const e={
-    group:group.value,
-    title:title.value,
-    amount:Number(amount.value)
-  };
-  if(!e.title||!e.amount) return alert("सबै भर्नुहोस्");
-  expenses.push(e);
-  title.value="";amount.value="";
+let MODE = "simple";
+
+/* ================= MODE TOGGLE ================= */
+advancedMode.addEventListener("change", e=>{
+  MODE = e.target.checked ? "advanced" : "simple";
   render();
+});
+
+/* ================= ADD EXPENSE ================= */
+function addExpense(){
+  if(!title.value || !amount.value){
+    alert("सबै विवरण भर्नुहोस्");
+    return;
+  }
+
+  expenses.push({
+    category: category.value,
+    title: title.value,
+    amount: Number(amount.value)
+  });
+
+  title.value="";
+  amount.value="";
+  saveAndRender();
 }
 
+/* ================= DELETE ================= */
 function del(i){
   expenses.splice(i,1);
+  saveAndRender();
+}
+
+/* ================= SAVE ================= */
+function saveAndRender(){
+  localStorage.setItem("expenses", JSON.stringify(expenses));
   render();
 }
 
+/* ================= RENDER (GROUPED) ================= */
+function render(){
+  const grouped = {};
+  let cashTotal = 0;
+  let deprTotal = 0;
+
+  expenses.forEach(e=>{
+    if(!grouped[e.category]) grouped[e.category]=[];
+    grouped[e.category].push(e);
+
+    if(MODE==="advanced" && DEPR_RULES[e.category]){
+      deprTotal += e.amount * DEPR_RULES[e.category];
+    }else{
+      cashTotal += e.amount;
+    }
+  });
+
+  let html="";
+  Object.keys(grouped).forEach(cat=>{
+    html += `
+      <tr class="group-row">
+        <td colspan="4">◆ ${cat}</td>
+      </tr>
+    `;
+    grouped[cat].forEach(e=>{
+      html += `
+        <tr>
+          <td>${e.category}</td>
+          <td>${e.title}</td>
+          <td>${e.amount}</td>
+          <td><button onclick="del(${expenses.indexOf(e)})">❌</button></td>
+        </tr>
+      `;
+    });
+  });
+
+  rows.innerHTML = html;
+  totalExpense.innerText = cashTotal.toLocaleString();
+  totalDepr.innerText =
+    MODE==="advanced" ? Math.round(deprTotal).toLocaleString() : "0";
+}
+
+/* INIT */
 render();
 </script>
 
