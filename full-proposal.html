@@ -2,7 +2,7 @@
 <html lang="ne">
 <head>
 <meta charset="UTF-8">
-<title>Full Business Proposal | FarmerBase BPMS</title>
+<title>Full Business Proposal</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
@@ -17,10 +17,16 @@ body{
   margin:0 auto;
   background:#fff;
   padding:30px;
+  position:relative;
+  z-index:1;
 }
 h1,h2,h3{color:#1b5e20}
-h1{font-size:26px}
-h2{margin-top:30px;border-bottom:2px solid #c8e6c9;padding-bottom:6px}
+h1{font-size:28px}
+h2{
+  margin-top:32px;
+  border-bottom:2px solid #c8e6c9;
+  padding-bottom:6px;
+}
 table{width:100%;border-collapse:collapse;margin-top:10px}
 th,td{border:1px solid #ccc;padding:6px}
 th{background:#f1f8e9}
@@ -35,39 +41,51 @@ th{background:#f1f8e9}
   justify-content:center;
   align-items:center;
   text-align:center;
-  position:relative;
 }
-.cover h1{font-size:32px}
-.cover h2{font-size:22px;color:#2e7d32}
-.watermark{
-  position:absolute;
+.cover h1{font-size:34px}
+.cover h2{color:#2e7d32}
+
+/* WATERMARK IMAGE */
+.watermark-img{
+  position:fixed;
   top:50%;
   left:50%;
   transform:translate(-50%,-50%);
-  font-size:80px;
-  color:rgba(0,0,0,0.05);
-  white-space:nowrap;
+  width:520px;
+  height:520px;
+  background:url("project-image.jpg") center/contain no-repeat;
+  opacity:0.05;
   pointer-events:none;
+  z-index:0;
 }
 
 /* MAP */
-iframe{width:100%;height:280px;border:0;margin-top:10px}
+iframe{width:100%;height:260px;border:0;margin-top:10px}
+
+/* TOC */
+#autoTOC ol{padding-left:20px}
+#autoTOC a{text-decoration:none;color:#000}
+
+/* PAGE BREAK */
+.page-break{page-break-before:always}
 
 /* PRINT */
 @media print{
   body{background:#fff}
   .no-print{display:none}
-  .page{box-shadow:none}
-  .page-break{page-break-before:always}
+  table{page-break-inside:avoid}
+  h2{page-break-after:avoid}
 }
 </style>
 </head>
 
 <body>
 
+<!-- WATERMARK -->
+<div class="watermark-img"></div>
+
 <!-- ================= COVER PAGE ================= -->
 <div class="page cover">
-  <div class="watermark" id="wmText"></div>
   <h1 id="cProject"></h1>
   <h2>कृषि व्यवसायिक प्रस्ताव</h2>
   <p><b id="cOrg"></b></p>
@@ -77,8 +95,11 @@ iframe{width:100%;height:280px;border:0;margin-top:10px}
 
 <div class="page-break"></div>
 
-<!-- ================= CONTENT ================= -->
+<!-- ================= MAIN CONTENT ================= -->
 <div class="page">
+
+<h2>विषय सूची (Table of Contents)</h2>
+<div id="autoTOC"></div>
 
 <h2>१. परियोजनाको संक्षिप्त विवरण</h2>
 <p id="pDesc"></p>
@@ -102,7 +123,7 @@ iframe{width:100%;height:280px;border:0;margin-top:10px}
 <h2>५. आम्दानी विवरण</h2>
 <div id="incomeTable"></div>
 
-<h2>६. नाफा / ROI विश्लेषण</h2>
+<h2>६. नाफा तथा ROI विश्लेषण</h2>
 <table>
 <tr><th>कुल लगानी</th><td class="right" id="roiInv"></td></tr>
 <tr><th>५ वर्षे कुल नाफा</th><td class="right" id="roiReturn"></td></tr>
@@ -110,10 +131,10 @@ iframe{width:100%;height:280px;border:0;margin-top:10px}
 <tr><th>Payback Period</th><td id="roiPay"></td></tr>
 </table>
 
-<h2>७. निष्कर्ष</h2>
+<h2>Annex : थप विवरण</h2>
 <p>
-उपरोक्त विवरण अनुसार यो परियोजना आर्थिक रूपमा सम्भाव्य,
-दिगो र रोजगारी सिर्जना गर्न सक्षम देखिन्छ।
+यस Annex मा परियोजनासँग सम्बन्धित थप तालिका, प्राविधिक विवरण
+वा सहायक कागजात समावेश गर्न सकिन्छ।
 </p>
 
 </div>
@@ -121,11 +142,12 @@ iframe{width:100%;height:280px;border:0;margin-top:10px}
 <div class="page-break"></div>
 
 <div class="page center">
-  <p>.................................</p>
+  <p>.......................................</p>
   <p>अधिकृत हस्ताक्षर</p>
 </div>
 
 <script>
+/* ===== LOAD ACTIVE PROJECT ===== */
 let key = localStorage.getItem("activeProject");
 if(!key){
   alert("Project open छैन");
@@ -133,17 +155,16 @@ if(!key){
 }
 let p = JSON.parse(localStorage.getItem(key));
 
-/* COVER */
+/* ===== COVER ===== */
 cProject.innerText = p.shortInfo?.businessName || "व्यवसायिक परियोजना";
 cOrg.innerText = p.shortInfo?.organization || "";
 cAddress.innerText = p.shortInfo?.location || "";
 cDate.innerText = new Date().toLocaleDateString("ne-NP");
-wmText.innerText = p.shortInfo?.businessName || "";
 
-/* DESCRIPTION */
+/* ===== DESCRIPTION ===== */
 pDesc.innerText = p.shortInfo?.description || "";
 
-/* ORG */
+/* ===== ORG ===== */
 oName.innerText = p.shortInfo?.organization || "";
 oAddr.innerText = p.shortInfo?.location || "";
 oRegDate.innerText = p.shortInfo?.regDate || "";
@@ -151,11 +172,11 @@ oRegBody.innerText = p.shortInfo?.regBody || "";
 oRegNo.innerText = p.shortInfo?.regNo || "";
 oPan.innerText = p.shortInfo?.pan || "";
 
-/* MAP */
-let loc = encodeURIComponent(p.shortInfo?.location||"Nepal");
+/* ===== MAP ===== */
+let loc = encodeURIComponent(p.shortInfo?.location || "Nepal");
 mapFrame.src = "https://www.google.com/maps?q="+loc+"&output=embed";
 
-/* EXPENSE TABLE */
+/* ===== EXPENSE TABLE (Category-wise) ===== */
 let eHtml="<table><tr><th>विधा</th><th>शीर्षक</th><th>रकम</th></tr>";
 (p.expenseData||[]).forEach(e=>{
   eHtml+=`<tr><td>${e.category}</td><td>${e.title}</td><td class="right">${e.amount}</td></tr>`;
@@ -163,7 +184,7 @@ let eHtml="<table><tr><th>विधा</th><th>शीर्षक</th><th>रक
 eHtml+="</table>";
 expenseTable.innerHTML=eHtml;
 
-/* INCOME TABLE */
+/* ===== INCOME TABLE ===== */
 let iHtml="<table><tr><th>शीर्षक</th><th>रकम</th></tr>";
 (p.incomeData||[]).forEach(i=>{
   iHtml+=`<tr><td>${i.title}</td><td class="right">${i.amount}</td></tr>`;
@@ -171,11 +192,36 @@ let iHtml="<table><tr><th>शीर्षक</th><th>रकम</th></tr>";
 iHtml+="</table>";
 incomeTable.innerHTML=iHtml;
 
-/* ROI */
+/* ===== ROI ===== */
 roiInv.innerText = p.fiveYearROI?.investment || 0;
 roiReturn.innerText = p.fiveYearROI?.totalReturn || 0;
 roiPct.innerText = p.fiveYearROI?.roi || 0;
 roiPay.innerText = p.fiveYearROI?.payback || "";
+
+/* ===== AUTO TOC + ANNEX ===== */
+(function(){
+  const toc=document.getElementById("autoTOC");
+  const heads=document.querySelectorAll(".page h2");
+  let html="<ol>";
+  let annex=false,ai=0;
+  heads.forEach((h,i)=>{
+    let t=h.innerText.trim();
+    let id="sec_"+i;
+    h.id=id;
+    if(t.toLowerCase().startsWith("annex")){
+      annex=true;
+    }
+    if(annex){
+      let L=String.fromCharCode(65+ai);
+      h.innerText="Annex "+L+" : "+t.replace(/annex\s*:/i,"").trim();
+      ai++;
+    }else{
+      html+=`<li><a href="#${id}">${t}</a></li>`;
+    }
+  });
+  html+="</ol>";
+  toc.innerHTML=html;
+})();
 </script>
 
 </body>
