@@ -3,48 +3,50 @@
 <head>
 <meta charset="UTF-8">
 <title>नाफा / नोक्सान</title>
+
 <style>
-body{font-family:system-ui;background:#f4f7f6;padding:20px}
-h2{color:#2e7d32}
-table{width:100%;border-collapse:collapse}
-td,th{border:1px solid #ccc;padding:10px}
-th{background:#e8f5e9}
-.result{font-size:22px;font-weight:bold;margin-top:15px}
-.profit{color:green}
-.loss{color:red}
+body{font-family:"Noto Sans Devanagari","Kalimati";background:#f4f7f6;padding:20px}
+h1{color:#2e7d32}
+table{width:60%;border-collapse:collapse}
+td{border:1px solid #cfd8dc;padding:10px}
+th{background:#e8f5e9;padding:10px}
+.result{background:#d9f2dc;font-weight:bold}
 </style>
 </head>
+
 <body>
 
-<h2>📊 नाफा / नोक्सान विश्लेषण (वार्षिक)</h2>
+<h1>📊 नाफा / नोक्सान विश्लेषण</h1>
 
 <table>
-<tr><th>विवरण</th><th>रकम</th></tr>
+<tr><th>विवरण</th><th>रकम (रु.)</th></tr>
 <tr><td>कुल आम्दानी</td><td id="income">0</td></tr>
-<tr><td>कुल खर्च</td><td id="expense">0</td></tr>
+<tr><td>कुल खर्च (Cash)</td><td id="cash">0</td></tr>
+<tr><td>ह्रासकट्टी</td><td id="dep">0</td></tr>
+<tr><td>बैंक ब्याज</td><td><input id="interest" value="0"></td></tr>
+<tr><td>कर %</td><td><input id="tax" value="0"></td></tr>
+<tr class="result"><td>शुद्ध नाफा</td><td id="net">0</td></tr>
 </table>
 
-<div id="result" class="result"></div>
-
 <script>
-// demo income (normally from income page)
-const totalIncome = Number(localStorage.getItem("totalIncome")||0);
+const income = Number(localStorage.getItem("TOTAL_INCOME")||0);
+const cash = Number(localStorage.getItem("EXPENSE_CASH")||0);
+const dep = Number(localStorage.getItem("EXPENSE_DEP")||0);
 
-// expenses
-const expenses = JSON.parse(localStorage.getItem("expenses")||"[]");
-let totalExpense = expenses.reduce((s,e)=>s+e.amount,0);
+document.getElementById("income").innerText=income;
+document.getElementById("cash").innerText=cash;
+document.getElementById("dep").innerText=dep;
 
-// NO depreciation (simple mode)
-const profit = totalIncome - totalExpense;
-
-income.innerText = totalIncome;
-expense.innerText = totalExpense;
-
-if(profit>=0){
-  result.innerHTML = `नाफा : <span class="profit">रु. ${profit}</span>`;
-}else{
-  result.innerHTML = `नोक्सान : <span class="loss">रु. ${profit}</span>`;
+function calc(){
+  const interest = Number(document.getElementById("interest").value||0);
+  const taxRate = Number(document.getElementById("tax").value||0);
+  let profit = income - cash - dep - interest;
+  let tax = profit>0 ? profit*(taxRate/100) : 0;
+  net.innerText = (profit-tax).toFixed(0);
 }
+
+document.querySelectorAll("input").forEach(i=>i.oninput=calc);
+calc();
 </script>
 
 </body>
