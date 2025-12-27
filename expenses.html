@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+<meta charset="UTF-8">
+<title>Expenses</title>
+<style>
+body{font-family:Noto Sans Devanagari,Arial;padding:20px}
+table{width:100%;border-collapse:collapse}
+td,th{border:1px solid #ccc;padding:6px}
+</style>
+</head>
+<body>
+
+<h2>खर्च विवरण</h2>
+
+<h3>स्थिर खर्च</h3>
+<input type="number" id="fixed" placeholder="स्थिर खर्च रकम">
+
+<h3>चालु खर्च</h3>
+<input type="number" id="running" placeholder="चालु खर्च रकम">
+
+<h3>ह्रासकट्टी (10%)</h3>
+<input id="dep" readonly>
+
+<h3>कुल वार्षिक खर्च</h3>
+<input id="total" readonly>
+
+<script>
+function calc(){
+ dep.value=(fixed.value||0)*0.10;
+ total.value=(+running.value||0)+(+dep.value||0);
+}
+fixed.oninput=running.oninput=calc;
+</script>
+
+</body>
+</html>
