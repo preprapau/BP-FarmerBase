@@ -2,169 +2,66 @@
 <html lang="ne">
 <head>
 <meta charset="UTF-8">
-<title>Profit / Loss Analysis</title>
+<title>Profit / Loss | BPMS</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
-body{
-  font-family: system-ui, Arial, sans-serif;
-  background:#f4f7f6;
-  margin:0;
-}
-
-/* ===== TOP MENU (FIXED & SAFE) ===== */
-.top-menu{
-  position:sticky;
-  top:0;
-  z-index:999;
-  background:#2e7d32;
-  padding:12px 16px;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-}
-.top-menu a{
-  background:#fff;
-  color:#2e7d32;
-  padding:8px 16px;
-  border-radius:20px;
-  text-decoration:none;
-  font-weight:600;
-}
-
-/* ===== MAIN WRAP ===== */
-.wrap{
-  max-width:950px;
-  margin:20px auto;
-  background:#fff;
-  border-radius:12px;
-  padding:20px;
-}
-
-/* ===== SECTION ===== */
-.section-title{
-  font-size:22px;
-  font-weight:700;
-  color:#2e7d32;
-  margin-bottom:16px;
-}
-
-/* ===== TABLE ===== */
-table{
-  width:100%;
-  border-collapse:collapse;
-  margin-bottom:20px;
-}
-th,td{
-  border:1px solid #cfd8dc;
-  padding:10px;
-}
-th{
-  background:#f1f8e9;
-  text-align:left;
-}
-
-/* ===== SUMMARY BOX ===== */
-.summary{
-  background:#e8f5e9;
-  padding:16px;
-  border-radius:10px;
-  margin-bottom:20px;
-}
-.summary strong{
-  font-size:18px;
-}
-
-/* ===== DIVIDEND ===== */
-.dividend-box{
-  background:#fffde7;
-  padding:16px;
-  border-radius:10px;
-  margin-bottom:20px;
-}
-.dividend-box input{
-  width:80px;
-  padding:6px;
-}
-
-/* ===== NOTE ===== */
-.note{
-  font-size:14px;
-  color:#555;
-  line-height:1.6;
-}
+body{font-family:"Noto Sans Devanagari","Kalimati";background:#f4f7f6;margin:0}
+.wrap{max-width:950px;margin:25px auto;background:#fff;padding:25px;border-radius:10px}
+h2{color:#2e7d32}
+table{width:100%;border-collapse:collapse}
+th,td{border:1px solid #ccc;padding:8px}
+th{background:#f0f0f0;text-align:left}
+.big{font-size:20px;font-weight:700;background:#e8f5e9}
+.nav{display:flex;justify-content:space-between;margin-top:25px}
+button{padding:8px 16px;border:none;border-radius:6px;background:#2e7d32;color:#fff}
 </style>
 </head>
 
 <body>
-
-<!-- ================= TOP NAVIGATION ================= -->
-<div class="top-menu">
-  <a href="income-demo.html">← Income</a>
-  <a href="five-year-roi.html">ROI →</a>
-</div>
-
-<!-- ================= CONTENT ================= -->
 <div class="wrap">
 
-  <div class="section-title">📊 नाफा / नोक्सान विश्लेषण (वार्षिक)</div>
+<h2>📊 नाफा / नोक्सान (वार्षिक)</h2>
 
-  <!-- ===== AUTO TOTALS (Demo values – replace with localStorage later) ===== -->
-  <table>
-    <tr>
-      <th>कुल आम्दानी</th>
-      <td id="totalIncome">2,500,000</td>
-    </tr>
-    <tr>
-      <th>कुल खर्च (Cash)</th>
-      <td id="totalExpense">1,750,000</td>
-    </tr>
-    <tr>
-      <th>वार्षिक ह्रासकट्टी</th>
-      <td id="totalDep">150,000</td>
-    </tr>
-  </table>
+<table>
+<tr><th>कुल आम्दानी</th><td id="inc">0</td></tr>
+<tr><th>चालु खर्च</th><td id="cash">0</td></tr>
+<tr><th>ह्रासकट्टी</th><td id="depr">0</td></tr>
+<tr><th>बैंक ब्याज</th><td id="int">0</td></tr>
+<tr class="big"><th>नाफा / नोक्सान</th><td id="profit">0</td></tr>
+</table>
 
-  <!-- ===== RESULT ===== -->
-  <div class="summary">
-    <strong>नाफा (कर अघि):</strong>
-    <span id="profitBeforeTax">600,000</span>
-  </div>
-
-  <!-- ===== DIVIDEND DISTRIBUTION ===== -->
-  <div class="dividend-box">
-    <h3>💰 लाभांश वितरण</h3>
-
-    <table>
-      <tr>
-        <th>विधा</th>
-        <th>%</th>
-        <th>रकम</th>
-      </tr>
-      <tr>
-        <td>स्वामित्व साझेदार</td>
-        <td><input type="number" value="50"></td>
-        <td>300,000</td>
-      </tr>
-      <tr>
-        <td>पुनः लगानी (Retained)</td>
-        <td><input type="number" value="50"></td>
-        <td>300,000</td>
-      </tr>
-    </table>
-  </div>
-
-  <!-- ===== NOTE ===== -->
-  <div class="note">
-    <b>नोट:</b>
-    <ul>
-      <li>नाफा = आम्दानी − (Cash खर्च + ह्रासकट्टी)</li>
-      <li>लाभांश वितरण नाफा पछि देखाइन्छ</li>
-      <li>यस पेजमा direct edit बन्द छ</li>
-    </ul>
-  </div>
+<div class="nav">
+  <button onclick="location.href='income-demo.html'">⬅ Previous</button>
+  <button onclick="location.href='five-year-roi.html'">Next ➡</button>
+</div>
 
 </div>
+
+<script>
+let key=localStorage.getItem("activeProject");
+if(!key){alert("पहिले Project खोल्नुहोस्");location.href="index.html";}
+let p=JSON.parse(localStorage.getItem(key));
+
+let income=0;
+(p.incomeData||[]).forEach(i=>income+=Number(i.amount||0));
+
+let cash=0,depr=0;
+(p.expenseData||[]).forEach(e=>{
+  if(e.category==="मेशीन औजार / प्रविधि"||e.category==="पूर्वाधार निर्माण")
+    depr+=e.amount*0.15;
+  else
+    cash+=e.amount;
+});
+
+let interest=Number(localStorage.getItem("ANNUAL_LOAN_INTEREST")||0);
+
+inc.innerText=Math.round(income);
+cash.innerText=Math.round(cash);
+depr.innerText=Math.round(depr);
+int.innerText=Math.round(interest);
+profit.innerText=Math.round(income-cash-depr-interest);
+</script>
 
 </body>
 </html>
