@@ -2,29 +2,181 @@
 <html lang="ne">
 <head>
 <meta charset="UTF-8">
-<title>Full Business Proposal</title>
+<title>Full Business Proposal | FarmerBase BPMS</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
 <style>
-body{font-family:Noto Sans Devanagari,Arial;padding:30px}
-h2{border-bottom:2px solid #444}
+@page{margin:25mm}
+body{
+  font-family:"Noto Sans Devanagari","Kalimati","Mangal","Nirmala UI",system-ui,Arial;
+  margin:0;
+  background:#f4f7f6;
+}
+.page{
+  max-width:900px;
+  margin:0 auto;
+  background:#fff;
+  padding:30px;
+}
+h1,h2,h3{color:#1b5e20}
+h1{font-size:26px}
+h2{margin-top:30px;border-bottom:2px solid #c8e6c9;padding-bottom:6px}
+table{width:100%;border-collapse:collapse;margin-top:10px}
+th,td{border:1px solid #ccc;padding:6px}
+th{background:#f1f8e9}
+.right{text-align:right}
+.center{text-align:center}
+
+/* COVER */
+.cover{
+  height:100vh;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  text-align:center;
+  position:relative;
+}
+.cover h1{font-size:32px}
+.cover h2{font-size:22px;color:#2e7d32}
+.watermark{
+  position:absolute;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+  font-size:80px;
+  color:rgba(0,0,0,0.05);
+  white-space:nowrap;
+  pointer-events:none;
+}
+
+/* MAP */
+iframe{width:100%;height:280px;border:0;margin-top:10px}
+
+/* PRINT */
+@media print{
+  body{background:#fff}
+  .no-print{display:none}
+  .page{box-shadow:none}
+  .page-break{page-break-before:always}
+}
 </style>
 </head>
+
 <body>
 
-<h1>कृषि व्यवसायिक योजना</h1>
+<!-- ================= COVER PAGE ================= -->
+<div class="page cover">
+  <div class="watermark" id="wmText"></div>
+  <h1 id="cProject"></h1>
+  <h2>कृषि व्यवसायिक प्रस्ताव</h2>
+  <p><b id="cOrg"></b></p>
+  <p id="cAddress"></p>
+  <p>मिति: <span id="cDate"></span></p>
+</div>
 
-<h2>१. प्रस्तावना</h2>
-<p>Short Info Summary यहाँ देखिन्छ</p>
+<div class="page-break"></div>
 
-<h2>२. व्यवसाय विवरण</h2>
+<!-- ================= CONTENT ================= -->
+<div class="page">
 
-<h2>३. खर्च विवरण</h2>
-<p>चालु खर्च + ह्रासकट्टी</p>
+<h2>१. परियोजनाको संक्षिप्त विवरण</h2>
+<p id="pDesc"></p>
 
-<h2>४. आम्दानी विवरण</h2>
+<h2>२. संस्था विवरण</h2>
+<table>
+<tr><th>संस्था नाम</th><td id="oName"></td></tr>
+<tr><th>ठेगाना</th><td id="oAddr"></td></tr>
+<tr><th>दर्ता मिति</th><td id="oRegDate"></td></tr>
+<tr><th>दर्ता निकाय</th><td id="oRegBody"></td></tr>
+<tr><th>दर्ता नं</th><td id="oRegNo"></td></tr>
+<tr><th>पान नं</th><td id="oPan"></td></tr>
+</table>
 
-<h2>५. नाफा / नोक्सान</h2>
+<h2>३. परियोजना स्थान (Google Map)</h2>
+<iframe id="mapFrame"></iframe>
 
-<h2>६. लाभांश वितरण</h2>
+<h2>४. विधागत खर्च विवरण</h2>
+<div id="expenseTable"></div>
+
+<h2>५. आम्दानी विवरण</h2>
+<div id="incomeTable"></div>
+
+<h2>६. नाफा / ROI विश्लेषण</h2>
+<table>
+<tr><th>कुल लगानी</th><td class="right" id="roiInv"></td></tr>
+<tr><th>५ वर्षे कुल नाफा</th><td class="right" id="roiReturn"></td></tr>
+<tr><th>ROI (%)</th><td class="right" id="roiPct"></td></tr>
+<tr><th>Payback Period</th><td id="roiPay"></td></tr>
+</table>
+
+<h2>७. निष्कर्ष</h2>
+<p>
+उपरोक्त विवरण अनुसार यो परियोजना आर्थिक रूपमा सम्भाव्य,
+दिगो र रोजगारी सिर्जना गर्न सक्षम देखिन्छ।
+</p>
+
+</div>
+
+<div class="page-break"></div>
+
+<div class="page center">
+  <p>.................................</p>
+  <p>अधिकृत हस्ताक्षर</p>
+</div>
+
+<script>
+let key = localStorage.getItem("activeProject");
+if(!key){
+  alert("Project open छैन");
+  location.href="index.html";
+}
+let p = JSON.parse(localStorage.getItem(key));
+
+/* COVER */
+cProject.innerText = p.shortInfo?.businessName || "व्यवसायिक परियोजना";
+cOrg.innerText = p.shortInfo?.organization || "";
+cAddress.innerText = p.shortInfo?.location || "";
+cDate.innerText = new Date().toLocaleDateString("ne-NP");
+wmText.innerText = p.shortInfo?.businessName || "";
+
+/* DESCRIPTION */
+pDesc.innerText = p.shortInfo?.description || "";
+
+/* ORG */
+oName.innerText = p.shortInfo?.organization || "";
+oAddr.innerText = p.shortInfo?.location || "";
+oRegDate.innerText = p.shortInfo?.regDate || "";
+oRegBody.innerText = p.shortInfo?.regBody || "";
+oRegNo.innerText = p.shortInfo?.regNo || "";
+oPan.innerText = p.shortInfo?.pan || "";
+
+/* MAP */
+let loc = encodeURIComponent(p.shortInfo?.location||"Nepal");
+mapFrame.src = "https://www.google.com/maps?q="+loc+"&output=embed";
+
+/* EXPENSE TABLE */
+let eHtml="<table><tr><th>विधा</th><th>शीर्षक</th><th>रकम</th></tr>";
+(p.expenseData||[]).forEach(e=>{
+  eHtml+=`<tr><td>${e.category}</td><td>${e.title}</td><td class="right">${e.amount}</td></tr>`;
+});
+eHtml+="</table>";
+expenseTable.innerHTML=eHtml;
+
+/* INCOME TABLE */
+let iHtml="<table><tr><th>शीर्षक</th><th>रकम</th></tr>";
+(p.incomeData||[]).forEach(i=>{
+  iHtml+=`<tr><td>${i.title}</td><td class="right">${i.amount}</td></tr>`;
+});
+iHtml+="</table>";
+incomeTable.innerHTML=iHtml;
+
+/* ROI */
+roiInv.innerText = p.fiveYearROI?.investment || 0;
+roiReturn.innerText = p.fiveYearROI?.totalReturn || 0;
+roiPct.innerText = p.fiveYearROI?.roi || 0;
+roiPay.innerText = p.fiveYearROI?.payback || "";
+</script>
 
 </body>
 </html>
