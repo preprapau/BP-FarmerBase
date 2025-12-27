@@ -18,7 +18,7 @@ body{
   padding:25px;
   border-radius:10px;
 }
-h2{color:#2e7d32;margin-top:0}
+h2,h3{color:#2e7d32;margin-top:0}
 
 /* PROGRESS */
 .progress{
@@ -78,6 +78,7 @@ button{
 
 <div class="container">
 
+<!-- PROGRESS -->
 <div class="progress">
   <b>चरण ६ / ७ (८६%)</b><br>
   Short Info → Detail → Expense → Income → Profit/Loss → <b>5-Year ROI</b> → Proposal
@@ -88,7 +89,7 @@ button{
 
 <!-- GROWTH -->
 <div class="box growth">
-  <b>वार्षिक वृद्धि (%)</b><br><br>
+  <h3>📊 वार्षिक वृद्धि अनुमान (%)</h3>
   आम्दानी वृद्धि :
   <input type="number" id="incGrowth" value="10"> %
   &nbsp;&nbsp;
@@ -96,7 +97,7 @@ button{
   <input type="number" id="expGrowth" value="6"> %
 </div>
 
-<!-- TABLE -->
+<!-- ROI TABLE -->
 <table>
 <thead>
 <tr>
@@ -118,12 +119,20 @@ button{
   <div>Payback Period : <b><span id="payback">–</span></b></div>
 </div>
 
+<!-- CHART -->
+<div class="box">
+  <h3>📊 ५ वर्षे आम्दानी / खर्च / Cashflow चार्ट</h3>
+  <canvas id="roiChart" height="120"></canvas>
+</div>
+
 <div class="nav">
   <button onclick="location.href='profit-loss-demo.html'">⬅ Previous</button>
   <button onclick="location.href='full-proposal.html'">Next ➡</button>
 </div>
 
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
 let key = localStorage.getItem("activeProject");
@@ -135,20 +144,22 @@ let p = JSON.parse(localStorage.getItem(key));
 
 /* BASE INCOME */
 let baseIncome = 0;
-(p.incomeData||[]).forEach(i=> baseIncome += Number(i.amount||0));
+(p.incomeData||[]).forEach(i=>{
+  baseIncome += Number(i.amount||0);
+});
 
-/* BASE EXPENSE */
+/* BASE EXPENSE + DEPRECIATION */
 let baseExpense = 0;
 let depreciation = 0;
 (p.expenseData||[]).forEach(e=>{
   if(e.category==="प्रारम्भिक लगानी"){
-    depreciation += Number(e.amount||0)*0.10;
+    depreciation += Number(e.amount||0) * 0.10;
   }else{
     baseExpense += Number(e.amount||0);
   }
 });
 
-/* INVESTMENT */
+/* INITIAL INVESTMENT */
 let investment = 0;
 (p.expenseData||[]).forEach(e=>{
   if(e.category==="प्रारम्भिक लगानी"){
@@ -156,22 +167,65 @@ let investment = 0;
   }
 });
 
-/* DIVIDEND */
+/* DIVIDEND / RETAINED */
 let retainedRate = 1;
 if(p.profitAllocation){
   let div = 0;
-  p.profitAllocation.forEach(a=> div += a.percent);
+  p.profitAllocation.forEach(a=> div += Number(a.percent||0));
   retainedRate = 1 - (div/100);
+}
+
+let chart;
+
+function drawChart(data){
+  let ctx = document.getElementById("roiChart").getContext("2d");
+  if(chart) chart.destroy();
+
+  chart = new Chart(ctx,{
+    type:"line",
+    data:{
+      labels:["वर्ष 1","वर्ष 2","वर्ष 3","वर्ष 4","वर्ष 5"],
+      datasets:[
+        {
+          label:"आम्दानी",
+          data:data.income,
+          borderColor:"#2e7d32",
+          fill:false,
+          tension:0.3
+        },
+        {
+          label:"खर्च",
+          data:data.expense,
+          borderColor:"#c62828",
+          fill:false,
+          tension:0.3
+        },
+        {
+          label:"Cumulative Cashflow",
+          data:data.cumulative,
+          borderColor:"#1565c0",
+          fill:false,
+          tension:0.3
+        }
+      ]
+    },
+    options:{
+      responsive:true,
+      plugins:{legend:{position:"bottom"}}
+    }
+  });
 }
 
 function calculateROI(){
   roiBody.innerHTML="";
-  let incG = Number(incGrowth.value)/100;
-  let expG = Number(expGrowth.value)/100;
+  let incG = Number(incGrowth.value||0)/100;
+  let expG = Number(expGrowth.value||0)/100;
 
   let cumulative = 0;
   let totalReturn = 0;
   let payback = null;
+
+  let chartData = {income:[],expense:[],cumulative:[]};
 
   for(let y=1;y<=5;y++){
     let incomeY = baseIncome * Math.pow(1+incG, y-1);
@@ -195,7 +249,12 @@ function calculateROI(){
         <td>${Math.round(profitY)}</td>
         <td>${Math.round(retainedY)}</td>
         <td>${Math.round(cumulative)}</td>
-      </tr>`;
+      </tr>
+    `;
+
+    chartData.income.push(Math.round(incomeY));
+    chartData.expense.push(Math.round(expenseY));
+    chartData.cumulative.push(Math.round(cumulative));
   }
 
   roiPercent.innerText = investment>0
@@ -203,10 +262,24 @@ function calculateROI(){
     : 0;
 
   payback.innerText = payback || "५ वर्षपछि";
+
+  drawChart(chartData);
+
+  p.fiveYearROI = {
+    investment,
+    totalReturn,
+    roi:roiPercent.innerText,
+    payback
+  };
+  p.lastEdited = new Date().toLocaleString("ne-NP");
+  localStorage.setItem(key,JSON.stringify(p));
 }
 
 /* EVENTS */
-incGrowth.oninput = expGrowth.oninput = calculateROI;
+["input","change","keyup"].forEach(evt=>{
+  incGrowth.addEventListener(evt, calculateROI);
+  expGrowth.addEventListener(evt, calculateROI);
+});
 
 calculateROI();
 </script>
