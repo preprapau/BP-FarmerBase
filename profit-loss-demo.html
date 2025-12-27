@@ -2,18 +2,30 @@
 <html lang="ne">
 <head>
 <meta charset="UTF-8">
-<title>नाफा / नोक्सान | BPMS</title>
+<title>Profit / Loss | BPMS</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
 body{
-  font-family:"Noto Sans Devanagari","Kalimati","Mangal",system-ui,Arial;
+  font-family:"Noto Sans Devanagari","Kalimati","Mangal",Arial;
   background:#f4f7f6;
   margin:0;
-  padding-bottom:80px; /* menu space */
 }
 
-/* MAIN CARD */
+/* ===== TOP MENU ===== */
+.top-menu{
+  background:#2e7d32;
+  padding:12px 20px;
+  display:flex;
+  justify-content:space-between;
+}
+.top-menu a{
+  color:#fff;
+  text-decoration:none;
+  font-weight:bold;
+}
+
+/* ===== CONTENT ===== */
 .wrap{
   max-width:950px;
   margin:20px auto;
@@ -22,7 +34,8 @@ body{
   border-radius:10px;
 }
 
-/* TABLE */
+h2{color:#2e7d32;margin-top:0}
+
 table{
   width:100%;
   border-collapse:collapse;
@@ -39,38 +52,38 @@ th{background:#f0f0f0;text-align:left}
 .blue{background:#e3f2fd}
 input{padding:6px;width:90px}
 
-/* FIXED MENU */
-.navbar{
+/* ===== BOTTOM MENU ===== */
+.bottom-menu{
   position:fixed;
-  left:0;
   bottom:0;
+  left:0;
   width:100%;
   background:#2e7d32;
+  padding:12px 20px;
   display:flex;
   justify-content:space-between;
-  padding:12px 20px;
-  box-sizing:border-box;
 }
-.navbar button{
+.bottom-menu a{
   background:#fff;
   color:#2e7d32;
-  border:none;
-  padding:8px 18px;
+  padding:8px 16px;
   border-radius:6px;
-  font-size:14px;
-  cursor:pointer;
+  text-decoration:none;
+  font-weight:bold;
 }
-.navbar button:hover{opacity:.9}
-
-h2{color:#2e7d32;margin-top:0}
-.note{font-size:13px;color:#555;margin-top:8px}
 </style>
 </head>
 
 <body>
 
+<!-- ===== TOP MENU (VISIBLE ALWAYS) ===== -->
+<div class="top-menu">
+  <a href="income-demo.html">⬅ Income</a>
+  <a href="five-year-roi.html">ROI ➡</a>
+</div>
+
 <div class="wrap">
-<h2>📊 नाफा / नोक्सान विवरण (Profit & Loss)</h2>
+<h2>📊 नाफा / नोक्सान विवरण</h2>
 
 <table>
 <tr><th>कुल आम्दानी</th><td class="right" id="income">0</td></tr>
@@ -117,79 +130,63 @@ h2{color:#2e7d32;margin-top:0}
   <td class="right" id="retained">0</td>
 </tr>
 </table>
-
-<div class="note">
-✔️ Expense page बाट स्वतः डाटा आएको<br>
-✔️ Menu तल स्थिर (always visible)
-</div>
 </div>
 
-<!-- ===== FIXED NAV MENU (100% VISIBLE) ===== -->
-<div class="navbar">
-  <button onclick="location.href='income-demo.html'">⬅ Income</button>
-  <button onclick="location.href='five-year-roi.html'">ROI ➡</button>
+<!-- ===== BOTTOM MENU (FIXED) ===== -->
+<div class="bottom-menu">
+  <a href="income-demo.html">⬅ Income</a>
+  <a href="five-year-roi.html">ROI ➡</a>
 </div>
 
 <script>
-/* LOAD PROJECT */
-let key=localStorage.getItem("activeProject");
-if(!key){alert("पहिले Project खोल्नुहोस्");location.href="index.html";}
-let p=JSON.parse(localStorage.getItem(key));
+/* SAFE DATA LOAD (NO CRASH) */
+let income=0, cash=0, depr=0;
+try{
+  let key=localStorage.getItem("activeProject");
+  if(key){
+    let p=JSON.parse(localStorage.getItem(key));
+    (p.incomeData||[]).forEach(i=>income+=Number(i.amount||0));
+    (p.expenseData||[]).forEach(e=>{
+      if(e.category==="मेशीन औजार / प्रविधि"||e.category==="पूर्वाधार निर्माण")
+        depr+=e.amount*0.15;
+      else cash+=e.amount;
+    });
+  }
+}catch(e){}
 
-/* INCOME */
-let income=0;
-(p.incomeData||[]).forEach(i=>income+=Number(i.amount||0));
-
-/* EXPENSE */
-let cash=0,depr=0;
-(p.expenseData||[]).forEach(e=>{
-  if(e.category==="मेशीन औजार / प्रविधि"||e.category==="पूर्वाधार निर्माण")
-    depr+=e.amount*0.15;
-  else cash+=e.amount;
-});
-
-/* CALC */
 function calc(){
-  const interest=Number(interestEl.value||0);
-  const taxRate=Number(taxRateEl.value||0);
-  const divRate=Number(divRateEl.value||0);
+  let interest=Number(document.getElementById("interest").value||0);
+  let taxRate=Number(document.getElementById("taxRate").value||0);
+  let divRate=Number(document.getElementById("divRate").value||0);
 
-  const pbt=income-cash-depr-interest;
-  const tax=pbt>0?pbt*(taxRate/100):0;
-  const net=pbt-tax;
-  const div=net>0?net*(divRate/100):0;
+  let pbt=income-cash-depr-interest;
+  let tax=pbt>0?pbt*(taxRate/100):0;
+  let net=pbt-tax;
+  let div=net>0?net*(divRate/100):0;
 
-  incomeEl.innerText=income.toLocaleString();
-  cashEl.innerText=cash.toLocaleString();
-  deprEl.innerText=Math.round(depr).toLocaleString();
-  pbtEl.innerText=Math.round(pbt).toLocaleString();
-  taxAmtEl.innerText=Math.round(tax).toLocaleString();
-  netProfitEl.innerText=Math.round(net).toLocaleString();
-  divAmtEl.innerText=Math.round(div).toLocaleString();
-  retainedEl.innerText=Math.round(net-div).toLocaleString();
+  incomeEl.innerText=income;
+  cashEl.innerText=cash;
+  deprEl.innerText=Math.round(depr);
+  pbtEl.innerText=Math.round(pbt);
+  taxAmtEl.innerText=Math.round(tax);
+  netProfitEl.innerText=Math.round(net);
+  divAmtEl.innerText=Math.round(div);
+  retainedEl.innerText=Math.round(net-div);
 }
 
-/* BIND */
-const incomeEl=income, cashEl=cash;
-const incomeEl2=document.getElementById("income");
-const cashEl2=document.getElementById("cash");
+const incomeEl=document.getElementById("income");
+const cashEl=document.getElementById("cash");
 const deprEl=document.getElementById("depr");
 const pbtEl=document.getElementById("pbt");
 const taxAmtEl=document.getElementById("taxAmt");
 const netProfitEl=document.getElementById("netProfit");
 const divAmtEl=document.getElementById("divAmt");
 const retainedEl=document.getElementById("retained");
-const interestEl=document.getElementById("interest");
-const taxRateEl=document.getElementById("taxRate");
-const divRateEl=document.getElementById("divRate");
 
-function sync(){
-  incomeEl2.innerText=income.toLocaleString();
-  cashEl2.innerText=cash.toLocaleString();
-  calc();
-}
-[interestEl,taxRateEl,divRateEl].forEach(i=>i.oninput=calc);
-sync();
+["interest","taxRate","divRate"].forEach(id=>{
+  document.getElementById(id).addEventListener("input",calc);
+});
+calc();
 </script>
 
 </body>
