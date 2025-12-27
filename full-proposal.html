@@ -2,301 +2,54 @@
 <html lang="ne">
 <head>
 <meta charset="UTF-8">
-<title>Full Business Proposal</title>
-
+<title>BPMS Proposal – Final</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
-/* ========== BASIC ========== */
-body{
-  font-family:"Noto Sans Devanagari","Kalimati","Mangal",system-ui,Arial;
-  line-height:1.6;
-  color:#000;
-}
-h1,h2,h3{color:#1b5e20;margin-top:0}
-.page{page-break-after:always}
-.annex{page-break-before:always}
-.center{text-align:center}
-.small{font-size:12px;color:#555}
-
-/* ========== TABLE ========== */
-table{
-  width:100%;
-  border-collapse:separate;
-  border-spacing:0;
-  margin:14px 0;
-  font-size:14px;
-  border:1px solid #cfd8dc;
-  border-radius:8px;
-}
-th{
-  background:#f1f8f4;
-  color:#1b5e20;
-  padding:10px 8px;
-  text-align:left;
-}
-td{
-  padding:9px 8px;
-  border-top:1px solid #e0e0e0;
-}
-tr:nth-child(even){background:#fafafa}
-.num{text-align:right}
-.total-row td{font-weight:700;background:#e8f5e9}
-
-/* ========== LETTERHEAD ========== */
-.letterhead{text-align:center;margin-bottom:20px}
-.lh-row{display:flex;align-items:center;gap:14px}
-.lh-logo img{width:70px;height:70px;object-fit:contain}
-.lh-text{flex:1}
-.lh-org{font-size:22px;font-weight:800;text-transform:uppercase}
-.lh-address{font-size:14px}
-.lh-reg{font-size:12px}
-.lh-line{border-top:2px solid #000;margin-top:8px}
-
-/* ========== TOP BAR ========== */
-.top-action-bar{
-  position:sticky;top:0;z-index:999;
-  display:flex;gap:10px;
-  padding:8px 12px;
-  background:#f1f8f4;
-  border-bottom:1px solid #cfd8dc
-}
-.top-action-bar a{
-  text-decoration:none;
-  padding:6px 12px;
-  border-radius:16px;
-  font-size:13px;
-}
-.btn-home{border:1px solid #a5d6a7;color:#1b5e20}
-.btn-edit{background:#2e7d32;color:#fff}
-
-/* ========== FOOTER ========== */
-.page-footer{
-  position:fixed;
-  bottom:8mm;
-  left:0;right:0;
-  text-align:center;
-  font-size:11px;
-  color:#555;
-  border-top:1px solid #ccc;
-  padding-top:4px;
-  background:#fff;
-}
-
-/* ========== SIGNATURE ========== */
-.signature-dual-wrap{
-  margin-top:50px;
-  display:flex;
-  justify-content:flex-end;
-  gap:60px;
-}
-.sig-box{width:240px;text-align:center}
-.sig-img{max-width:220px;max-height:90px;display:none}
-.sig-line{border-top:1.5px solid #000;margin:6px 0}
-.sig-title{font-size:13px}
-.sig-contact{font-size:12px}
-
-/* ========== PROPOSAL BY ========== */
-.proposal-by{
-  margin-top:40px;
-  font-size:11px;
-  text-align:center;
-  color:#555;
-}
-
-/* ========== QR (COVER ONLY) ========== */
-.cover-qr{text-align:center;margin-top:20px}
-.cover-qr canvas{width:120px;height:120px}
-.cover-qr .qr-caption{font-size:11px;color:#555}
-
-/* ========== PRINT ========== */
-@media print{
-  .no-print,.top-action-bar{display:none!important}
-  a[href]:after{content:""!important}
-  a{text-decoration:none;color:#000}
-  .page-footer{font-size:10px}
-}
+body{font-family:system-ui;background:#f4f6f8;margin:0;padding:20px}
+.page{max-width:900px;margin:auto;background:#fff;padding:30px}
+h1{color:#2e7d32}
+.qr{text-align:right;margin-top:20px}
+.sign{display:flex;justify-content:space-between;margin-top:40px}
 </style>
 </head>
-
 <body>
-
-<!-- TOP BAR -->
-<div class="top-action-bar no-print">
-  <a href="index.html" class="btn-home">🏠 Go Home</a>
-  <a href="short-info.html" class="btn-edit">✏️ Edit</a>
-</div>
-
-<!-- FOOTER -->
-<div class="page-footer">
-  <span id="pfOrgName">—</span>, <span id="pfAddress">—</span>
-</div>
-
-<!-- ================= COVER PAGE ================= -->
-<div class="page cover-page">
-
-  <div class="letterhead">
-    <div class="lh-row">
-      <div class="lh-logo"><img id="orgLogo"></div>
-      <div class="lh-text">
-        <div class="lh-org" id="lhOrgName">—</div>
-        <div class="lh-address" id="lhAddress">—</div>
-        <div class="lh-reg">
-          दर्ता नं: <span id="lhRegNo"></span> |
-          पान नं: <span id="lhPanNo"></span>
-        </div>
-      </div>
-    </div>
-    <hr class="lh-line">
-  </div>
-
-  <h1 class="center" id="projectName">PROJECT TITLE</h1>
-
-  <!-- QR -->
-  <div class="cover-qr">
-    <canvas id="qrCanvas"></canvas>
-    <div class="qr-caption">Scan for digital proposal</div>
-  </div>
-</div>
-
-<!-- ================= TOC ================= -->
 <div class="page">
-<h2>विषय सूची</h2>
-<table>
-<tr><td>१. संक्षिप्त विवरण</td><td class="num">1</td></tr>
-<tr><td>२. व्यवसाय विवरण</td><td class="num">2</td></tr>
-<tr><td>३. आर्थिक विश्लेषण</td><td class="num">3</td></tr>
-<tr><td>४. नाफा / नोक्सान</td><td class="num">4</td></tr>
-<tr><td>परिशिष्ट</td><td class="num">5</td></tr>
-</table>
+<h1 id="orgName">Sample</h1>
+<p id="coverText"></p>
+
+<div class="sign">
+<div>
+<b>Proprietor</b><br>
+<span id="pbName"></span><br>
+<span id="pbContact"></span>
+</div>
+<div>
+<b>Authorized Signatory</b><br>
+<span id="authName"></span><br>
+<span id="authContact"></span>
+</div>
 </div>
 
-<!-- ================= SHORT INFO ================= -->
-<div class="page">
-<h2>संक्षिप्त विवरण</h2>
-<p id="shortInfoBox"></p>
-</div>
-
-<!-- ================= BUSINESS DETAIL ================= -->
-<div class="page">
-<h2>व्यवसाय विवरण</h2>
-<p id="bizDetail"></p>
-</div>
-
-<!-- ================= FINANCIAL ================= -->
-<div class="page">
-<h2>आर्थिक विश्लेषण</h2>
-<table>
-<tr><th>कुल खर्च</th><td class="num" id="sumExpense"></td></tr>
-<tr><th>कुल आम्दानी</th><td class="num" id="sumIncome"></td></tr>
-<tr class="total-row"><th>वार्षिक नाफा</th><td class="num" id="sumProfit"></td></tr>
-</table>
-
-<div class="signature-dual-wrap">
-  <div class="sig-box">
-    <img id="propSigImg" class="sig-img">
-    <div class="sig-line"></div>
-    <div id="propName"></div>
-    <div class="sig-title">Proprietor</div>
-    <div class="sig-contact">Contact: <span id="propContact"></span></div>
-  </div>
-
-  <div class="sig-box">
-    <img id="authSigImg" class="sig-img">
-    <div class="sig-line"></div>
-    <div id="authName"></div>
-    <div class="sig-title">Authorized Signatory</div>
-    <div class="sig-contact">Contact: <span id="authContact"></span></div>
-  </div>
-</div>
-
-<div class="proposal-by">
-  Proposal by :
-  <span id="pbName"></span> |
-  <span id="pbContact"></span> |
-  <span id="pbEmail"></span>
-</div>
+<div class="qr"><canvas id="qrCanvas"></canvas></div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/qrious@4.0.2/dist/qrious.min.js"></script>
-
 <script>
-/* ===== LOAD PROJECT (SAFE) ===== */
 let project=null;
-const ak=localStorage.getItem("activeProject");
-if(ak && localStorage.getItem(ak)) project=JSON.parse(localStorage.getItem(ak));
-if(!project){
-  for(let i=localStorage.length-1;i>=0;i--){
-    try{
-      const o=JSON.parse(localStorage.getItem(localStorage.key(i)));
-      if(o && typeof o==="object"){project=o;break;}
-    }catch(e){}
-  }
-}
-project=project||{};
-const get=(...k)=>{for(const x of k){if(project[x])return project[x]}return""};
-const getArr=(...k)=>{for(const x of k){if(Array.isArray(project[x]))return project[x]}return[]};
-
-/* ===== FILL BASIC ===== */
-lhOrgName.innerText=get("orgName","organization","organizationName").toUpperCase();
-lhAddress.innerText=get("address","location");
-lhRegNo.innerText=get("regNo","registrationNo");
-lhPanNo.innerText=get("panNo","pan");
-projectName.innerText=get("projectName","name","title");
-
-pfOrgName.innerText=get("orgName","organization");
-pfAddress.innerText=get("address","location");
-
-/* ===== LOGO ===== */
-if(project.logoUrl||project.orgLogo){
-  orgLogo.src=project.logoUrl||project.orgLogo;
-}
-
-/* ===== SHORT INFO ===== */
-shortInfoBox.innerHTML=
-  `<b>${get("orgName")}</b><br>
-   दर्ता नं: ${get("regNo")} | पान नं: ${get("panNo")}`;
-
-/* ===== BUSINESS DETAIL ===== */
-bizDetail.innerHTML=
-  `<b>उद्देश्य:</b> ${get("objective")}<br>
-   <b>स्थान:</b> ${get("location")}<br>
-   <b>अवधि:</b> ${get("duration")}`;
-
-/* ===== FINANCIAL ===== */
-let expense=0,income=0;
-getArr("expenses","expenseData").forEach(e=>expense+=Number(e.amount||0));
-getArr("incomes","incomeData").forEach(i=>income+=Number(i.amount||0));
-sumExpense.innerText=expense.toLocaleString();
-sumIncome.innerText=income.toLocaleString();
-sumProfit.innerText=(income-expense).toLocaleString();
-
-/* ===== SIGNATURES ===== */
-if(project.signatureImage||project.signatureUrl){
-  propSigImg.src=project.signatureImage||project.signatureUrl;
-  propSigImg.style.display="block";
-}
-propName.innerText=get("proprietorName","ownerName");
-propContact.innerText=get("contactNo","phone");
-
-if(project.authorizedSignatureImage||project.authorizedSignatureUrl){
-  authSigImg.src=project.authorizedSignatureImage||project.authorizedSignatureUrl;
-  authSigImg.style.display="block";
-}
-authName.innerText=get("authorizedName");
-authContact.innerText=get("authorizedContact","contactNo");
-
-/* ===== PROPOSAL BY ===== */
-pbName.innerText=get("proposalByName","ownerName");
-pbContact.innerText=get("proposalByContact","contactNo");
-pbEmail.innerText=get("proposalByEmail","email");
-
-/* ===== QR ===== */
-new QRious({
-  element:qrCanvas,
-  value:project.proposalUrl||window.location.href,
-  size:120,
-  level:"H"
+Object.keys(localStorage).forEach(k=>{
+ if(k.startsWith("bpms_")){
+  const p=JSON.parse(localStorage.getItem(k));
+  if(p.status==="final") project=p;
+ }
 });
+function v(k,d=""){return project&&project[k]?project[k]:d;}
+document.getElementById("orgName").innerText=v("name","Sample");
+document.getElementById("coverText").innerText="यस संस्थाद्वारा पेश गरिएको प्रस्ताव।";
+document.getElementById("pbName").innerText=v("proprietor","");
+document.getElementById("pbContact").innerText=v("contact","");
+document.getElementById("authName").innerText=v("authorizedSignatory","");
+document.getElementById("authContact").innerText=v("authorizedContact","");
+new QRious({element:qrCanvas,value:location.href,size:120});
 </script>
-
 </body>
 </html>
