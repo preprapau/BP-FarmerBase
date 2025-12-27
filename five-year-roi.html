@@ -2,7 +2,7 @@
 <html lang="ne">
 <head>
 <meta charset="UTF-8">
-<title>5-Year ROI | BPMS</title>
+<title>5-Year ROI | FarmerBase BPMS</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
@@ -12,45 +12,32 @@ body{
   margin:0;
 }
 .container{
-  max-width:1000px;
+  max-width:1100px;
   margin:25px auto;
   background:#fff;
   padding:25px;
   border-radius:10px;
 }
 h2{margin-top:0;color:#2e7d32}
+h3{color:#2e7d32}
 
-/* ===== PROGRESS ===== */
-.progress-wrap{
+/* PROGRESS */
+.progress{
   background:#e8f5e9;
   border:1px solid #c8e6c9;
   padding:12px;
   border-radius:8px;
   margin-bottom:15px;
 }
-.progress-title{font-weight:700;margin-bottom:6px}
-.steps{font-size:13px}
-.steps span{padding:3px 6px;border-radius:10px;background:#eee}
-.steps .active{background:#2e7d32;color:#fff}
-.steps .done{background:#a5d6a7}
-.bar-wrap{height:8px;background:#ddd;border-radius:6px;overflow:hidden;margin-top:8px}
-.bar{height:100%;background:#2e7d32;width:86%}
+.bar{height:8px;background:#2e7d32;width:86%;border-radius:6px;margin-top:8px}
 
-/* ===== TABLE ===== */
-table{
-  width:100%;
-  border-collapse:collapse;
-  margin-top:15px;
-}
-th,td{
-  border:1px solid #ccc;
-  padding:6px;
-  text-align:right;
-}
+/* TABLE */
+table{width:100%;border-collapse:collapse;margin-top:12px}
+th,td{border:1px solid #ccc;padding:6px;text-align:right}
 th{background:#f0f0f0}
-th.left,td.left{text-align:left}
+.left{text-align:left}
 
-/* ===== SUMMARY ===== */
+/* BOX */
 .box{
   border:1px solid #ddd;
   border-radius:8px;
@@ -58,9 +45,14 @@ th.left,td.left{text-align:left}
   margin-top:15px;
 }
 .green{background:#e8f5e9}
+.yellow{background:#fffde7}
 .big{font-size:18px;font-weight:700}
 
-/* ===== NAV ===== */
+/* INPUT */
+input[type=number]{width:80px}
+label{font-weight:600}
+
+/* NAV */
 .nav{
   display:flex;
   justify-content:space-between;
@@ -76,7 +68,7 @@ button{
 }
 
 @media print{
-  button,.progress-wrap{display:none}
+  button,.progress,.growth{display:none}
 }
 </style>
 </head>
@@ -85,46 +77,53 @@ button{
 
 <div class="container">
 
-<!-- PROGRESS -->
-<div class="progress-wrap">
-  <div class="progress-title">चरण 6 / 7 (86%)</div>
-  <div class="steps">
-    <span class="done">Short Info</span> →
-    <span class="done">Detail</span> →
-    <span class="done">Expense</span> →
-    <span class="done">Income</span> →
-    <span class="done">Profit/Loss</span> →
-    <span class="active">5-Year ROI</span> →
-    <span>Proposal</span>
-  </div>
-  <div class="bar-wrap"><div class="bar"></div></div>
+<div class="progress">
+  <b>चरण ६ / ७ (८६%)</b><br>
+  Short Info → Detail → Expense → Income → Profit/Loss → <b>5-Year ROI</b> → Proposal
+  <div class="bar"></div>
 </div>
 
 <h2>📈 पाँच वर्षे ROI विश्लेषण</h2>
 
+<!-- GROWTH SETTINGS -->
+<div class="box growth">
+  <h3>📊 वार्षिक वृद्धि अनुमान</h3>
+
+  <label>
+    <input type="checkbox" id="useYearly">
+    प्रत्येक वर्ष फरक % प्रयोग गर्ने
+  </label>
+
+  <table>
+    <tr>
+      <th class="left">वर्ष</th>
+      <th>आम्दानी वृद्धि %</th>
+      <th>खर्च वृद्धि %</th>
+    </tr>
+    <tbody id="growthBody"></tbody>
+  </table>
+</div>
+
+<!-- ROI TABLE -->
 <table>
 <thead>
 <tr>
   <th class="left">वर्ष</th>
-  <th>Retained Profit</th>
+  <th>आम्दानी</th>
+  <th>चालु खर्च</th>
+  <th>ह्रासकट्टी</th>
+  <th>नाफा</th>
+  <th>बचत नाफा</th>
   <th>Cumulative Cashflow</th>
 </tr>
 </thead>
-<tbody id="tbody"></tbody>
+<tbody id="roiBody"></tbody>
 </table>
 
+<!-- SUMMARY -->
 <div class="box green">
   <div class="big">ROI : <span id="roiPercent">0</span>%</div>
   <div>Payback Period : <b><span id="payback">–</span></b></div>
-</div>
-
-<div class="box">
-  <b>नोट:</b>
-  <ul>
-    <li>Profit/Loss पेजको नाफा र लाभांश वितरण प्रयोग गरिएको छ।</li>
-    <li>Year-2 देखि Retained Profit मा 8% growth मानिएको छ।</li>
-    <li>Initial Investment = प्रारम्भिक लगानी मात्र।</li>
-  </ul>
 </div>
 
 <div class="nav">
@@ -142,6 +141,30 @@ if(!key){
 }
 let p = JSON.parse(localStorage.getItem(key));
 
+/* ===== BASE VALUES ===== */
+let baseIncome = 0;
+(p.incomeData||[]).forEach(i=> baseIncome += Number(i.amount||0));
+
+let baseExpense = 0;
+let depreciation = 0;
+(p.expenseData||[]).forEach(e=>{
+  if(e.category==="प्रारम्भिक लगानी"){
+    depreciation += Number(e.amount||0)*0.10;
+  }else{
+    baseExpense += Number(e.amount||0);
+  }
+});
+
+let dividendPercent = 0;
+if(p.profitAllocation && p.profitAllocation.length){
+  p.profitAllocation.forEach(a=>{
+    if(a.method.includes("पुनः") || a.method.includes("Retain")){
+      dividendPercent += a.percent;
+    }
+  });
+}
+let retainedRate = 1 - (dividendPercent/100);
+
 /* ===== INITIAL INVESTMENT ===== */
 let investment = 0;
 (p.expenseData||[]).forEach(e=>{
@@ -150,50 +173,97 @@ let investment = 0;
   }
 });
 
-/* ===== BASE PROFIT (RETAINED) ===== */
-let baseRetained = p.profitLoss?.retained || 0;
+/* ===== GROWTH SETTINGS ===== */
+let useYearly = p.useYearlyGrowth || false;
+useYearly.checked = useYearly;
 
-/* ===== ASSUMPTION ===== */
-let growth = 0.08; // 8% retained profit growth
+let yearlyGrowth = p.yearlyGrowth || [
+  {inc:10,exp:6},
+  {inc:10,exp:6},
+  {inc:10,exp:6},
+  {inc:10,exp:6},
+  {inc:10,exp:6}
+];
 
-let cumulative = 0;
-let totalReturn = 0;
-let payback = null;
-
-for(let y=1;y<=5;y++){
-  let retained = y===1
-    ? baseRetained
-    : Math.round(baseRetained * Math.pow(1+growth, y-1));
-
-  cumulative += retained;
-  totalReturn += retained;
-
-  if(cumulative >= investment && payback===null){
-    payback = "वर्ष " + y;
+function renderGrowth(){
+  growthBody.innerHTML="";
+  for(let i=0;i<5;i++){
+    let g = yearlyGrowth[i];
+    growthBody.innerHTML += `
+      <tr>
+        <td class="left">वर्ष ${i+1}</td>
+        <td><input type="number" value="${g.inc}"
+          ${useYearly.checked?"":"disabled"}
+          onchange="updateGrowth(${i},'inc',this.value)"></td>
+        <td><input type="number" value="${g.exp}"
+          ${useYearly.checked?"":"disabled"}
+          onchange="updateGrowth(${i},'exp',this.value)"></td>
+      </tr>`;
   }
+}
+renderGrowth();
 
-  tbody.innerHTML += `
-    <tr>
-      <td class="left">वर्ष ${y}</td>
-      <td>${retained}</td>
-      <td>${cumulative}</td>
-    </tr>`;
+useYearly.addEventListener("change",()=>{
+  p.useYearlyGrowth = useYearly.checked;
+  localStorage.setItem(key,JSON.stringify(p));
+  renderGrowth();
+  calculateROI();
+});
+
+function updateGrowth(i,type,val){
+  yearlyGrowth[i][type] = Number(val||0);
+  p.yearlyGrowth = yearlyGrowth;
+  localStorage.setItem(key,JSON.stringify(p));
+  calculateROI();
 }
 
-/* ===== ROI ===== */
-let roi = investment>0 ? Math.round((totalReturn/investment)*100) : 0;
-roiPercent.innerText = roi;
-payback.innerText = payback || "५ वर्षपछि";
+/* ===== ROI CALCULATION ===== */
+function calculateROI(){
+  roiBody.innerHTML="";
+  let cumulative = 0;
+  let totalReturn = 0;
+  let payback = null;
 
-/* ===== SAVE SNAPSHOT ===== */
-p.fiveYearROI = {
-  investment,
-  totalReturn,
-  roi,
-  payback
-};
-p.lastEdited = new Date().toLocaleString("ne-NP");
-localStorage.setItem(key, JSON.stringify(p));
+  for(let y=1;y<=5;y++){
+    let gInc = useYearly.checked ? yearlyGrowth[y-1].inc/100 : yearlyGrowth[0].inc/100;
+    let gExp = useYearly.checked ? yearlyGrowth[y-1].exp/100 : yearlyGrowth[0].exp/100;
+
+    let incomeY = baseIncome * Math.pow(1+gInc, y-1);
+    let expenseY = baseExpense * Math.pow(1+gExp, y-1);
+
+    let profitY = incomeY - expenseY - depreciation;
+    let retainedY = profitY * retainedRate;
+
+    cumulative += retainedY;
+    totalReturn += retainedY;
+
+    if(cumulative >= investment && payback===null){
+      payback = "वर्ष " + y;
+    }
+
+    roiBody.innerHTML += `
+      <tr>
+        <td class="left">वर्ष ${y}</td>
+        <td>${Math.round(incomeY)}</td>
+        <td>${Math.round(expenseY)}</td>
+        <td>${Math.round(depreciation)}</td>
+        <td>${Math.round(profitY)}</td>
+        <td>${Math.round(retainedY)}</td>
+        <td>${Math.round(cumulative)}</td>
+      </tr>`;
+  }
+
+  let roi = investment>0 ? Math.round((totalReturn/investment)*100) : 0;
+  roiPercent.innerText = roi;
+  paybackSpan = document.getElementById("payback");
+  paybackSpan.innerText = payback || "५ वर्षपछि";
+
+  p.fiveYearROI = {investment,totalReturn,roi,payback};
+  p.lastEdited = new Date().toLocaleString("ne-NP");
+  localStorage.setItem(key,JSON.stringify(p));
+}
+
+calculateROI();
 </script>
 
 </body>
