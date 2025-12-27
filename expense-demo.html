@@ -11,45 +11,15 @@ body{
   padding:20px;
 }
 h1{color:#2e7d32}
-select,input,button{
-  padding:8px;
-  font-size:14px;
-}
-button{
-  cursor:pointer;
-}
-table{
-  width:100%;
-  border-collapse:collapse;
-  margin-top:15px;
-}
-th,td{
-  border:1px solid #cfd8dc;
-  padding:8px;
-  text-align:center;
-}
-th{
-  background:#e8f5e9;
-}
-.group-row{
-  background:#d9f2dc;
-  font-weight:bold;
-  text-align:left;
-}
-.summary{
-  background:#f1f8e9;
-  font-weight:bold;
-}
-.note{
-  margin-top:10px;
-  color:#2e7d32;
-}
-.remove{
-  background:#e53935;
-  color:#fff;
-  border:none;
-  padding:4px 8px;
-}
+select,input,button{padding:8px;font-size:14px}
+button{cursor:pointer}
+table{width:100%;border-collapse:collapse;margin-top:15px}
+th,td{border:1px solid #cfd8dc;padding:8px;text-align:center}
+th{background:#e8f5e9}
+.group{background:#d9f2dc;font-weight:bold;text-align:left}
+.summary{background:#f1f8e9;font-weight:bold}
+.remove{background:#e53935;color:#fff;border:none;padding:4px 8px}
+.note{margin-top:10px;color:#2e7d32}
 </style>
 </head>
 
@@ -58,14 +28,12 @@ th{
 <h1>💰 खर्च विवरण (Expense Entry)</h1>
 
 <label>
-<input type="checkbox" id="advancedMode">
- Advanced Mode (ह्रासकट्टी सहित)
+<input type="checkbox" id="advancedMode"> Advanced Mode (ह्रासकट्टी सहित)
 </label>
 
 <br><br>
 
-<!-- CENTRAL METHOD SELECT -->
-<select id="method">
+<select id="category">
   <option value="प्रारम्भिक लगानी">प्रारम्भिक लगानी</option>
   <option value="मेशीन औजार / प्रविधि">मेशीन औजार / प्रविधि</option>
   <option value="पूर्वाधार निर्माण">पूर्वाधार निर्माण</option>
@@ -80,12 +48,12 @@ th{
 <button onclick="addExpense()">➕ Add</button>
 
 <div class="note">
-✔️ विधा Central छ<br>
-✔️ ह्रासकट्टी केवल मेशीन औजार र पूर्वाधारमा (Advanced Mode)<br>
-✔️ प्रारम्भिक लगानी, कच्चापदार्थ, विविध = ह्रासकट्टी हुँदैन
+✔️ विधा Central रूपमा<br>
+✔️ ह्रासकट्टी = मेशीन औजार / पूर्वाधार (Advanced Mode)<br>
+✔️ प्रारम्भिक लगानी, कच्चापदार्थ, विविध → Cash मात्र
 </div>
 
-<table id="expenseTable">
+<table>
 <thead>
 <tr>
   <th>शीर्षक</th>
@@ -101,92 +69,80 @@ th{
 <tfoot>
 <tr class="summary">
   <td colspan="3">कुल खर्च (Cash)</td>
-  <td id="totalCash">0</td>
-  <td></td>
-  <td></td>
+  <td id="cashTotal">0</td>
+  <td></td><td></td>
 </tr>
 <tr class="summary">
   <td colspan="4">कुल वार्षिक ह्रासकट्टी</td>
-  <td id="totalDep">0</td>
+  <td id="depTotal">0</td>
   <td></td>
 </tr>
 </tfoot>
 </table>
 
 <script>
-let expenses = [];
+let data = [];
 
 function addExpense(){
-  const method = method.value;
-  const title = document.getElementById("title").value;
-  const qty = Number(document.getElementById("qty").value || 1);
-  const rate = Number(document.getElementById("rate").value || 0);
-  const adv = document.getElementById("advancedMode").checked;
+  const cat = category.value;
+  const titleVal = title.value;
+  const q = Number(qty.value||1);
+  const r = Number(rate.value||0);
+  const adv = advancedMode.checked;
 
-  if(!title || rate<=0){
-    alert("शीर्षक र दर आवश्यक");
-    return;
-  }
+  if(!titleVal || r<=0){ alert("शीर्षक र दर चाहिन्छ"); return; }
 
-  let amount = qty * rate;
+  const amount = q*r;
   let dep = 0;
 
-  if(adv && (method==="मेशीन औजार / प्रविधि" || method==="पूर्वाधार निर्माण")){
-    dep = amount * 0.15; // 15% depreciation
+  if(adv && (cat==="मेशीन औजार / प्रविधि" || cat==="पूर्वाधार निर्माण")){
+    dep = amount * 0.15;
   }
 
-  expenses.push({method,title,qty,rate,amount,dep});
+  data.push({cat,title:titleVal,q,r,amount,dep});
+  title.value=""; qty.value=""; rate.value="";
   render();
-  document.getElementById("title").value="";
-  document.getElementById("qty").value="";
-  document.getElementById("rate").value="";
 }
 
 function render(){
-  const tb = document.getElementById("tbody");
-  tb.innerHTML="";
+  tbody.innerHTML="";
   let cash=0, dep=0;
-  let groups = {};
+  let groups={};
 
-  expenses.forEach(e=>{
-    if(!groups[e.method]) groups[e.method]=[];
-    groups[e.method].push(e);
+  data.forEach(e=>{
+    if(!groups[e.cat]) groups[e.cat]=[];
+    groups[e.cat].push(e);
   });
 
   for(let g in groups){
-    let gr = document.createElement("tr");
-    gr.className="group-row";
+    let gr=document.createElement("tr");
+    gr.className="group";
     gr.innerHTML=`<td colspan="6">◆ ${g}</td>`;
-    tb.appendChild(gr);
+    tbody.appendChild(gr);
 
     groups[g].forEach((e,i)=>{
-      cash+=e.amount;
-      dep+=e.dep;
+      cash+=e.amount; dep+=e.dep;
       let tr=document.createElement("tr");
       tr.innerHTML=`
         <td>${e.title}</td>
-        <td>${e.qty}</td>
-        <td>${e.rate}</td>
+        <td>${e.q}</td>
+        <td>${e.r}</td>
         <td>${e.amount}</td>
         <td>${e.dep.toFixed(0)}</td>
-        <td><button class="remove" onclick="removeExpense(${expenses.indexOf(e)})">✖</button></td>
+        <td><button class="remove" onclick="del(${data.indexOf(e)})">✖</button></td>
       `;
-      tb.appendChild(tr);
+      tbody.appendChild(tr);
     });
   }
 
-  totalCash.innerText=cash.toFixed(0);
-  totalDep.innerText=dep.toFixed(0);
+  cashTotal.innerText=cash.toFixed(0);
+  depTotal.innerText=dep.toFixed(0);
 
-  // Profit/Loss page use
-  localStorage.setItem("TOTAL_EXPENSE",cash);
-  localStorage.setItem("TOTAL_DEPRECIATION",dep);
+  localStorage.setItem("EXPENSE_CASH",cash);
+  localStorage.setItem("EXPENSE_DEP",dep);
 }
 
-function removeExpense(i){
-  expenses.splice(i,1);
-  render();
-}
+function del(i){ data.splice(i,1); render(); }
 </script>
 
 </body>
