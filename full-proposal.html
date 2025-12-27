@@ -2,31 +2,22 @@
 <html lang="ne">
 <head>
 <meta charset="UTF-8">
-<title>Full Business Proposal</title>
+<title>Business Proposal</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
 @page{margin:25mm}
 body{
   font-family:"Noto Sans Devanagari","Kalimati","Mangal","Nirmala UI",system-ui,Arial;
-  margin:0;
-  background:#f4f7f6;
+  margin:0;background:#f4f7f6
 }
 .page{
-  max-width:900px;
-  margin:0 auto;
-  background:#fff;
-  padding:30px;
-  position:relative;
-  z-index:1;
+  max-width:900px;margin:0 auto;background:#fff;
+  padding:30px;position:relative;z-index:1
 }
 h1,h2,h3{color:#1b5e20}
 h1{font-size:28px}
-h2{
-  margin-top:32px;
-  border-bottom:2px solid #c8e6c9;
-  padding-bottom:6px;
-}
+h2{margin-top:32px;border-bottom:2px solid #c8e6c9;padding-bottom:6px}
 table{width:100%;border-collapse:collapse;margin-top:10px}
 th,td{border:1px solid #ccc;padding:6px}
 th{background:#f1f8e9}
@@ -34,14 +25,7 @@ th{background:#f1f8e9}
 .center{text-align:center}
 
 /* LETTERHEAD */
-.letterhead{
-  display:flex;
-  align-items:center;
-  gap:15px;
-  border-bottom:3px solid #2e7d32;
-  padding-bottom:10px;
-  margin-bottom:20px;
-}
+.letterhead{display:flex;align-items:center;gap:15px;border-bottom:3px solid #2e7d32;padding-bottom:10px;margin-bottom:20px}
 .lh-left img{height:70px;max-width:120px;object-fit:contain}
 .lh-center{flex:1;text-align:center}
 .lh-org{font-size:22px;font-weight:700;color:#1b5e20}
@@ -49,36 +33,17 @@ th{background:#f1f8e9}
 .lh-address{font-size:13px;color:#333}
 
 /* COVER */
-.cover{
-  height:100vh;
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
-  align-items:center;
-  text-align:center;
-}
+.cover{height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center}
 
 /* WATERMARK */
 .watermark-img{
-  position:fixed;
-  top:50%;
-  left:50%;
-  transform:translate(-50%,-50%);
-  width:520px;
-  height:520px;
-  background:url("project-image.jpg") center/contain no-repeat;
-  opacity:0.05;
-  pointer-events:none;
-  z-index:0;
+  position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);
+  width:520px;height:520px;background:url("project-image.jpg") center/contain no-repeat;
+  opacity:0.05;pointer-events:none;z-index:0
 }
 
 /* SUMMARY */
-.summary-box{
-  border:2px solid #c8e6c9;
-  background:#f1f8e9;
-  padding:15px;
-  border-radius:8px;
-}
+.summary-box{border:2px solid #c8e6c9;background:#f1f8e9;padding:15px;border-radius:8px}
 
 /* MAP */
 iframe{width:100%;height:260px;border:0;margin-top:10px}
@@ -87,30 +52,20 @@ iframe{width:100%;height:260px;border:0;margin-top:10px}
 #autoTOC ol{padding-left:20px}
 #autoTOC a{text-decoration:none;color:#000}
 
+/* WARNING */
+.warn{border:2px solid #f44336;background:#ffebee;padding:12px;border-radius:8px;color:#b71c1c;margin-bottom:15px}
+
+/* FOOTER */
+footer{text-align:center;font-size:12px;color:#555;margin-top:40px}
+
 /* PAGE BREAK */
 .page-break{page-break-before:always}
 
-/* WARNING */
-.warn{
-  border:2px solid #f44336;
-  background:#ffebee;
-  padding:12px;
-  border-radius:8px;
-  color:#b71c1c;
-  margin-bottom:15px;
-}
-
-/* FOOTER */
-footer{
-  text-align:center;
-  font-size:12px;
-  color:#555;
-  margin-top:40px;
-}
-
 /* PRINT */
+.no-print{display:block}
 @media print{
   body{background:#fff}
+  .no-print{display:none}
   table{page-break-inside:avoid}
   h2{page-break-after:avoid}
 }
@@ -121,25 +76,29 @@ footer{
 
 <div class="watermark-img"></div>
 
-<!-- ================= COVER PAGE ================= -->
+<!-- ================= COVER ================= -->
 <div class="page cover">
   <h1 id="cProject"></h1>
-  <h2>कृषि व्यवसायिक प्रस्ताव</h2>
+  <h2 data-key="proposalTitle"></h2>
   <p><b id="cOrg"></b></p>
   <p id="cAddress"></p>
-  <p>मिति: <span id="cDate"></span></p>
+  <p><span data-key="dateLabel"></span>: <span id="cDate"></span></p>
 </div>
 
 <div class="page-break"></div>
 
-<!-- ================= MAIN CONTENT ================= -->
+<!-- ================= CONTENT ================= -->
 <div class="page">
+
+<!-- LANGUAGE TOGGLE -->
+<div class="no-print" style="text-align:right;margin-bottom:10px">
+  <button onclick="setLang('ne')">🇳🇵 नेपाली</button>
+  <button onclick="setLang('en')">🇬🇧 English</button>
+</div>
 
 <!-- LETTERHEAD -->
 <div class="letterhead">
-  <div class="lh-left">
-    <img id="orgLogo" alt="Logo">
-  </div>
+  <div class="lh-left"><img id="orgLogo" alt="Logo"></div>
   <div class="lh-center">
     <div class="lh-org" id="lhOrgName"></div>
     <div class="lh-tagline" id="lhTagline"></div>
@@ -149,151 +108,268 @@ footer{
 
 <div id="siWarning"></div>
 
-<h2>कार्यकारी सारांश (Executive Summary)</h2>
+<h2 data-key="execSummaryTitle"></h2>
 <div class="summary-box" id="execSummary"></div>
 
-<h2>विषय सूची (Table of Contents)</h2>
+<h2 data-key="tocTitle"></h2>
 <div id="autoTOC"></div>
 
-<h2>१. परियोजनाको संक्षिप्त विवरण</h2>
+<h2 data-key="overview"></h2>
 <p id="pDesc"></p>
 
-<h2>२. संस्था विवरण</h2>
+<h2 data-key="orgDetails"></h2>
 <table>
-<tr><th>संस्था नाम</th><td id="oName"></td></tr>
-<tr><th>ठेगाना</th><td id="oAddr"></td></tr>
-<tr><th>दर्ता मिति</th><td id="oRegDate"></td></tr>
-<tr><th>दर्ता निकाय</th><td id="oRegBody"></td></tr>
-<tr><th>दर्ता नं</th><td id="oRegNo"></td></tr>
-<tr><th>पान नं</th><td id="oPan"></td></tr>
+<tr><th data-key="orgName"></th><td id="oName"></td></tr>
+<tr><th data-key="address"></th><td id="oAddr"></td></tr>
+<tr><th data-key="regDate"></th><td id="oRegDate"></td></tr>
+<tr><th data-key="regBody"></th><td id="oRegBody"></td></tr>
+<tr><th data-key="regNo"></th><td id="oRegNo"></td></tr>
+<tr><th data-key="pan"></th><td id="oPan"></td></tr>
 </table>
 
-<h2>३. परियोजना स्थान</h2>
+<h2 data-key="location"></h2>
 <iframe id="mapFrame"></iframe>
 
-<h2>४. विधागत खर्च विवरण</h2>
+<h2 data-key="expenseDetails"></h2>
 <div id="expenseTable"></div>
 
-<h2>५. आम्दानी विवरण</h2>
+<h2 data-key="incomeDetails"></h2>
 <div id="incomeTable"></div>
 
-<h2>६. नाफा तथा ROI विश्लेषण</h2>
+<h2 data-key="profitROI"></h2>
 <table>
-<tr><th>कुल लगानी</th><td class="right" id="roiInv"></td></tr>
-<tr><th>५ वर्षे कुल नाफा</th><td class="right" id="roiReturn"></td></tr>
-<tr><th>ROI (%)</th><td class="right" id="roiPct"></td></tr>
-<tr><th>Payback Period</th><td id="roiPay"></td></tr>
+<tr><th data-key="investment"></th><td class="right" id="roiInv"></td></tr>
+<tr><th data-key="totalReturn"></th><td class="right" id="roiReturn"></td></tr>
+<tr><th data-key="roi"></th><td class="right" id="roiPct"></td></tr>
+<tr><th data-key="payback"></th><td id="roiPay"></td></tr>
 </table>
 
-<h2>Annex : Short-Info (Auto Table)</h2>
+<!-- ANNEX -->
+<h2 data-annex="shortInfo"></h2>
 <div id="annexShortInfo"></div>
 
 <footer>
-  © <span id="fYear"></span> <span id="fOrg"></span> | Generated by FarmerBase BPMS
+  © <span id="fYear"></span> <span id="fOrg"></span> | <span id="fTag"></span>
 </footer>
 
 </div>
 
 <script>
-/* ===== LOAD PROJECT ===== */
+/* ================= LOAD PROJECT ================= */
 let key = localStorage.getItem("activeProject");
 if(!key){ alert("Project open छैन"); location.href="index.html"; }
 let p = JSON.parse(localStorage.getItem(key));
 let si = p.shortInfo || {};
 
-/* COVER */
-cProject.innerText = si.businessName || "व्यवसायिक परियोजना";
+/* ================= LANGUAGE DICTIONARY ================= */
+const LANG={
+  ne:{
+    proposalTitle:"कृषि व्यवसायिक प्रस्ताव",
+    dateLabel:"मिति",
+    execSummaryTitle:"कार्यकारी सारांश (Executive Summary)",
+    tocTitle:"विषय सूची (Table of Contents)",
+    overview:"१. परियोजनाको संक्षिप्त विवरण",
+    orgDetails:"२. संस्था विवरण",
+    location:"३. परियोजना स्थान",
+    expenseDetails:"४. विधागत खर्च विवरण",
+    incomeDetails:"५. आम्दानी विवरण",
+    profitROI:"६. नाफा तथा ROI विश्लेषण",
+    orgName:"संस्था नाम",
+    address:"ठेगाना",
+    regDate:"दर्ता मिति",
+    regBody:"दर्ता निकाय",
+    regNo:"दर्ता नं",
+    pan:"पान नं",
+    investment:"कुल लगानी",
+    totalReturn:"५ वर्षे कुल नाफा",
+    roi:"ROI (%)",
+    payback:"Payback Period",
+    execSummary:(si)=>`
+      <b>${si.businessName||""}</b> नामक यो
+      ${si.businessType||"कृषि"} व्यवसाय
+      ${si.location||""} क्षेत्रमा सञ्चालन गरिने
+      ${si.startYear||""} देखि
+      ${si.duration||""} वर्ष अवधिको योजना हो।
+      <br><br>
+      यस परियोजनाबाट ${si.beneficiaryType||""} समूहका
+      जम्मा <b>${si.totalBeneficiary||(Number(si.femaleCount||0)+Number(si.maleCount||0))}</b>
+      जना लाभान्वित हुनेछन्।
+    `
+  },
+  en:{
+    proposalTitle:"Business Proposal",
+    dateLabel:"Date",
+    execSummaryTitle:"Executive Summary",
+    tocTitle:"Table of Contents",
+    overview:"1. Project Overview",
+    orgDetails:"2. Organization Details",
+    location:"3. Project Location",
+    expenseDetails:"4. Expense Details",
+    incomeDetails:"5. Income Details",
+    profitROI:"6. Profit and ROI Analysis",
+    orgName:"Organization Name",
+    address:"Address",
+    regDate:"Registration Date",
+    regBody:"Registering Authority",
+    regNo:"Registration No.",
+    pan:"PAN No.",
+    investment:"Total Investment",
+    totalReturn:"Total Return (5 Years)",
+    roi:"ROI (%)",
+    payback:"Payback Period",
+    execSummary:(si)=>`
+      The project titled <b>${si.businessName||""}</b> is a
+      ${si.businessType||"agricultural"} enterprise located in
+      ${si.location||""}. The project will be implemented for
+      ${si.duration||""} years starting from ${si.startYear||""}.
+      <br><br>
+      The project will directly benefit a total of
+      <b>${si.totalBeneficiary||(Number(si.femaleCount||0)+Number(si.maleCount||0))}</b>
+      people under the ${si.beneficiaryType||""} group.
+    `
+  }
+};
+
+/* ================= LETTERHEAD BILINGUAL ================= */
+const LETTERHEAD_LANG={
+  ne:{tagline:(si)=>si.businessType?`(${si.businessType} व्यवसाय)`:"कृषि व्यवसायिक प्रस्ताव",
+      footer:"FarmerBase BPMS द्वारा तयार गरिएको"},
+  en:{tagline:(si)=>si.businessType?`(${si.businessType} Enterprise)`:"Business Proposal",
+      footer:"Generated by FarmerBase BPMS"}
+};
+
+/* ================= APPLY LANGUAGE ================= */
+function setLang(lang){
+  localStorage.setItem("proposalLang",lang);
+  applyLang();
+}
+function applyLang(){
+  const lang = localStorage.getItem("proposalLang") || "ne";
+  const L = LANG[lang];
+
+  document.querySelectorAll("[data-key]").forEach(el=>{
+    const k = el.getAttribute("data-key");
+    if(L[k]) el.innerHTML = L[k];
+  });
+
+  execSummary.innerHTML = L.execSummary(si);
+  applyLetterheadLang();
+  generateTOCBilingual();
+  applyAnnexBilingual();
+  appendAnnexToTOC();
+}
+
+/* ================= LETTERHEAD APPLY ================= */
+function applyLetterheadLang(){
+  const lang = localStorage.getItem("proposalLang") || "ne";
+  const L = LETTERHEAD_LANG[lang];
+  orgLogo.src = si.logoURL || "logo.png";
+  lhOrgName.innerText = si.organization || "";
+  lhTagline.innerText = L.tagline(si);
+  lhAddress.innerText = si.location || "";
+  fOrg.innerText = si.organization || "";
+  fYear.innerText = new Date().getFullYear();
+  fTag.innerText = L.footer;
+}
+
+/* ================= TOC BILINGUAL ================= */
+function generateTOCBilingual(){
+  const lang = localStorage.getItem("proposalLang") || "ne";
+  const L = LANG[lang];
+  const toc = document.getElementById("autoTOC");
+  const heads = document.querySelectorAll(".page h2[data-key]");
+  let html="<ol>", n=1;
+  heads.forEach(h=>{
+    const key=h.getAttribute("data-key");
+    const id="sec_"+n; h.id=id;
+    const title=L[key]||h.innerText;
+    h.innerHTML=title;
+    html+=`<li><a href="#${id}">${title}</a></li>`;
+    n++;
+  });
+  html+="</ol>"; toc.innerHTML=html;
+}
+
+/* ================= ANNEX BILINGUAL ================= */
+const ANNEX={
+  ne:{shortInfo:"परियोजनाको संक्षिप्त विवरण"},
+  en:{shortInfo:"Project Summary"}
+};
+function applyAnnexBilingual(){
+  const lang = localStorage.getItem("proposalLang") || "ne";
+  let letter=0;
+  document.querySelectorAll("[data-annex]").forEach(h=>{
+    const k=h.getAttribute("data-annex");
+    const L=String.fromCharCode(65+letter);
+    h.id="annex_"+L;
+    h.innerHTML=`Annex ${L} : ${ANNEX[lang][k]||""}`;
+    letter++;
+  });
+}
+function appendAnnexToTOC(){
+  const toc=document.getElementById("autoTOC");
+  let html="<h4>Annex</h4><ul>";
+  document.querySelectorAll("[data-annex]").forEach(h=>{
+    html+=`<li><a href="#${h.id}">${h.innerText}</a></li>`;
+  });
+  html+="</ul>";
+  toc.innerHTML+=html;
+}
+
+/* ================= DATA INSERT ================= */
+/* Cover */
+cProject.innerText = si.businessName || "Business";
 cOrg.innerText = si.organization || "";
 cAddress.innerText = si.location || "";
 cDate.innerText = new Date().toLocaleDateString("ne-NP");
 
-/* LETTERHEAD */
-orgLogo.src = si.logoURL || "logo.png";
-lhOrgName.innerText = si.organization || "";
-lhTagline.innerText = si.businessType ? "("+si.businessType+" व्यवसाय)" : "";
-lhAddress.innerText = si.location || "";
-
-/* EXEC SUMMARY */
-execSummary.innerHTML = `
-<b>${si.businessName||""}</b> नामक यो
-${si.businessType||"कृषि"} व्यवसाय
-${si.location||""} क्षेत्रमा सञ्चालन गरिने
-${si.startYear||""} देखि
-${si.duration||""} वर्ष अवधिको योजना हो।
-<br><br>
-यसबाट ${si.beneficiaryType||""} समूहका
-जम्मा <b>${si.totalBeneficiary || (Number(si.femaleCount||0)+Number(si.maleCount||0))}</b>
-जना लाभान्वित हुनेछन्।
-`;
-
-/* WARNING */
+/* Validation */
 let miss=[];
-["businessName","organization","location","beneficiaryType"].forEach(k=>{ if(!si[k]) miss.push(k); });
-if(miss.length){
-  siWarning.innerHTML=`<div class="warn">⚠️ Short-info अपूर्ण छ: ${miss.join(", ")}</div>`;
-}
+["businessName","organization","location","beneficiaryType"].forEach(k=>{if(!si[k]) miss.push(k);});
+if(miss.length){ siWarning.innerHTML=`<div class="warn">⚠️ Short-info incomplete: ${miss.join(", ")}</div>`; }
 
-/* DESCRIPTION */
+/* Description */
 pDesc.innerText = si.description || "";
 
-/* ORG */
-oName.innerText = si.organization || "";
-oAddr.innerText = si.location || "";
-oRegDate.innerText = si.regDate || "";
-oRegBody.innerText = si.regBody || "";
-oRegNo.innerText = si.regNo || "";
-oPan.innerText = si.pan || "";
+/* Org table */
+oName.innerText=si.organization||""; oAddr.innerText=si.location||"";
+oRegDate.innerText=si.regDate||""; oRegBody.innerText=si.regBody||"";
+oRegNo.innerText=si.regNo||""; oPan.innerText=si.pan||"";
 
-/* MAP */
-mapFrame.src = "https://www.google.com/maps?q="+encodeURIComponent(si.location||"Nepal")+"&output=embed";
+/* Map */
+mapFrame.src="https://www.google.com/maps?q="+encodeURIComponent(si.location||"Nepal")+"&output=embed";
 
-/* EXPENSE */
-let eHtml="<table><tr><th>विधा</th><th>शीर्षक</th><th>रकम</th></tr>";
-(p.expenseData||[]).forEach(e=>{
-  eHtml+=`<tr><td>${e.category}</td><td>${e.title}</td><td class="right">${e.amount}</td></tr>`;
-});
-eHtml+="</table>";
-expenseTable.innerHTML=eHtml;
+/* Expense */
+let eHtml="<table><tr><th>Category</th><th>Title</th><th>Amount</th></tr>";
+(p.expenseData||[]).forEach(e=>{ eHtml+=`<tr><td>${e.category}</td><td>${e.title}</td><td class="right">${e.amount}</td></tr>`; });
+expenseTable.innerHTML=eHtml+"</table>";
 
-/* INCOME */
-let iHtml="<table><tr><th>शीर्षक</th><th>रकम</th></tr>";
-(p.incomeData||[]).forEach(i=>{
-  iHtml+=`<tr><td>${i.title}</td><td class="right">${i.amount}</td></tr>`;
-});
-iHtml+="</table>";
-incomeTable.innerHTML=iHtml;
+/* Income */
+let iHtml="<table><tr><th>Title</th><th>Amount</th></tr>";
+(p.incomeData||[]).forEach(i=>{ iHtml+=`<tr><td>${i.title}</td><td class="right">${i.amount}</td></tr>`; });
+incomeTable.innerHTML=iHtml+"</table>";
 
 /* ROI */
-roiInv.innerText = p.fiveYearROI?.investment || 0;
-roiReturn.innerText = p.fiveYearROI?.totalReturn || 0;
-roiPct.innerText = p.fiveYearROI?.roi || 0;
-roiPay.innerText = p.fiveYearROI?.payback || "";
+roiInv.innerText=p.fiveYearROI?.investment||0;
+roiReturn.innerText=p.fiveYearROI?.totalReturn||0;
+roiPct.innerText=p.fiveYearROI?.roi||0;
+roiPay.innerText=p.fiveYearROI?.payback||"";
 
-/* ANNEX SHORT-INFO AUTO TABLE */
+/* Annex table */
 let rows="";
 Object.entries({
- "व्यवसाय नाम":si.businessName,
- "व्यवसाय प्रकार":si.businessType,
- "स्थान":si.location,
- "लाभान्वित समूह":si.beneficiaryType,
- "महिला":si.femaleCount,
- "पुरुष":si.maleCount,
- "जम्मा":si.totalBeneficiary
-}).forEach(([k,v])=>{
- rows+=`<tr><th>${k}</th><td>${v||""}</td></tr>`;
-});
+ "Business Name":si.businessName,
+ "Business Type":si.businessType,
+ "Location":si.location,
+ "Beneficiary Type":si.beneficiaryType,
+ "Female":si.femaleCount,
+ "Male":si.maleCount,
+ "Total":si.totalBeneficiary
+}).forEach(([k,v])=>{ rows+=`<tr><th>${k}</th><td>${v||""}</td></tr>`; });
 annexShortInfo.innerHTML="<table>"+rows+"</table>";
 
-/* AUTO TOC */
-(function(){
- let t="",hs=document.querySelectorAll(".page h2");
- hs.forEach((h,i)=>{ h.id="s"+i; t+=`<li><a href="#s${i}">${h.innerText}</a></li>`;});
- autoTOC.innerHTML="<ol>"+t+"</ol>";
-})();
-
-/* FOOTER */
-fOrg.innerText = si.organization || "";
-fYear.innerText = new Date().getFullYear();
+/* Init */
+applyLang();
 </script>
 
 </body>
