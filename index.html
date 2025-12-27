@@ -7,246 +7,248 @@
 
 <style>
 body{
-  font-family:"Noto Sans Devanagari",system-ui,Arial;
+  font-family:"Noto Sans Devanagari","Kalimati","Mangal","Nirmala UI",system-ui,Arial;
   background:#f4f7f6;
   margin:0;
 }
-
-/* HEADER */
-.header{
-  padding:18px 28px;
-  font-size:28px;
-  font-weight:700;
+.container{
+  max-width:1200px;
+  margin:20px auto;
+  padding:0 15px;
+}
+h1{
   color:#2e7d32;
-}
-
-/* LAYOUT */
-.wrap{
-  max-width:1150px;
-  margin:0 auto;
-  padding:0 20px 40px;
-}
-
-/* CARDS */
-.card{
-  background:#eaf6ea;
-  border-radius:12px;
-  padding:20px;
-  margin-bottom:18px;
-}
-.card.orange{background:#fff3e0}
-.card.soft{background:#eef7ee}
-
-/* BUTTONS */
-.btn{
-  padding:10px 18px;
-  border:none;
-  border-radius:8px;
-  color:#fff;
-  cursor:pointer;
-  font-size:14px;
-}
-.btn.green{background:#2e7d32}
-.btn.purple{background:#6a1b9a}
-.btn.blue{background:#1565c0}
-
-/* INPUT */
-input[type=text]{
-  padding:10px;
-  font-size:14px;
-  border-radius:6px;
-  border:1px solid #bbb;
-  width:260px;
-}
-
-/* TABS */
-.tabs{
   display:flex;
-  flex-wrap:wrap;
-  gap:12px;
+  align-items:center;
+  gap:10px;
 }
-.tabs button{
+.card{
   background:#e8f5e9;
   border:1px solid #c8e6c9;
-  padding:12px 18px;
   border-radius:10px;
-  font-size:14px;
-  cursor:pointer;
+  padding:15px;
+  margin-bottom:15px;
 }
-.tabs button:hover{background:#dcedc8}
-
-/* PROGRESS */
+.btn{
+  padding:8px 14px;
+  border:none;
+  border-radius:6px;
+  cursor:pointer;
+  font-weight:600;
+}
+.green{background:#2e7d32;color:#fff}
+.purple{background:#6a1b9a;color:#fff}
+.gray{background:#eee}
+input{
+  padding:6px;
+  width:280px;
+}
 .progress{
   background:#ddd;
-  border-radius:20px;
+  height:8px;
+  border-radius:6px;
   overflow:hidden;
-  height:18px;
 }
-.progress div{
-  height:100%;
-  width:50%;
+.bar{
   background:#2e7d32;
+  height:100%;
+  width:0%;
 }
-
-/* FOOTER */
-.footer{
-  font-size:13px;
-  color:#555;
-  text-align:center;
-  margin-top:20px;
+table{
+  width:100%;
+  border-collapse:collapse;
+  margin-top:10px;
 }
+th,td{
+  border:1px solid #ccc;
+  padding:8px;
+}
+th{background:#f1f8e9}
+.right{text-align:right}
+.center{text-align:center}
+.tabs{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+}
+.tab{
+  padding:10px 16px;
+  background:#e8f5e9;
+  border-radius:20px;
+  cursor:pointer;
+}
+.tab:hover{background:#c8e6c9}
 </style>
 </head>
 
 <body>
 
-<div class="header">
-  FarmerBase – Business Plan Management System
-</div>
+<div class="container">
 
-<div class="wrap">
+<h1>🌾 FarmerBase — Business Plan Management System</h1>
 
-<!-- PROJECT MANAGEMENT -->
+<!-- CREATE / IMPORT -->
 <div class="card">
-  <h3>📁 Business / Project Management</h3>
-  <input id="projName" placeholder="नयाँ व्यवसाय / परियोजनाको नाम">
-  <button class="btn green" onclick="createProject()">Create New</button>
-  <button class="btn purple" onclick="importProject()">Import</button>
-  <button class="btn purple" onclick="exportProject()">Export</button>
+  <b>📁 Business / Project Management</b><br><br>
+
+  <input id="newName" placeholder="नयाँ व्यवसाय / परियोजनाको नाम">
+  <button class="btn green" onclick="createProject()">＋ Create New</button>
+  <button class="btn purple" onclick="exportData()">⬇ Export</button>
+  <button class="btn purple" onclick="importData()">⬆ Import</button>
 </div>
 
-<!-- STATUS -->
-<div class="card orange">
-  <div style="font-size:18px;font-weight:700;margin-bottom:8px;">
-    📌 Project : <span id="projectName">—</span>
-  </div>
+<!-- ACTIVE PROJECT -->
+<div class="card" id="activeBox" style="display:none">
+  <b>📌 Active Project</b><br><br>
 
-  <div>
-    <b>Status:</b> <span id="status">draft</span> |
-    <b>Version:</b> <span id="version">v1.0</span>
-  </div>
-  <br>
-  <div><b>Created:</b> <span id="created">—</span></div>
-  <div><b>Last Edited:</b> <span id="edited">—</span></div>
-  <br>
-  <button class="btn blue" onclick="toggleStatus()">Draft / Final</button>
-  <button class="btn purple" onclick="changePassword()">Change Admin Password</button>
+  <div id="activeInfo"></div><br>
+
+  <button class="btn gray" onclick="toggleStatus()">Draft / Final</button>
 </div>
 
 <!-- PROGRESS -->
 <div class="card">
-  <b>📊 Project Progress : <span id="progText">50%</span></b>
+  <b>📊 Project Progress : <span id="progText">0%</span></b>
   <div class="progress">
-    <div id="progBar"></div>
+    <div class="bar" id="progBar"></div>
   </div>
 </div>
 
-<!-- MODULES -->
-<div class="card soft">
-  <div class="tabs">
-    <button onclick="openPage('short-info.html')">Short Info</button>
-    <button onclick="openPage('business-detail.html')">Business Detail</button>
-    <button onclick="openPage('expense-demo.html')">Expense</button>
-    <button onclick="openPage('income-demo.html')">Income</button>
-    <button onclick="openPage('profit-loss-demo.html')">Profit / Loss</button>
-    <button onclick="openPage('five-year-roi.html')">5-Year ROI</button>
-    <button onclick="openPage('full-proposal.html')">Full Proposal</button>
-  </div>
+<!-- NAV -->
+<div class="card tabs">
+  <div class="tab" onclick="go('short-info.html')">Short Info</div>
+  <div class="tab" onclick="go('business-detail.html')">Business Detail</div>
+  <div class="tab" onclick="go('expense-demo.html')">Expense</div>
+  <div class="tab" onclick="go('income-demo.html')">Income</div>
+  <div class="tab" onclick="go('profit-loss-demo.html')">Profit / Loss</div>
+  <div class="tab" onclick="go('five-year-roi.html')">5-Year ROI</div>
+  <div class="tab" onclick="go('full-proposal.html')">Full Proposal</div>
 </div>
 
-<div class="footer">
-  ✔ Original BPMS Design Preserved | ✔ Logic Fixed | ✔ Production Ready
+<!-- PROJECT LIST -->
+<div class="card">
+  <b>📂 My Projects</b>
+
+  <table>
+    <thead>
+      <tr>
+        <th>नाम</th>
+        <th>Status</th>
+        <th>Ver</th>
+        <th>Last Edited</th>
+        <th class="center">Action</th>
+      </tr>
+    </thead>
+    <tbody id="projectList"></tbody>
+  </table>
 </div>
 
 </div>
 
 <script>
-/* ===== BPMS CORE LOGIC (FINAL) ===== */
-
 function createProject(){
-  let name=document.getElementById("projName").value.trim();
-  if(!name) return alert("Project नाम दिनुहोस्");
-
-  let key="bpms_"+Date.now();
-  let data={
+  let name = newName.value.trim();
+  if(!name) return alert("नाम लेख्नुहोस्");
+  let key = "bp_"+Date.now();
+  let obj = {
     name,
     status:"draft",
-    version:"v1.0",
+    version:"1.0",
     created:new Date().toLocaleString("ne-NP"),
-    edited:new Date().toLocaleString("ne-NP"),
-    shortInfo:{},
-    businessDetail:[],
-    expenseData:[],
-    incomeData:[]
+    lastEdited:new Date().toLocaleString("ne-NP")
   };
-
-  localStorage.setItem(key,JSON.stringify(data));
+  localStorage.setItem(key,JSON.stringify(obj));
   localStorage.setItem("activeProject",key);
-  loadProject();
-  showDates();
+  location.reload();
 }
 
-function loadProject(){
-  let key=localStorage.getItem("activeProject");
-  if(!key) return;
-  let p=JSON.parse(localStorage.getItem(key));
-  if(!p) return;
-
-  document.getElementById("projectName").innerText=p.name || "—";
-  document.getElementById("status").innerText=p.status || "draft";
-  document.getElementById("version").innerText=p.version || "v1.0";
-  showDates();
+function loadProjects(){
+  projectList.innerHTML="";
+  for(let i=0;i<localStorage.length;i++){
+    let k = localStorage.key(i);
+    if(!k.startsWith("bp_")) continue;
+    let p = JSON.parse(localStorage.getItem(k));
+    projectList.innerHTML+=`
+      <tr>
+        <td>${p.name}</td>
+        <td>${p.status}</td>
+        <td>${p.version}</td>
+        <td>${p.lastEdited}</td>
+        <td class="center">
+          <button class="btn gray" onclick="openProject('${k}')">Open</button>
+        </td>
+      </tr>`;
+  }
 }
 
-function showDates(){
-  let key=localStorage.getItem("activeProject");
-  if(!key) return;
-  let p=JSON.parse(localStorage.getItem(key));
-  if(!p) return;
+function openProject(k){
+  localStorage.setItem("activeProject",k);
+  location.reload();
+}
 
-  document.getElementById("created").innerText=p.created || "—";
-  document.getElementById("edited").innerText=p.edited || "—";
+function go(page){
+  if(!localStorage.getItem("activeProject")){
+    alert("पहिले Project खोल्नुहोस्");
+    return;
+  }
+  location.href=page;
 }
 
 function toggleStatus(){
-  let key=localStorage.getItem("activeProject");
-  if(!key) return alert("Project खोल्नुहोस्");
-  let p=JSON.parse(localStorage.getItem(key));
-
-  p.status=p.status==="draft"?"final":"draft";
-  p.edited=new Date().toLocaleString("ne-NP");
-
-  localStorage.setItem(key,JSON.stringify(p));
-  loadProject();
+  let k = localStorage.getItem("activeProject");
+  let p = JSON.parse(localStorage.getItem(k));
+  p.status = p.status==="draft"?"final":"draft";
+  p.lastEdited = new Date().toLocaleString("ne-NP");
+  localStorage.setItem(k,JSON.stringify(p));
+  location.reload();
 }
 
-function openPage(page){
-  if(!localStorage.getItem("activeProject"))
-    return alert("पहिले Project Create / Open गर्नुहोस्");
-  window.open(page,"_blank");
+/* ACTIVE PROJECT */
+let activeKey = localStorage.getItem("activeProject");
+if(activeKey){
+  let p = JSON.parse(localStorage.getItem(activeKey));
+  activeBox.style.display="block";
+  activeInfo.innerHTML=`
+    <b>${p.name}</b><br>
+    Status: ${p.status} | Version: v${p.version}<br>
+    Created: ${p.created}<br>
+    Last Edited: ${p.lastEdited}
+  `;
 }
 
-function importProject(){
-  alert("Import logic unchanged (existing system compatible)");
-}
+/* PROGRESS (simple heuristic) */
+let percent = activeKey ? 50 : 0;
+progText.innerText = percent+"%";
+progBar.style.width = percent+"%";
 
-function exportProject(){
-  let key=localStorage.getItem("activeProject");
-  if(!key) return alert("Project छैन");
-  let data=localStorage.getItem(key);
-  let blob=new Blob([data],{type:"application/json"});
+loadProjects();
+
+/* EXPORT / IMPORT */
+function exportData(){
+  let data={};
+  for(let i=0;i<localStorage.length;i++){
+    let k=localStorage.key(i);
+    data[k]=localStorage.getItem(k);
+  }
   let a=document.createElement("a");
-  a.href=URL.createObjectURL(blob);
-  a.download="project.json";
+  a.href=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:"application/json"}));
+  a.download="farmerbase-backup.json";
   a.click();
 }
-
-function changePassword(){
-  alert("Password logic unchanged");
+function importData(){
+  let f=document.createElement("input");
+  f.type="file";
+  f.onchange=e=>{
+    let r=new FileReader();
+    r.onload=()=>{
+      let d=JSON.parse(r.result);
+      for(let k in d) localStorage.setItem(k,d[k]);
+      location.reload();
+    };
+    r.readAsText(e.target.files[0]);
+  };
+  f.click();
 }
-
-/* Auto load last active project */
-loadProject();
 </script>
 
 </body>
