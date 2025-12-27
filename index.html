@@ -11,26 +11,21 @@ body{
   background:#f4f7f6;
   margin:0;
 }
-.container{
-  max-width:1200px;
-  margin:20px auto;
-  padding:0 15px;
-}
-h1{
-  color:#2e7d32;
-  display:flex;
-  align-items:center;
-  gap:10px;
-}
+.container{max-width:1200px;margin:20px auto;padding:0 15px}
+h1{color:#2e7d32;display:flex;align-items:center;gap:10px}
+
+/* CARDS */
 .card{
   background:#e8f5e9;
   border:1px solid #c8e6c9;
   border-radius:10px;
-  padding:15px;
-  margin-bottom:15px;
+  padding:12px 15px;
+  margin-bottom:12px;
 }
+
+/* BUTTONS */
 .btn{
-  padding:8px 14px;
+  padding:6px 12px;
   border:none;
   border-radius:6px;
   cursor:pointer;
@@ -39,96 +34,100 @@ h1{
 .green{background:#2e7d32;color:#fff}
 .purple{background:#6a1b9a;color:#fff}
 .gray{background:#eee}
-input{
-  padding:6px;
-  width:280px;
-}
-.progress{
-  background:#ddd;
-  height:8px;
-  border-radius:6px;
-  overflow:hidden;
-}
-.bar{
-  background:#2e7d32;
-  height:100%;
-  width:0%;
-}
-table{
-  width:100%;
-  border-collapse:collapse;
-  margin-top:10px;
-}
-th,td{
-  border:1px solid #ccc;
-  padding:8px;
-}
-th{background:#f1f8e9}
-.right{text-align:right}
-.center{text-align:center}
-.tabs{
+
+/* INPUT */
+input{padding:6px;width:260px}
+
+/* ACTIVE BAR */
+.active-bar{
   display:flex;
-  gap:10px;
   flex-wrap:wrap;
+  align-items:center;
+  gap:10px;
+  justify-content:space-between;
 }
+.active-left{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  align-items:center;
+}
+.badge{
+  padding:3px 10px;
+  border-radius:14px;
+  font-size:13px;
+  background:#c8e6c9;
+}
+.badge.final{background:#a5d6a7}
+.badge.draft{background:#ffe0b2}
+
+/* TABS */
+.tabs{display:flex;gap:8px;flex-wrap:wrap}
 .tab{
-  padding:10px 16px;
+  padding:6px 14px;
   background:#e8f5e9;
   border-radius:20px;
   cursor:pointer;
+  font-size:14px;
 }
 .tab:hover{background:#c8e6c9}
+
+/* TABLE */
+table{width:100%;border-collapse:collapse;margin-top:10px}
+th,td{border:1px solid #ccc;padding:8px}
+th{background:#f1f8e9}
+.center{text-align:center}
+
+/* PROGRESS */
+.progress{background:#ddd;height:8px;border-radius:6px;overflow:hidden}
+.bar{background:#2e7d32;height:100%;width:0%}
 </style>
 </head>
 
 <body>
-
 <div class="container">
 
 <h1>🌾 FarmerBase — Business Plan Management System</h1>
 
-<!-- CREATE / IMPORT -->
+<!-- CREATE -->
 <div class="card">
   <b>📁 Business / Project Management</b><br><br>
-
   <input id="newName" placeholder="नयाँ व्यवसाय / परियोजनाको नाम">
   <button class="btn green" onclick="createProject()">＋ Create New</button>
   <button class="btn purple" onclick="exportData()">⬇ Export</button>
   <button class="btn purple" onclick="importData()">⬆ Import</button>
 </div>
 
-<!-- ACTIVE PROJECT -->
+<!-- ACTIVE PROJECT BAR -->
 <div class="card" id="activeBox" style="display:none">
-  <b>📌 Active Project</b><br><br>
+  <div class="active-bar">
 
-  <div id="activeInfo"></div><br>
+    <div class="active-left" id="activeInfo"></div>
 
-  <button class="btn gray" onclick="toggleStatus()">Draft / Final</button>
+    <div class="tabs">
+      <div class="tab" onclick="go('short-info.html')">Short Info</div>
+      <div class="tab" onclick="go('business-detail.html')">Detail</div>
+      <div class="tab" onclick="go('expense-demo.html')">Expense</div>
+      <div class="tab" onclick="go('income-demo.html')">Income</div>
+      <div class="tab" onclick="go('profit-loss-demo.html')">Profit</div>
+      <div class="tab" onclick="go('five-year-roi.html')">ROI</div>
+      <div class="tab" onclick="go('full-proposal.html')">Proposal</div>
+    </div>
+
+    <button class="btn gray" onclick="toggleStatus()">Draft / Final</button>
+
+  </div>
 </div>
 
 <!-- PROGRESS -->
 <div class="card">
   <b>📊 Project Progress : <span id="progText">0%</span></b>
-  <div class="progress">
-    <div class="bar" id="progBar"></div>
-  </div>
-</div>
-
-<!-- NAV -->
-<div class="card tabs">
-  <div class="tab" onclick="go('short-info.html')">Short Info</div>
-  <div class="tab" onclick="go('business-detail.html')">Business Detail</div>
-  <div class="tab" onclick="go('expense-demo.html')">Expense</div>
-  <div class="tab" onclick="go('income-demo.html')">Income</div>
-  <div class="tab" onclick="go('profit-loss-demo.html')">Profit / Loss</div>
-  <div class="tab" onclick="go('five-year-roi.html')">5-Year ROI</div>
-  <div class="tab" onclick="go('full-proposal.html')">Full Proposal</div>
+  <div class="progress"><div class="bar" id="progBar"></div></div>
 </div>
 
 <!-- PROJECT LIST -->
 <div class="card">
   <b>📂 My Projects</b>
-
   <table>
     <thead>
       <tr>
@@ -147,10 +146,10 @@ th{background:#f1f8e9}
 
 <script>
 function createProject(){
-  let name = newName.value.trim();
+  let name=newName.value.trim();
   if(!name) return alert("नाम लेख्नुहोस्");
-  let key = "bp_"+Date.now();
-  let obj = {
+  let key="bp_"+Date.now();
+  let obj={
     name,
     status:"draft",
     version:"1.0",
@@ -165,9 +164,9 @@ function createProject(){
 function loadProjects(){
   projectList.innerHTML="";
   for(let i=0;i<localStorage.length;i++){
-    let k = localStorage.key(i);
+    let k=localStorage.key(i);
     if(!k.startsWith("bp_")) continue;
-    let p = JSON.parse(localStorage.getItem(k));
+    let p=JSON.parse(localStorage.getItem(k));
     projectList.innerHTML+=`
       <tr>
         <td>${p.name}</td>
@@ -188,38 +187,37 @@ function openProject(k){
 
 function go(page){
   if(!localStorage.getItem("activeProject")){
-    alert("पहिले Project खोल्नुहोस्");
-    return;
+    alert("पहिले Project खोल्नुहोस्");return;
   }
   location.href=page;
 }
 
 function toggleStatus(){
-  let k = localStorage.getItem("activeProject");
-  let p = JSON.parse(localStorage.getItem(k));
-  p.status = p.status==="draft"?"final":"draft";
-  p.lastEdited = new Date().toLocaleString("ne-NP");
+  let k=localStorage.getItem("activeProject");
+  let p=JSON.parse(localStorage.getItem(k));
+  p.status=p.status==="draft"?"final":"draft";
+  p.lastEdited=new Date().toLocaleString("ne-NP");
   localStorage.setItem(k,JSON.stringify(p));
   location.reload();
 }
 
-/* ACTIVE PROJECT */
-let activeKey = localStorage.getItem("activeProject");
+/* ACTIVE */
+let activeKey=localStorage.getItem("activeProject");
 if(activeKey){
-  let p = JSON.parse(localStorage.getItem(activeKey));
+  let p=JSON.parse(localStorage.getItem(activeKey));
   activeBox.style.display="block";
   activeInfo.innerHTML=`
-    <b>${p.name}</b><br>
-    Status: ${p.status} | Version: v${p.version}<br>
-    Created: ${p.created}<br>
-    Last Edited: ${p.lastEdited}
+    <b>${p.name}</b>
+    <span class="badge ${p.status}">${p.status}</span>
+    <span class="badge">v${p.version}</span>
+    <span>Last: ${p.lastEdited}</span>
   `;
 }
 
-/* PROGRESS (simple heuristic) */
-let percent = activeKey ? 50 : 0;
-progText.innerText = percent+"%";
-progBar.style.width = percent+"%";
+/* PROGRESS */
+let percent=activeKey?50:0;
+progText.innerText=percent+"%";
+progBar.style.width=percent+"%";
 
 loadProjects();
 
