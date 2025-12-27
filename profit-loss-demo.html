@@ -2,65 +2,144 @@
 <html lang="ne">
 <head>
 <meta charset="UTF-8">
-<title>Profit / Loss | BPMS</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-
+<title>Profit / Loss – FarmerBase BPMS</title>
 <style>
-body{font-family:"Noto Sans Devanagari","Kalimati";background:#f4f7f6;margin:0}
-.wrap{max-width:950px;margin:25px auto;background:#fff;padding:25px;border-radius:10px}
-h2{color:#2e7d32}
+body{font-family:system-ui;background:#f4f7f6;margin:0}
+.wrap{max-width:1100px;margin:auto;padding:20px}
+
+/* MENU */
+.nav{
+  display:flex;gap:8px;flex-wrap:wrap;
+  background:#e9f5ea;padding:12px;border-radius:12px
+}
+.nav a{
+  padding:8px 14px;border-radius:20px;
+  text-decoration:none;color:#000;background:#dff0e1
+}
+.nav a.active{background:#2e7d32;color:#fff}
+
+/* PROGRESS */
+.progress-box{
+  background:#e9f5ea;border-radius:12px;padding:14px;margin:18px 0
+}
+.progress-bar{
+  height:10px;background:#ddd;border-radius:10px;overflow:hidden
+}
+.progress-bar span{
+  display:block;height:100%;width:71%;
+  background:#2e7d32
+}
+
+/* CARD */
+.card{background:#fff;border-radius:14px;padding:20px;margin-top:20px}
 table{width:100%;border-collapse:collapse}
-th,td{border:1px solid #ccc;padding:8px}
-th{background:#f0f0f0;text-align:left}
-.big{font-size:20px;font-weight:700;background:#e8f5e9}
-.nav{display:flex;justify-content:space-between;margin-top:25px}
-button{padding:8px 16px;border:none;border-radius:6px;background:#2e7d32;color:#fff}
+td,th{padding:10px;border-bottom:1px solid #ddd}
+th{text-align:left;background:#f1f5f1}
+
+/* DIVIDEND */
+input[type=number]{width:80px;padding:6px}
+.total{font-weight:bold}
+.green{color:#2e7d32}
+.red{color:#c62828}
 </style>
 </head>
-
 <body>
+
 <div class="wrap">
 
+<!-- MENU -->
+<div class="nav">
+  <a href="short-info.html">Short Info</a>
+  <a href="business-detail.html">Detail</a>
+  <a href="expense-demo.html">Expense</a>
+  <a href="income-demo.html">Income</a>
+  <a class="active">Profit / Loss</a>
+  <a href="five-year-roi.html">5-Year ROI</a>
+  <a href="full-proposal.html">Proposal</a>
+</div>
+
+<!-- PROGRESS -->
+<div class="progress-box">
+  <b>चरण ५ / ७ (७१%)</b>
+  <div class="progress-bar"><span></span></div>
+</div>
+
+<!-- PROFIT LOSS -->
+<div class="card">
 <h2>📊 नाफा / नोक्सान (वार्षिक)</h2>
 
 <table>
-<tr><th>कुल आम्दानी</th><td id="inc">0</td></tr>
-<tr><th>चालु खर्च</th><td id="cash">0</td></tr>
-<tr><th>ह्रासकट्टी</th><td id="depr">0</td></tr>
-<tr><th>बैंक ब्याज</th><td id="int">0</td></tr>
-<tr class="big"><th>नाफा / नोक्सान</th><td id="profit">0</td></tr>
+<tr><th>शीर्षक</th><th>रकम (रु.)</th></tr>
+<tr><td>कुल आम्दानी</td><td id="inc">0</td></tr>
+<tr><td>चालु खर्च</td><td id="cash">0</td></tr>
+<tr><td>ह्रासकट्टी</td><td id="depr">0</td></tr>
+<tr><td>बैंक ब्याज</td><td id="int">0</td></tr>
+<tr class="total">
+  <td>नाफा / नोक्सान</td>
+  <td id="profit">0</td>
+</tr>
 </table>
+</div>
 
-<div class="nav">
-  <button onclick="location.href='income-demo.html'">⬅ Previous</button>
-  <button onclick="location.href='five-year-roi.html'">Next ➡</button>
+<!-- DIVIDEND -->
+<div class="card">
+<h3>💰 लाभांश वितरण</h3>
+
+<table>
+<tr>
+  <th>विधा</th>
+  <th>%</th>
+  <th>रकम</th>
+</tr>
+<tr>
+  <td>स्वामी / साझेदार</td>
+  <td><input type="number" id="d1" value="60"></td>
+  <td id="a1">0</td>
+</tr>
+<tr>
+  <td>पुनः लगानी</td>
+  <td><input type="number" id="d2" value="40"></td>
+  <td id="a2">0</td>
+</tr>
+</table>
 </div>
 
 </div>
 
 <script>
-let key=localStorage.getItem("activeProject");
-if(!key){alert("पहिले Project खोल्नुहोस्");location.href="index.html";}
-let p=JSON.parse(localStorage.getItem(key));
+let key = localStorage.getItem("activeProject");
+let p = JSON.parse(localStorage.getItem(key)) || {};
 
-let income=0;
+let income = 0;
 (p.incomeData||[]).forEach(i=>income+=Number(i.amount||0));
 
 let cash=0,depr=0;
 (p.expenseData||[]).forEach(e=>{
-  if(e.category==="मेशीन औजार / प्रविधि"||e.category==="पूर्वाधार निर्माण")
-    depr+=e.amount*0.15;
-  else
-    cash+=e.amount;
+  if(e.category==="मेशीन औजार / प्रविधि" || e.category==="पूर्वाधार निर्माण"){
+    depr += Number(e.amount||0)*0.15;
+  }else{
+    cash += Number(e.amount||0);
+  }
 });
 
-let interest=Number(localStorage.getItem("ANNUAL_LOAN_INTEREST")||0);
+let interest = Number(p.loanInterest||0);
+let profit = income - cash - depr - interest;
 
-inc.innerText=Math.round(income);
-cash.innerText=Math.round(cash);
+inc.innerText=income;
+cash.innerText=cash;
 depr.innerText=Math.round(depr);
-int.innerText=Math.round(interest);
-profit.innerText=Math.round(income-cash-depr-interest);
+int.innerText=interest;
+profitEl = document.getElementById("profit");
+profitEl.innerText=Math.round(profit);
+profitEl.className = profit>=0?"green":"red";
+
+function calcDividend(){
+  let p1=Number(d1.value||0),p2=Number(d2.value||0);
+  a1.innerText=Math.round(profit*p1/100);
+  a2.innerText=Math.round(profit*p2/100);
+}
+d1.oninput=d2.oninput=calcDividend;
+calcDividend();
 </script>
 
 </body>
