@@ -2,48 +2,20 @@
 <html lang="ne">
 <head>
 <meta charset="UTF-8">
-<title>Expense Entry – BPMS (Final)</title>
+<title>Expense Entry – BPMS (FINAL)</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-
 <style>
-body{
-  font-family:system-ui,Arial;
-  background:#f4f7f6;
-  padding:20px;
-}
-h2{color:#2e7d32;margin-bottom:10px}
-
-select,input,button{
-  padding:8px;
-  margin:4px;
-}
-
-table{
-  width:100%;
-  border-collapse:collapse;
-  margin-top:15px;
-}
-th,td{
-  border:1px solid #ccc;
-  padding:8px;
-}
-th{
-  background:#e8f5e9;
-}
-.group-row{
-  background:#c8e6c9;
-  font-weight:bold;
-}
-.total-row{
-  background:#f1f8e9;
-  font-weight:bold;
-}
-.note{
-  font-size:13px;
-  color:#555;
-  margin-top:8px;
-}
-.depr-col{ text-align:right; }
+  body{font-family:system-ui,Arial;background:#f4f7f6;padding:20px}
+  h2{color:#2e7d32}
+  select,input,button{padding:8px;margin:4px}
+  table{width:100%;border-collapse:collapse;margin-top:15px}
+  th,td{border:1px solid #ccc;padding:8px}
+  th{background:#e8f5e9}
+  .group-row{background:#c8e6c9;font-weight:bold}
+  .total-row{background:#f1f8e9;font-weight:bold}
+  .note{font-size:13px;color:#555;margin-top:8px}
+  .depr-col{text-align:right}
+  @media print{.no-print{display:none}}
 </style>
 </head>
 
@@ -52,7 +24,7 @@ th{
 <h2>💰 खर्च विवरण (Expense Entry)</h2>
 
 <!-- MODE TOGGLE -->
-<label>
+<label class="no-print">
   <input type="checkbox" id="advancedMode">
   Advanced Mode (ह्रासकट्टी सहित)
 </label>
@@ -63,6 +35,7 @@ th{
 <select id="category">
   <option value="मेशीन औजार / प्रविधि">मेशीन औजार / प्रविधि</option>
   <option value="पूर्वाधार निर्माण">पूर्वाधार निर्माण</option>
+  <option value="प्रारम्भिक लगानी">प्रारम्भिक लगानी</option>
   <option value="कच्चापदार्थ">कच्चापदार्थ</option>
   <option value="विविध">विविध</option>
   <option value="चालु खर्च">चालु खर्च</option>
@@ -73,72 +46,72 @@ th{
 <button onclick="addExpense()">➕ Add</button>
 
 <div class="note">
-✔ मेशीन औजार / पूर्वाधार निर्माणमा मात्र ह्रासकट्टी लाग्छ<br>
-✔ कच्चापदार्थ, विविध, चालु खर्चमा ह्रासकट्टी हुँदैन
+✔ ह्रासकट्टी <b>मेशीन औजार / प्रविधि</b> र <b>पूर्वाधार निर्माण</b> मा मात्र (Advanced Mode)<br>
+✔ <b>प्रारम्भिक लगानी</b> देखिन्छ तर ह्रासकट्टी लाग्दैन<br>
+✔ कच्चापदार्थ / विविध / चालु खर्चमा ह्रासकट्टी हुँदैन
 </div>
 
 <!-- TABLE -->
 <table>
-<thead>
-<tr>
-  <th>विधा</th>
-  <th>शीर्षक</th>
-  <th>रकम</th>
-  <th class="depr-col">ह्रासकट्टी (वार्षिक)</th>
-  <th></th>
-</tr>
-</thead>
-
-<tbody id="rows"></tbody>
-
-<tfoot>
-<tr class="total-row">
-  <td colspan="2">कुल खर्च (Cash)</td>
-  <td id="totalExpense">0</td>
-  <td class="depr-col"></td>
-  <td></td>
-</tr>
-<tr class="total-row">
-  <td colspan="3">कुल वार्षिक ह्रासकट्टी</td>
-  <td class="depr-col" id="totalDepr">0</td>
-  <td></td>
-</tr>
-</tfoot>
+  <thead>
+    <tr>
+      <th>विधा</th>
+      <th>शीर्षक</th>
+      <th>रकम</th>
+      <th class="depr-col">ह्रासकट्टी (वार्षिक)</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody id="rows"></tbody>
+  <tfoot>
+    <tr class="total-row">
+      <td colspan="2">कुल खर्च (Cash)</td>
+      <td id="totalExpense">0</td>
+      <td class="depr-col"></td>
+      <td></td>
+    </tr>
+    <tr class="total-row">
+      <td colspan="3">कुल वार्षिक ह्रासकट्टी</td>
+      <td class="depr-col" id="totalDepr">0</td>
+      <td></td>
+    </tr>
+  </tfoot>
 </table>
 
 <script>
 /* ================= DATA ================= */
 let expenses = JSON.parse(localStorage.getItem("expenses") || "[]");
 
-/* ================= DEPRECIATION RULE ================= */
+/* ================= DEPRECIATION RULES =================
+   NOTE:
+   - ONLY these categories depreciate (Advanced Mode)
+   - Initial Investment DOES NOT depreciate
+*/
 const DEPR_RULES = {
-  "मेशीन औजार / प्रविधि": 0.15,   // 15%
-  "पूर्वाधार निर्माण": 0.05       // 5%
+  "मेशीन औजार / प्रविधि": 0.15,   // 15% yearly
+  "पूर्वाधार निर्माण": 0.05       // 5% yearly
 };
 
 let MODE = "simple";
 
 /* ================= MODE TOGGLE ================= */
-advancedMode.addEventListener("change", e=>{
+document.getElementById("advancedMode").addEventListener("change", e=>{
   MODE = e.target.checked ? "advanced" : "simple";
   render();
 });
 
-/* ================= ADD EXPENSE ================= */
+/* ================= ADD ================= */
 function addExpense(){
   if(!title.value || !amount.value){
     alert("सबै विवरण भर्नुहोस्");
     return;
   }
-
   expenses.push({
     category: category.value,
     title: title.value,
     amount: Number(amount.value)
   });
-
-  title.value="";
-  amount.value="";
+  title.value=""; amount.value="";
   saveAndRender();
 }
 
@@ -154,55 +127,49 @@ function saveAndRender(){
   render();
 }
 
-/* ================= RENDER (GROUPED + DEPRECIATION) ================= */
+/* ================= RENDER (GROUPED + DEPR) ================= */
 function render(){
   const grouped = {};
   let cashTotal = 0;
   let deprTotal = 0;
 
   expenses.forEach(e=>{
-    if(!grouped[e.category]) grouped[e.category]=[];
+    if(!grouped[e.category]) grouped[e.category] = [];
     grouped[e.category].push(e);
 
+    // Cash vs Depreciation accounting
     if(MODE==="advanced" && DEPR_RULES[e.category]){
       deprTotal += e.amount * DEPR_RULES[e.category];
     }else{
-      cashTotal += e.amount;
+      cashTotal += e.amount; // includes Initial Investment
     }
   });
 
-  let html="";
+  let html = "";
   Object.keys(grouped).forEach(cat=>{
-    html += `
-      <tr class="group-row">
-        <td colspan="5">◆ ${cat}</td>
-      </tr>
-    `;
-
+    html += `<tr class="group-row"><td colspan="5">◆ ${cat}</td></tr>`;
     grouped[cat].forEach(e=>{
-      const depr =
+      const deprCell =
         (MODE==="advanced" && DEPR_RULES[e.category])
           ? Math.round(e.amount * DEPR_RULES[e.category]).toLocaleString()
           : "";
-
       html += `
         <tr>
           <td>${e.category}</td>
           <td>${e.title}</td>
           <td>${e.amount.toLocaleString()}</td>
-          <td class="depr-col">${depr}</td>
+          <td class="depr-col">${deprCell}</td>
           <td><button onclick="del(${expenses.indexOf(e)})">❌</button></td>
-        </tr>
-      `;
+        </tr>`;
     });
   });
 
-  rows.innerHTML = html;
-  totalExpense.innerText = cashTotal.toLocaleString();
-  totalDepr.innerText =
+  document.getElementById("rows").innerHTML = html;
+  document.getElementById("totalExpense").innerText = cashTotal.toLocaleString();
+  document.getElementById("totalDepr").innerText =
     MODE==="advanced" ? Math.round(deprTotal).toLocaleString() : "0";
 
-  // Show / Hide depreciation column
+  // show/hide depreciation column
   document.querySelectorAll(".depr-col").forEach(el=>{
     el.style.display = MODE==="advanced" ? "" : "none";
   });
