@@ -2,8 +2,7 @@
 <html lang="ne">
 <head>
 <meta charset="UTF-8">
-<title>Business Proposal – FarmerBase BPMS</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Business Proposal</title>
 
 <style>
 body{
@@ -11,384 +10,169 @@ body{
   line-height:1.6;
   color:#000;
 }
+h1,h2,h3{color:#1b5e20}
+table{border-collapse:collapse;width:100%;margin:10px 0}
+th,td{border:1px solid #999;padding:6px}
+th{background:#eef5ee}
 .page{page-break-after:always}
 .annex{page-break-before:always}
 .center{text-align:center}
-.right{text-align:right}
-h1,h2,h3{color:#1b5e20;margin-top:0}
-table{border-collapse:collapse;width:100%;margin-top:10px}
-th,td{border:1px solid #999;padding:6px}
-th{background:#eef5ee}
 .small{font-size:13px;color:#555}
-.toc li{margin-bottom:6px}
-.toggle{
-  position:fixed;top:10px;right:10px;
-  padding:6px 12px;border:1px solid #2e7d32;
-  background:#e8f5e9;cursor:pointer
+
+/* screen-only */
+.no-print{}
+
+/* buttons */
+.toggle,.print-btn{
+  position:fixed;right:15px;padding:8px 14px;
+  background:#2e7d32;color:#fff;border:none;
+  border-radius:6px;cursor:pointer
 }
-.watermark{
-  position:fixed;top:40%;left:25%;
-  font-size:80px;color:#eee;transform:rotate(-30deg);
-  z-index:-1
+.toggle{top:15px}
+.print-btn{bottom:15px}
+
+/* ===== PRINT ===== */
+@media print{
+  .no-print,button{display:none!important}
+  @page{size:A4;margin:18mm}
+  body{font-size:14px}
+  table{page-break-inside:avoid}
 }
 </style>
 </head>
 
 <body>
 
-<div class="watermark">PROPOSAL</div>
+<!-- buttons -->
+<button class="toggle no-print" onclick="toggleAutoEN()">NE / EN</button>
+<button class="print-btn no-print" onclick="window.print()">🖨️ Print / PDF</button>
 
-<button class="toggle" onclick="toggleLang()">NE / EN</button>
-
-<!-- ================= COVER PAGE ================= -->
+<!-- ================= COVER ================= -->
 <div class="page center">
-<h1 data-ne="कृषि व्यवसायिक परियोजना प्रस्ताव"
-    data-en="Agricultural Business Proposal">
-कृषि व्यवसायिक परियोजना प्रस्ताव
-</h1>
-
+<h1>कृषि व्यवसायिक परियोजना प्रस्ताव</h1>
 <h2 id="projectName">[Project Name]</h2>
-
-<p>
-<b id="orgName">[Organization Name]</b><br>
-<span id="orgAddress">[Address]</span>
-</p>
-
-<p class="small">
-मिति / Date : <span id="proposalDate"></span>
-</p>
+<p><b id="orgName">[Organization Name]</b><br>
+<span id="orgAddress">[Address]</span></p>
+<p class="small">प्रस्ताव मिति : <span id="proposalDate"></span></p>
 </div>
 
 <!-- ================= TOC ================= -->
 <div class="page">
-<h2 data-ne="विषय सूची" data-en="Table of Contents">विषय सूची</h2>
-<ol class="toc">
-<li>परियोजना परिचय</li>
-<li>संक्षिप्त कार्यकारी सारांश</li>
+<h2>विषय सूची</h2>
+<ol>
+<li>संक्षिप्त विवरण</li>
+<li>व्यवसाय विवरण</li>
 <li>आर्थिक विश्लेषण</li>
-<li>नाफा / नोक्सान विश्लेषण</li>
-<li>निष्कर्ष</li>
-<li>परिशिष्ट – क : विधागत खर्च</li>
-<li>परिशिष्ट – ख : ह्रासकट्टी</li>
-<li>परिशिष्ट – ग : लाभांश वितरण</li>
-<li>परिशिष्ट – घ : ५ वर्षे ROI</li>
-<li>परिशिष्ट – ङ : नक्सा</li>
+<li>नाफा / नोक्सान</li>
+<li>ROI</li>
+<li>परिशिष्ट</li>
 </ol>
 </div>
 
-<!-- ================= MAIN CONTENT ================= -->
+<!-- ================= SHORT INFO ================= -->
 <div class="page">
-<h2 data-ne="१. परियोजना परिचय" data-en="1. Project Introduction">
-१. परियोजना परिचय
-</h2>
-<p id="introText">
-यो प्रस्ताव व्यवसायिक योजनाको औपचारिक विवरण हो।
-</p>
+<h2>संक्षिप्त विवरण</h2>
+<p id="shortInfoBox"></p>
+</div>
 
-<h2 data-ne="२. कार्यकारी सारांश" data-en="2. Executive Summary">
-२. कार्यकारी सारांश
-</h2>
+<!-- ================= BUSINESS DETAIL ================= -->
+<div class="page">
+<h2>व्यवसाय विवरण</h2>
+<p id="bizDetail"></p>
+</div>
+
+<!-- ================= FINANCIAL SUMMARY ================= -->
+<div class="page">
+<h2>आर्थिक विश्लेषण</h2>
 <table>
-<tr><th>जम्मा खर्च</th><td id="sumExpense">—</td></tr>
-<tr><th>जम्मा ह्रासकट्टी</th><td id="sumDep">—</td></tr>
-<tr><th>जम्मा आम्दानी</th><td id="sumIncome">—</td></tr>
+<tr><th>कुल खर्च</th><td id="sumExpense">—</td></tr>
+<tr><th>कुल आम्दानी</th><td id="sumIncome">—</td></tr>
 <tr><th>वार्षिक नाफा</th><td id="sumProfit">—</td></tr>
 </table>
-
-<h2 data-ne="३. आर्थिक विश्लेषण" data-en="3. Financial Analysis">
-३. आर्थिक विश्लेषण
-</h2>
-<p>
-यो विश्लेषण Expense, Income, Profit/Loss तथा ROI पृष्ठबाट
-स्वचालित रूपमा संकलन गरिएको हो।
-</p>
-
-<h2 data-ne="४. निष्कर्ष" data-en="4. Conclusion">
-४. निष्कर्ष
-</h2>
-<p>
-उपलब्ध तथ्यांकका आधारमा परियोजना आर्थिक रूपमा सम्भाव्य देखिन्छ।
-</p>
 </div>
 
-<!-- ================= ANNEX K : EXPENSE ================= -->
+<!-- ================= ANNEX : MAP ================= -->
 <div class="annex">
-<h2>परिशिष्ट – क : विधागत खर्च विवरण</h2>
-<table id="annexExpense">
-<tr><th>विधा</th><th>रकम</th></tr>
-</table>
+<h2>परिशिष्ट : परियोजना स्थान</h2>
+<iframe id="mapFrame" width="100%" height="380" style="border:0"></iframe>
 </div>
 
-<!-- ================= ANNEX KH : DEPRECIATION ================= -->
-<div class="annex">
-<h2>परिशिष्ट – ख : ह्रासकट्टी विवरण</h2>
-<table>
-<tr><th>विवरण</th><th>वार्षिक ह्रासकट्टी</th></tr>
-<tr><td>मेशीन औजार तथा पूर्वाधार</td><td id="annexDep">—</td></tr>
-</table>
-<p class="small">
-नोट: कच्चापदार्थ, विविध तथा चालु खर्चमा ह्रासकट्टी लाग्दैन।
-</p>
-</div>
-
-<!-- ================= ANNEX G : DIVIDEND ================= -->
-<div class="annex">
-<h2>परिशिष्ट – ग : लाभांश वितरण</h2>
-<table>
-<tr>
-<th>क्र.सं.</th><th>शीर्षक</th><th>%</th><th>रकम</th>
-</tr>
-<tbody id="annexDividend"></tbody>
-<tr>
-<th colspan="2">जम्मा</th>
-<th id="divPct">0%</th>
-<th id="divAmt">0</th>
-</tr>
-</table>
-</div>
-
-<!-- ================= ANNEX GH : ROI ================= -->
-<div class="annex">
-<h2>परिशिष्ट – घ : ५ वर्षे ROI सारांश</h2>
-<table id="annexROI">
-<tr>
-<th>वर्ष</th><th>नाफा</th><th>संचित नगद</th>
-</tr>
-</table>
-</div>
-
-<!-- ================= ANNEX NGA : MAP ================= -->
-<div class="annex">
-<h2>परिशिष्ट – ङ : परियोजना स्थान</h2>
-<iframe
-  src="https://maps.google.com/maps?q=nepal&t=&z=7&ie=UTF8&iwloc=&output=embed"
-  width="100%" height="400" style="border:0">
-</iframe>
-</div>
-
+<!-- ================= AUTO ENGLISH ================= -->
 <script>
-/* ================= DATA LOAD ================= */
-let key = localStorage.getItem("activeProject");
-let p = key ? JSON.parse(localStorage.getItem(key)) : {};
+/* ===== DICTIONARY ===== */
+const neToEn={
+ "कृषि व्यवसायिक परियोजना प्रस्ताव":"Agricultural Business Proposal",
+ "विषय सूची":"Table of Contents",
+ "संक्षिप्त विवरण":"Executive Summary",
+ "व्यवसाय विवरण":"Business Details",
+ "आर्थिक विश्लेषण":"Financial Analysis",
+ "कुल खर्च":"Total Expense",
+ "कुल आम्दानी":"Total Income",
+ "वार्षिक नाफा":"Annual Net Profit",
+ "परिशिष्ट":"Annex",
+ "परियोजना स्थान":"Project Location",
+ "प्रस्ताव मिति":"Proposal Date"
+};
 
-/* income */
-let income=0;
+function autoEnglish(enable){
+ document.querySelectorAll("h1,h2,h3,p,th,td,li").forEach(el=>{
+   if(!el.dataset.ne) el.dataset.ne=el.innerText.trim();
+   el.dataset.en = neToEn[el.dataset.ne] || el.dataset.ne;
+   el.innerText = enable ? el.dataset.en : el.dataset.ne;
+ });
+}
+
+let en=false;
+function toggleAutoEN(){
+ en=!en;
+ autoEnglish(en);
+ document.documentElement.lang=en?"en":"ne";
+}
+</script>
+
+<!-- ================= DATA LOAD ================= -->
+<script>
+const key=localStorage.getItem("activeProject");
+const p=key?JSON.parse(localStorage.getItem(key)):{};
+
+/* short info */
+if(p.shortInfo){
+ shortInfoBox.innerHTML=
+ `<b>${p.shortInfo.orgName||""}</b><br>
+ दर्ता नं: ${p.shortInfo.regNo||""}<br>
+ PAN: ${p.shortInfo.panNo||""}`;
+}
+
+/* business detail */
+if(p.businessDetail){
+ bizDetail.innerHTML=
+ `<b>उद्देश्य:</b> ${p.businessDetail.objective||""}<br>
+ <b>स्थान:</b> ${p.businessDetail.location||""}<br>
+ <b>अवधि:</b> ${p.businessDetail.duration||""}`;
+}
+
+/* expense + income */
+let expense=0,income=0;
+(p.expenseData||[]).forEach(e=>expense+=Number(e.amount||0));
 (p.incomeData||[]).forEach(i=>income+=Number(i.amount||0));
 
-/* expense + depreciation */
-let cash=0, dep=0;
-let catSum={};
-(p.expenseData||[]).forEach(e=>{
-  catSum[e.category]=(catSum[e.category]||0)+Number(e.amount||0);
-  if(e.category==="मेशीन औजार / प्रविधि"||e.category==="पूर्वाधार निर्माण")
-    dep+=Number(e.amount||0)*0.15;
-  else cash+=Number(e.amount||0);
-});
+let profit=income-expense;
 
-/* interest */
-let interest = Number(localStorage.getItem("ANNUAL_LOAN_INTEREST")||0);
+sumExpense.innerText=expense.toLocaleString();
+sumIncome.innerText=income.toLocaleString();
+sumProfit.innerText=profit.toLocaleString();
 
-/* profit */
-let profit = income - cash - dep - interest;
+/* date */
+proposalDate.innerText=new Date().toLocaleDateString();
 
-/* summary */
-sumExpense.innerText=(cash+dep).toLocaleString();
-s
-maps.google.com
-You sent
-<!DOCTYPE html>
-<html lang="ne">
-<head>
-<meta charset="UTF-8">
-<title>Business Proposal – FarmerBase BPMS</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-
-<style>
-body{
-  font-family:"Noto Sans Devanagari","Kalimati","Mangal",system-ui,Arial;
-  line-height:1.6;
-  color:#000;
+/* map */
+if(p.businessDetail?.location){
+ mapFrame.src=
+ "https://maps.google.com/maps?q="+
+ encodeURIComponent(p.businessDetail.location)+
+ "&z=13&output=embed";
 }
-.page{page-break-after:always}
-.annex{page-break-before:always}
-.center{text-align:center}
-.right{text-align:right}
-h1,h2,h3{color:#1b5e20;margin-top:0}
-table{border-collapse:collapse;width:100%;margin-top:10px}
-th,td{border:1px solid #999;padding:6px}
-th{background:#eef5ee}
-.small{font-size:13px;color:#555}
-.toc li{margin-bottom:6px}
-.toggle{
-  position:fixed;top:10px;right:10px;
-  padding:6px 12px;border:1px solid #2e7d32;
-  background:#e8f5e9;cursor:pointer
-}
-.watermark{
-  position:fixed;top:40%;left:25%;
-  font-size:80px;color:#eee;transform:rotate(-30deg);
-  z-index:-1
-}
-</style>
-</head>
+</script>
 
-<body>
-
-<div class="watermark">PROPOSAL</div>
-
-<button class="toggle" onclick="toggleLang()">NE / EN</button>
-
-<!-- ================= COVER PAGE ================= -->
-<div class="page center">
-<h1 data-ne="कृषि व्यवसायिक परियोजना प्रस्ताव"
-    data-en="Agricultural Business Proposal">
-कृषि व्यवसायिक परियोजना प्रस्ताव
-</h1>
-
-<h2 id="projectName">[Project Name]</h2>
-
-<p>
-<b id="orgName">[Organization Name]</b><br>
-<span id="orgAddress">[Address]</span>
-</p>
-
-<p class="small">
-मिति / Date : <span id="proposalDate"></span>
-</p>
-</div>
-
-<!-- ================= TOC ================= -->
-<div class="page">
-<h2 data-ne="विषय सूची" data-en="Table of Contents">विषय सूची</h2>
-<ol class="toc">
-<li>परियोजना परिचय</li>
-<li>संक्षिप्त कार्यकारी सारांश</li>
-<li>आर्थिक विश्लेषण</li>
-<li>नाफा / नोक्सान विश्लेषण</li>
-<li>निष्कर्ष</li>
-<li>परिशिष्ट – क : विधागत खर्च</li>
-<li>परिशिष्ट – ख : ह्रासकट्टी</li>
-<li>परिशिष्ट – ग : लाभांश वितरण</li>
-<li>परिशिष्ट – घ : ५ वर्षे ROI</li>
-<li>परिशिष्ट – ङ : नक्सा</li>
-</ol>
-</div>
-
-<!-- ================= MAIN CONTENT ================= -->
-<div class="page">
-<h2 data-ne="१. परियोजना परिचय" data-en="1. Project Introduction">
-१. परियोजना परिचय
-</h2>
-<p id="introText">
-यो प्रस्ताव व्यवसायिक योजनाको औपचारिक विवरण हो।
-</p>
-
-<h2 data-ne="२. कार्यकारी सारांश" data-en="2. Executive Summary">
-२. कार्यकारी सारांश
-</h2>
-<table>
-<tr><th>जम्मा खर्च</th><td id="sumExpense">—</td></tr>
-<tr><th>जम्मा ह्रासकट्टी</th><td id="sumDep">—</td></tr>
-<tr><th>जम्मा आम्दानी</th><td id="sumIncome">—</td></tr>
-<tr><th>वार्षिक नाफा</th><td id="sumProfit">—</td></tr>
-</table>
-
-<h2 data-ne="३. आर्थिक विश्लेषण" data-en="3. Financial Analysis">
-३. आर्थिक विश्लेषण
-</h2>
-<p>
-यो विश्लेषण Expense, Income, Profit/Loss तथा ROI पृष्ठबाट
-स्वचालित रूपमा संकलन गरिएको हो।
-</p>
-
-<h2 data-ne="४. निष्कर्ष" data-en="4. Conclusion">
-४. निष्कर्ष
-</h2>
-<p>
-उपलब्ध तथ्यांकका आधारमा परियोजना आर्थिक रूपमा सम्भाव्य देखिन्छ।
-</p>
-</div>
-
-<!-- ================= ANNEX K : EXPENSE ================= -->
-<div class="annex">
-<h2>परिशिष्ट – क : विधागत खर्च विवरण</h2>
-<table id="annexExpense">
-<tr><th>विधा</th><th>रकम</th></tr>
-</table>
-</div>
-
-<!-- ================= ANNEX KH : DEPRECIATION ================= -->
-<div class="annex">
-<h2>परिशिष्ट – ख : ह्रासकट्टी विवरण</h2>
-<table>
-<tr><th>विवरण</th><th>वार्षिक ह्रासकट्टी</th></tr>
-<tr><td>मेशीन औजार तथा पूर्वाधार</td><td id="annexDep">—</td></tr>
-</table>
-<p class="small">
-नोट: कच्चापदार्थ, विविध तथा चालु खर्चमा ह्रासकट्टी लाग्दैन।
-</p>
-</div>
-
-<!-- ================= ANNEX G : DIVIDEND ================= -->
-<div class="annex">
-<h2>परिशिष्ट – ग : लाभांश वितरण</h2>
-<table>
-<tr>
-<th>क्र.सं.</th><th>शीर्षक</th><th>%</th><th>रकम</th>
-</tr>
-<tbody id="annexDividend"></tbody>
-<tr>
-<th colspan="2">जम्मा</th>
-<th id="divPct">0%</th>
-<th id="divAmt">0</th>
-</tr>
-</table>
-</div>
-
-<!-- ================= ANNEX GH : ROI ================= -->
-<div class="annex">
-<h2>परिशिष्ट – घ : ५ वर्षे ROI सारांश</h2>
-<table id="annexROI">
-<tr>
-<th>वर्ष</th><th>नाफा</th><th>संचित नगद</th>
-</tr>
-</table>
-</div>
-
-<!-- ================= ANNEX NGA : MAP ================= -->
-<div class="annex">
-<h2>परिशिष्ट – ङ : परियोजना स्थान</h2>
-<iframe
-  src="https://maps.google.com/maps?q=nepal&t=&z=7&ie=UTF8&iwloc=&output=embed"
-  width="100%" height="400" style="border:0">
-</iframe>
-</div>
-
-<script>
-/* ================= DATA LOAD ================= */
-let key = localStorage.getItem("activeProject");
-let p = key ? JSON.parse(localStorage.getItem(key)) : {};
-
-/* income */
-let income=0;
-(p.incomeData||[]).forEach(i=>income+=Number(i.amount||0));
-
-/* expense + depreciation */
-let cash=0, dep=0;
-let catSum={};
-(p.expenseData||[]).forEach(e=>{
-  catSum[e.category]=(catSum[e.category]||0)+Number(e.amount||0);
-  if(e.category==="मेशीन औजार / प्रविधि"||e.category==="पूर्वाधार निर्माण")
-    dep+=Number(e.amount||0)*0.15;
-  else cash+=Number(e.amount||0);
-});
-
-/* interest */
-let interest = Number(localStorage.getItem("ANNUAL_LOAN_INTEREST")||0);
-
-/* profit */
-let profit = income - cash - dep - interest;
-
-/* summary */
-sumExpense.innerText=(cash+dep).toLocaleString();
-s
+</body>
+</html>
