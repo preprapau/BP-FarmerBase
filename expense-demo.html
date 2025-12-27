@@ -2,104 +2,38 @@
 <html lang="ne">
 <head>
 <meta charset="UTF-8">
-<title>Expense Detail | BPMS</title>
+<title>Profit / Loss | BPMS</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
-body{
-  font-family:"Noto Sans Devanagari","Kalimati","Mangal","Nirmala UI",system-ui,Arial;
-  background:#f4f7f6;margin:0;
-}
-.wrap{
-  max-width:1000px;margin:25px auto;background:#fff;
-  padding:25px;border-radius:10px;
-}
-h2{color:#2e7d32;margin-top:0}
-.progress{background:#e8f5e9;border:1px solid #c8e6c9;padding:12px;border-radius:8px;margin-bottom:15px}
-.steps span{padding:4px 8px;border-radius:10px;background:#eee;font-size:13px}
-.steps .done{background:#a5d6a7}
-.steps .active{background:#2e7d32;color:#fff}
-.bar{height:8px;background:#ddd;border-radius:6px;overflow:hidden;margin-top:8px}
-.bar span{display:block;height:100%;width:43%;background:#2e7d32}
-.form{display:grid;grid-template-columns:2fr 3fr 1fr 1fr auto;gap:8px;margin-bottom:12px}
-input,select{padding:8px;font-family:inherit}
-.add{background:#2e7d32;color:#fff;border:none;border-radius:6px;padding:8px 14px;cursor:pointer}
-table{width:100%;border-collapse:collapse;margin-top:8px}
-th,td{border:1px solid #ccc;padding:6px;text-align:right}
-th{background:#f0f0f0}
-.left{text-align:left}
-.cat-head{background:#e8f5e9;font-weight:700}
-.subtotal{font-weight:700;background:#fafafa}
-.depr{background:#fff8e1;font-weight:700}
+body{font-family:"Noto Sans Devanagari","Kalimati";background:#f4f7f6;margin:0}
+.wrap{max-width:950px;margin:25px auto;background:#fff;padding:25px;border-radius:10px}
+h2{color:#2e7d32}
+table{width:100%;border-collapse:collapse}
+th,td{border:1px solid #ccc;padding:8px}
+th{background:#f0f0f0;text-align:left}
+.big{font-size:20px;font-weight:700;background:#e8f5e9}
 .nav{display:flex;justify-content:space-between;margin-top:25px}
-button{padding:8px 16px;border:none;border-radius:6px;cursor:pointer;background:#2e7d32;color:#fff}
-.del{background:#c62828}
+button{padding:8px 16px;border:none;border-radius:6px;background:#2e7d32;color:#fff}
 </style>
 </head>
 
 <body>
 <div class="wrap">
 
-<div class="progress">
-  <b>चरण ३ / ७</b><br><br>
-  <div class="steps">
-    <span class="done">Short Info</span> →
-    <span class="done">Detail</span> →
-    <span class="active">Expense</span> →
-    <span>Income</span> →
-    <span>Profit</span> →
-    <span>ROI</span> →
-    <span>Proposal</span>
-  </div>
-  <div class="bar"><span></span></div>
-</div>
-
-<h2>💰 खर्च विवरण (वार्षिक)</h2>
-
-<div class="form">
-  <select id="category">
-    <option>प्रारम्भिक लगानी</option>
-    <option>मेशीन औजार / प्रविधि</option>
-    <option>पूर्वाधार निर्माण</option>
-    <option>कच्चापदार्थ</option>
-    <option>विविध</option>
-  </select>
-  <input id="title" placeholder="खर्च शीर्षक">
-  <input id="qty" type="number" placeholder="परिमाण">
-  <input id="rate" type="number" placeholder="दर">
-  <button class="add" onclick="addExpense()">+ Add</button>
-</div>
+<h2>📊 नाफा / नोक्सान (वार्षिक)</h2>
 
 <table>
-<thead>
-<tr>
-  <th class="left">शीर्षक</th>
-  <th>परिमाण</th>
-  <th>दर</th>
-  <th>रकम</th>
-  <th></th>
-</tr>
-</thead>
-<tbody id="expenseBody"></tbody>
-<tfoot>
-<tr class="subtotal">
-  <td colspan="3" class="left">कुल खर्च (Cash)</td>
-  <td id="cashTotal">0</td><td></td>
-</tr>
-<tr class="depr">
-  <td colspan="3" class="left">ह्रासकट्टी (वार्षिक)</td>
-  <td id="deprTotal">0</td><td></td>
-</tr>
-<tr class="subtotal">
-  <td colspan="3" class="left">कुल खर्च (Cash + ह्रासकट्टी)</td>
-  <td id="grandTotal">0</td><td></td>
-</tr>
-</tfoot>
+<tr><th>कुल आम्दानी</th><td id="inc">0</td></tr>
+<tr><th>चालु खर्च</th><td id="cash">0</td></tr>
+<tr><th>ह्रासकट्टी</th><td id="depr">0</td></tr>
+<tr><th>बैंक ब्याज</th><td id="int">0</td></tr>
+<tr class="big"><th>नाफा / नोक्सान</th><td id="profit">0</td></tr>
 </table>
 
 <div class="nav">
-  <button onclick="location.href='business-detail.html'">⬅ Previous</button>
-  <button onclick="location.href='income-demo.html'">Next ➡</button>
+  <button onclick="location.href='income-demo.html'">⬅ Previous</button>
+  <button onclick="location.href='five-year-roi.html'">Next ➡</button>
 </div>
 
 </div>
@@ -107,62 +41,27 @@ button{padding:8px 16px;border:none;border-radius:6px;cursor:pointer;background:
 <script>
 let key=localStorage.getItem("activeProject");
 if(!key){alert("पहिले Project खोल्नुहोस्");location.href="index.html";}
-let project=JSON.parse(localStorage.getItem(key));
-let expenses=project.expenseData||[];
+let p=JSON.parse(localStorage.getItem(key));
 
-function addExpense(){
-  if(!title.value) return;
-  let amt=(qty.value||0)*(rate.value||0);
-  expenses.push({
-    category:category.value,
-    title:title.value,
-    qty:qty.value||0,
-    rate:rate.value||0,
-    amount:amt
-  });
-  title.value="";qty.value="";rate.value="";
-  save();
-}
-function removeExpense(i){
-  expenses.splice(i,1);save();
-}
-function save(){
-  project.expenseData=expenses;
-  project.lastEdited=new Date().toLocaleString("ne-NP");
-  localStorage.setItem(key,JSON.stringify(project));
-  render();
-}
-function render(){
-  expenseBody.innerHTML="";
-  let groups={},cash=0,depr=0;
+let income=0;
+(p.incomeData||[]).forEach(i=>income+=Number(i.amount||0));
 
-  expenses.forEach(e=>{
-    if(!groups[e.category]) groups[e.category]=[];
-    groups[e.category].push(e);
-  });
+let cash=0,depr=0;
+(p.expenseData||[]).forEach(e=>{
+  if(e.category==="मेशीन औजार / प्रविधि"||e.category==="पूर्वाधार निर्माण")
+    depr+=e.amount*0.15;
+  else
+    cash+=e.amount;
+});
 
-  for(let cat in groups){
-    expenseBody.innerHTML+=`<tr class="cat-head"><td colspan="5">🔹 ${cat}</td></tr>`;
-    groups[cat].forEach((e,i)=>{
-      if(cat==="मेशीन औजार / प्रविधि"||cat==="पूर्वाधार निर्माण")
-        depr+=e.amount*0.15;
-      else cash+=e.amount;
+let interest=Number(localStorage.getItem("ANNUAL_LOAN_INTEREST")||0);
 
-      expenseBody.innerHTML+=`
-      <tr>
-        <td class="left">${e.title}</td>
-        <td>${e.qty}</td>
-        <td>${e.rate}</td>
-        <td>${e.amount}</td>
-        <td><button class="del" onclick="removeExpense(${i})">✖</button></td>
-      </tr>`;
-    });
-  }
-  cashTotal.innerText=cash;
-  deprTotal.innerText=Math.round(depr);
-  grandTotal.innerText=Math.round(cash+depr);
-}
-render();
+inc.innerText=Math.round(income);
+cash.innerText=Math.round(cash);
+depr.innerText=Math.round(depr);
+int.innerText=Math.round(interest);
+profit.innerText=Math.round(income-cash-depr-interest);
 </script>
+
 </body>
 </html>
