@@ -1,71 +1,211 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+<meta charset="UTF-8">
+<title>Business Proposal</title>
+
+<style>
+body{
+  font-family:"Noto Sans Devanagari","Kalimati","Mangal",system-ui,Arial;
+  line-height:1.6;color:#000
+}
+h1,h2,h3{color:#1b5e20}
+table{border-collapse:collapse;width:100%;margin:10px 0}
+th,td{border:1px solid #999;padding:6px}
+th{background:#eef5ee}
+.page{page-break-after:always}
+.annex{page-break-before:always}
+.center{text-align:center}
+.small{font-size:13px;color:#555}
+
+/* screen only */
+.no-print{}
+
+/* buttons */
+.toggle,.print-btn{
+  position:fixed;right:15px;padding:8px 14px;
+  background:#2e7d32;color:#fff;border:none;
+  border-radius:6px;cursor:pointer
+}
+.toggle{top:15px}
+.print-btn{bottom:15px}
+
+/* print */
+@media print{
+  .no-print,button{display:none!important}
+  @page{size:A4;margin:18mm}
+  body{font-size:14px}
+}
+</style>
+</head>
+
+<body>
+
+<button class="toggle no-print" onclick="toggleAutoEN()">NE / EN</button>
+<button class="print-btn no-print" onclick="window.print()">🖨️ Print / PDF</button>
+
+<!-- ================= COVER ================= -->
+<div class="page center">
+<h1>कृषि व्यवसायिक परियोजना प्रस्ताव</h1>
+<h2 id="projectName">—</h2>
+<p>
+<b id="orgName">—</b><br>
+<span id="orgAddress">—</span>
+</p>
+<p class="small">प्रस्ताव मिति : <span id="proposalDate"></span></p>
+</div>
+
+<!-- ================= TOC ================= -->
+<div class="page">
+<h2>विषय सूची</h2>
+<ol>
+<li>संक्षिप्त विवरण</li>
+<li>व्यवसाय विवरण</li>
+<li>आर्थिक विश्लेषण</li>
+<li>नाफा / नोक्सान</li>
+<li>परिशिष्ट</li>
+</ol>
+</div>
+
+<!-- ================= SHORT INFO ================= -->
+<div class="page">
+<h2>संक्षिप्त विवरण</h2>
+<p id="shortInfoBox">—</p>
+</div>
+
+<!-- ================= BUSINESS DETAIL ================= -->
+<div class="page">
+<h2>व्यवसाय विवरण</h2>
+<p id="bizDetail">—</p>
+</div>
+
+<!-- ================= FINANCIAL SUMMARY ================= -->
+<div class="page">
+<h2>आर्थिक विश्लेषण</h2>
+<table>
+<tr><th>कुल खर्च</th><td id="sumExpense">—</td></tr>
+<tr><th>कुल आम्दानी</th><td id="sumIncome">—</td></tr>
+<tr><th>वार्षिक नाफा</th><td id="sumProfit">—</td></tr>
+</table>
+</div>
+
+<!-- ================= ANNEX : MAP ================= -->
+<div class="annex">
+<h2>परिशिष्ट : परियोजना स्थान</h2>
+<iframe id="mapFrame" width="100%" height="380" style="border:0"></iframe>
+</div>
+
 <script>
-/* ===== LOAD ACTIVE PROJECT ===== */
-const key = localStorage.getItem("activeProject");
-if(!key){
-  alert("Active project select गरिएको छैन");
-}
-const project = JSON.parse(localStorage.getItem(key)) || {};
+/* ================= AUTO PICK PROJECT ================= */
+let project=null;
 
-/* ===== SHORT INFO (REAL ENTRY) ===== */
-const shortInfoBox = document.getElementById("shortInfoBox");
-if(shortInfoBox){
-  shortInfoBox.innerHTML = `
-    <b>${project.orgName || ""}</b><br>
-    दर्ता नं: ${project.regNo || ""}<br>
-    PAN: ${project.panNo || ""}<br>
-    लाभान्वित समूह: ${project.beneficiaryType || ""}<br>
-    महिला: ${project.female || 0},
-    पुरुष: ${project.male || 0}
-  `;
+// 1. try activeProject
+const activeKey = localStorage.getItem("activeProject");
+if(activeKey && localStorage.getItem(activeKey)){
+  project = JSON.parse(localStorage.getItem(activeKey));
 }
 
-/* ===== BUSINESS DETAIL ===== */
-const bizDetail = document.getElementById("bizDetail");
-if(bizDetail){
-  bizDetail.innerHTML = `
-    <b>उद्देश्य:</b> ${project.objective || ""}<br>
-    <b>स्थान:</b> ${project.location || ""}<br>
-    <b>अवधि:</b> ${project.duration || ""}
-  `;
-}
-
-/* ===== EXPENSE ===== */
-let expense = 0;
-(project.expenses || project.expenseData || []).forEach(e=>{
-  expense += Number(e.amount || 0);
-});
-
-/* ===== INCOME ===== */
-let income = 0;
-(project.incomes || project.incomeData || []).forEach(i=>{
-  income += Number(i.amount || 0);
-});
-
-/* ===== PROFIT ===== */
-const profit = income - expense;
-
-/* ===== FILL SUMMARY ===== */
-document.getElementById("sumExpense").innerText =
-  expense.toLocaleString();
-
-document.getElementById("sumIncome").innerText =
-  income.toLocaleString();
-
-document.getElementById("sumProfit").innerText =
-  profit.toLocaleString();
-
-/* ===== MAP ===== */
-if(project.location){
-  const map = document.getElementById("mapFrame");
-  if(map){
-    map.src =
-      "https://maps.google.com/maps?q=" +
-      encodeURIComponent(project.location) +
-      "&z=13&output=embed";
+// 2. fallback: last saved object
+if(!project){
+  for(let i=localStorage.length-1;i>=0;i--){
+    try{
+      const k = localStorage.key(i);
+      const obj = JSON.parse(localStorage.getItem(k));
+      if(obj && typeof obj==="object"){
+        project = obj;
+        break;
+      }
+    }catch(e){}
   }
 }
 
-/* ===== DATE ===== */
-document.getElementById("proposalDate").innerText =
-  new Date().toLocaleDateString();
+// final fallback
+project = project || {};
+
+/* ================= SAFE READERS ================= */
+const get = (...keys)=>{
+  for(const k of keys){
+    if(project[k]!==undefined && project[k]!==null) return project[k];
+  }
+  return "—";
+};
+
+const getArr = (...keys)=>{
+  for(const k of keys){
+    if(Array.isArray(project[k])) return project[k];
+  }
+  return [];
+};
+
+/* ================= FILL BASIC ================= */
+projectName.innerText = get("projectName","name","title");
+orgName.innerText = get("orgName","organization","organizationName");
+orgAddress.innerText = get("address","orgAddress","location");
+
+/* ================= SHORT INFO ================= */
+shortInfoBox.innerHTML = `
+<b>${get("orgName","organization","organizationName")}</b><br>
+दर्ता नं: ${get("regNo","registrationNo")} |
+PAN: ${get("panNo","pan")}<br>
+लाभान्वित समूह: ${get("beneficiaryType","beneficiary")}<br>
+महिला: ${get("female","women",0)},
+पुरुष: ${get("male","men",0)}
+`;
+
+/* ================= BUSINESS DETAIL ================= */
+bizDetail.innerHTML = `
+<b>उद्देश्य:</b> ${get("objective","goal")}<br>
+<b>स्थान:</b> ${get("location","address")}<br>
+<b>अवधि:</b> ${get("duration","period")}
+`;
+
+/* ================= FINANCIAL ================= */
+let expense=0,income=0;
+getArr("expenses","expenseData").forEach(e=>expense+=Number(e.amount||0));
+getArr("incomes","incomeData").forEach(i=>income+=Number(i.amount||0));
+const profit = income-expense;
+
+sumExpense.innerText = expense.toLocaleString();
+sumIncome.innerText = income.toLocaleString();
+sumProfit.innerText = profit.toLocaleString();
+
+/* ================= MAP ================= */
+const loc = get("location","address");
+if(loc!=="—"){
+  mapFrame.src =
+   "https://maps.google.com/maps?q="+
+   encodeURIComponent(loc)+"&z=13&output=embed";
+}
+
+/* ================= DATE ================= */
+proposalDate.innerText = new Date().toLocaleDateString();
+
+/* ================= AUTO ENGLISH ================= */
+const dict={
+ "कृषि व्यवसायिक परियोजना प्रस्ताव":"Agricultural Business Proposal",
+ "विषय सूची":"Table of Contents",
+ "संक्षिप्त विवरण":"Executive Summary",
+ "व्यवसाय विवरण":"Business Details",
+ "आर्थिक विश्लेषण":"Financial Analysis",
+ "कुल खर्च":"Total Expense",
+ "कुल आम्दानी":"Total Income",
+ "वार्षिक नाफा":"Annual Net Profit",
+ "परिशिष्ट":"Annex",
+ "परियोजना स्थान":"Project Location",
+ "प्रस्ताव मिति":"Proposal Date"
+};
+
+let en=false;
+function toggleAutoEN(){
+ en=!en;
+ document.querySelectorAll("h1,h2,h3,p,th,td,li").forEach(el=>{
+   if(!el.dataset.ne) el.dataset.ne=el.innerText.trim();
+   el.dataset.en = dict[el.dataset.ne] || el.dataset.ne;
+   el.innerText = en ? el.dataset.en : el.dataset.ne;
+ });
+ document.documentElement.lang=en?"en":"ne";
+}
 </script>
+
+</body>
+</html>
