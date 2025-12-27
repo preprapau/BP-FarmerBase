@@ -2,89 +2,49 @@
 <html lang="ne">
 <head>
 <meta charset="UTF-8">
-<title>खर्च विवरण</title>
+<title>नाफा / नोक्सान</title>
 <style>
 body{font-family:system-ui;background:#f4f7f6;padding:20px}
 h2{color:#2e7d32}
-input,select,button{padding:8px;margin:4px}
-table{width:100%;border-collapse:collapse;margin-top:15px}
-th,td{border:1px solid #ccc;padding:8px}
+table{width:100%;border-collapse:collapse}
+td,th{border:1px solid #ccc;padding:10px}
 th{background:#e8f5e9}
-.total{font-weight:bold;background:#f1f8e9}
+.result{font-size:22px;font-weight:bold;margin-top:15px}
+.profit{color:green}
+.loss{color:red}
 </style>
 </head>
 <body>
 
-<h2>💰 खर्च विवरण (वार्षिक)</h2>
-
-<select id="group">
-  <option>कच्चापदार्थ</option>
-  <option>विविध</option>
-  <option>चालु खर्च</option>
-  <option>प्रारम्भिक लगानी</option>
-</select>
-
-<input id="title" placeholder="खर्च शीर्षक">
-<input id="amount" type="number" placeholder="रकम">
-<button onclick="addExpense()">➕ Add</button>
+<h2>📊 नाफा / नोक्सान विश्लेषण (वार्षिक)</h2>
 
 <table>
-<thead>
-<tr>
-<th>विधा</th>
-<th>शीर्षक</th>
-<th>रकम</th>
-<th></th>
-</tr>
-</thead>
-<tbody id="rows"></tbody>
-<tfoot>
-<tr class="total">
-<td colspan="2">कुल खर्च</td>
-<td id="totalExpense">0</td>
-<td></td>
-</tr>
-</tfoot>
+<tr><th>विवरण</th><th>रकम</th></tr>
+<tr><td>कुल आम्दानी</td><td id="income">0</td></tr>
+<tr><td>कुल खर्च</td><td id="expense">0</td></tr>
 </table>
 
+<div id="result" class="result"></div>
+
 <script>
-let expenses = JSON.parse(localStorage.getItem("expenses")||"[]");
+// demo income (normally from income page)
+const totalIncome = Number(localStorage.getItem("totalIncome")||0);
 
-function render(){
-  let html="", total=0;
-  expenses.forEach((e,i)=>{
-    total += e.amount;
-    html += `
-      <tr>
-        <td>${e.group}</td>
-        <td>${e.title}</td>
-        <td>${e.amount}</td>
-        <td><button onclick="del(${i})">❌</button></td>
-      </tr>`;
-  });
-  rows.innerHTML = html;
-  totalExpense.innerText = total;
-  localStorage.setItem("expenses",JSON.stringify(expenses));
+// expenses
+const expenses = JSON.parse(localStorage.getItem("expenses")||"[]");
+let totalExpense = expenses.reduce((s,e)=>s+e.amount,0);
+
+// NO depreciation (simple mode)
+const profit = totalIncome - totalExpense;
+
+income.innerText = totalIncome;
+expense.innerText = totalExpense;
+
+if(profit>=0){
+  result.innerHTML = `नाफा : <span class="profit">रु. ${profit}</span>`;
+}else{
+  result.innerHTML = `नोक्सान : <span class="loss">रु. ${profit}</span>`;
 }
-
-function addExpense(){
-  const e={
-    group:group.value,
-    title:title.value,
-    amount:Number(amount.value)
-  };
-  if(!e.title||!e.amount) return alert("सबै भर्नुहोस्");
-  expenses.push(e);
-  title.value="";amount.value="";
-  render();
-}
-
-function del(i){
-  expenses.splice(i,1);
-  render();
-}
-
-render();
 </script>
 
 </body>
