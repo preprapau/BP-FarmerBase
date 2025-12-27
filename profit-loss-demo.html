@@ -10,18 +10,19 @@ body{
   font-family:"Noto Sans Devanagari","Kalimati","Mangal",system-ui,Arial;
   background:#f4f7f6;
   margin:0;
+  padding-bottom:80px; /* menu space */
 }
+
+/* MAIN CARD */
 .wrap{
   max-width:950px;
-  margin:25px auto;
+  margin:20px auto;
   background:#fff;
   padding:25px;
   border-radius:10px;
 }
-h2{
-  color:#2e7d32;
-  margin-top:0;
-}
+
+/* TABLE */
 table{
   width:100%;
   border-collapse:collapse;
@@ -31,88 +32,72 @@ th,td{
   border:1px solid #ccc;
   padding:8px;
 }
-th{
-  background:#f0f0f0;
-  text-align:left;
-}
+th{background:#f0f0f0;text-align:left}
 .right{text-align:right}
 .big{font-size:18px;font-weight:700}
 .green{background:#e8f5e9}
 .blue{background:#e3f2fd}
-input{
-  padding:6px;
-  width:90px;
-}
-.note{
-  font-size:13px;
-  color:#555;
-  margin-top:8px;
-}
-.nav{
-  max-width:950px;
-  margin:0 auto 30px auto;
+input{padding:6px;width:90px}
+
+/* FIXED MENU */
+.navbar{
+  position:fixed;
+  left:0;
+  bottom:0;
+  width:100%;
+  background:#2e7d32;
   display:flex;
   justify-content:space-between;
+  padding:12px 20px;
+  box-sizing:border-box;
 }
-button{
-  padding:8px 18px;
+.navbar button{
+  background:#fff;
+  color:#2e7d32;
   border:none;
+  padding:8px 18px;
   border-radius:6px;
-  background:#2e7d32;
-  color:#fff;
+  font-size:14px;
   cursor:pointer;
 }
-button:hover{opacity:.9}
+.navbar button:hover{opacity:.9}
+
+h2{color:#2e7d32;margin-top:0}
+.note{font-size:13px;color:#555;margin-top:8px}
 </style>
 </head>
 
 <body>
 
 <div class="wrap">
+<h2>📊 नाफा / नोक्सान विवरण (Profit & Loss)</h2>
 
-<h2>📊 नाफा / नोक्सान विवरण (Profit & Loss Statement)</h2>
-
-<!-- ================= PROFIT & LOSS ================= -->
 <table>
-<tr>
-  <th>कुल आम्दानी</th>
-  <td class="right" id="income">0</td>
-</tr>
-<tr>
-  <th>कुल खर्च (Cash)</th>
-  <td class="right" id="cash">0</td>
-</tr>
-<tr>
-  <th>ह्रासकट्टी</th>
-  <td class="right" id="depr">0</td>
-</tr>
+<tr><th>कुल आम्दानी</th><td class="right" id="income">0</td></tr>
+<tr><th>कुल खर्च (Cash)</th><td class="right" id="cash">0</td></tr>
+<tr><th>ह्रासकट्टी</th><td class="right" id="depr">0</td></tr>
 <tr>
   <th>बैंक ब्याज</th>
-  <td class="right">
-    <input id="interest" value="0">
-  </td>
+  <td class="right"><input id="interest" value="0"></td>
 </tr>
 <tr class="green big">
-  <th>कर पूर्व नाफा (Profit Before Tax)</th>
+  <th>कर पूर्व नाफा</th>
   <td class="right" id="pbt">0</td>
 </tr>
 <tr>
   <th>आम्दानी कर (%)</th>
-  <td class="right">
-    <input id="taxRate" value="0">
-  </td>
+  <td class="right"><input id="taxRate" value="0"></td>
 </tr>
 <tr>
   <th>आम्दानी कर रकम</th>
   <td class="right" id="taxAmt">0</td>
 </tr>
 <tr class="green big">
-  <th>कर पश्चात नाफा (Net Profit)</th>
+  <th>कर पश्चात नाफा</th>
   <td class="right" id="netProfit">0</td>
 </tr>
 </table>
 
-<!-- ================= DIVIDEND ================= -->
 <h3 style="margin-top:25px;color:#2e7d32">💰 लाभांश वितरण</h3>
 
 <table class="blue">
@@ -123,98 +108,88 @@ button:hover{opacity:.9}
 </tr>
 <tr>
   <td>लाभांश वितरण</td>
-  <td class="right">
-    <input id="divRate" value="0">
-  </td>
+  <td class="right"><input id="divRate" value="0"></td>
   <td class="right" id="divAmt">0</td>
 </tr>
 <tr class="big">
-  <td>व्यवसायमा पुनः लगानी (Retained Profit)</td>
+  <td>व्यवसायमा पुनः लगानी</td>
   <td></td>
   <td class="right" id="retained">0</td>
 </tr>
 </table>
 
 <div class="note">
-✔️ लाभांश नाफा निस्किएपछि मात्र गणना हुन्छ<br>
-✔️ % परिवर्तन गर्दा रकम स्वतः अपडेट हुन्छ
+✔️ Expense page बाट स्वतः डाटा आएको<br>
+✔️ Menu तल स्थिर (always visible)
+</div>
 </div>
 
-</div> <!-- wrap end -->
-
-<!-- ================= NAVIGATION MENU ================= -->
-<div class="nav">
-  <button onclick="location.href='income-demo.html'">⬅ Previous</button>
-  <button onclick="location.href='five-year-roi.html'">Next ➡</button>
+<!-- ===== FIXED NAV MENU (100% VISIBLE) ===== -->
+<div class="navbar">
+  <button onclick="location.href='income-demo.html'">⬅ Income</button>
+  <button onclick="location.href='five-year-roi.html'">ROI ➡</button>
 </div>
 
 <script>
-/* ================= LOAD PROJECT ================= */
-let key = localStorage.getItem("activeProject");
-if(!key){
-  alert("पहिले Project खोल्नुहोस्");
-  location.href="index.html";
-}
-let p = JSON.parse(localStorage.getItem(key));
+/* LOAD PROJECT */
+let key=localStorage.getItem("activeProject");
+if(!key){alert("पहिले Project खोल्नुहोस्");location.href="index.html";}
+let p=JSON.parse(localStorage.getItem(key));
 
-/* ================= INCOME ================= */
-let income = 0;
-(p.incomeData || []).forEach(i=>{
-  income += Number(i.amount || 0);
+/* INCOME */
+let income=0;
+(p.incomeData||[]).forEach(i=>income+=Number(i.amount||0));
+
+/* EXPENSE */
+let cash=0,depr=0;
+(p.expenseData||[]).forEach(e=>{
+  if(e.category==="मेशीन औजार / प्रविधि"||e.category==="पूर्वाधार निर्माण")
+    depr+=e.amount*0.15;
+  else cash+=e.amount;
 });
 
-/* ================= EXPENSE ================= */
-let cash = 0, depr = 0;
-(p.expenseData || []).forEach(e=>{
-  if(e.category==="मेशीन औजार / प्रविधि" || e.category==="पूर्वाधार निर्माण"){
-    depr += e.amount * 0.15;   // depreciation
-  }else{
-    cash += e.amount;         // cash expense
-  }
-});
+/* CALC */
+function calc(){
+  const interest=Number(interestEl.value||0);
+  const taxRate=Number(taxRateEl.value||0);
+  const divRate=Number(divRateEl.value||0);
 
-/* ================= CALCULATION ================= */
-const incomeEl = document.getElementById("income");
-const cashEl = document.getElementById("cash");
-const deprEl = document.getElementById("depr");
-const pbtEl = document.getElementById("pbt");
-const taxAmtEl = document.getElementById("taxAmt");
-const netProfitEl = document.getElementById("netProfit");
-const divAmtEl = document.getElementById("divAmt");
-const retainedEl = document.getElementById("retained");
+  const pbt=income-cash-depr-interest;
+  const tax=pbt>0?pbt*(taxRate/100):0;
+  const net=pbt-tax;
+  const div=net>0?net*(divRate/100):0;
 
-const interestEl = document.getElementById("interest");
-const taxRateEl = document.getElementById("taxRate");
-const divRateEl = document.getElementById("divRate");
-
-function calculate(){
-  const interest = Number(interestEl.value || 0);
-  const taxRate = Number(taxRateEl.value || 0);
-  const divRate = Number(divRateEl.value || 0);
-
-  const pbt = income - cash - depr - interest;
-  const tax = pbt > 0 ? pbt * (taxRate/100) : 0;
-  const net = pbt - tax;
-  const dividend = net > 0 ? net * (divRate/100) : 0;
-  const retained = net - dividend;
-
-  incomeEl.textContent = income.toLocaleString();
-  cashEl.textContent = cash.toLocaleString();
-  deprEl.textContent = Math.round(depr).toLocaleString();
-  pbtEl.textContent = Math.round(pbt).toLocaleString();
-  taxAmtEl.textContent = Math.round(tax).toLocaleString();
-  netProfitEl.textContent = Math.round(net).toLocaleString();
-  divAmtEl.textContent = Math.round(dividend).toLocaleString();
-  retainedEl.textContent = Math.round(retained).toLocaleString();
+  incomeEl.innerText=income.toLocaleString();
+  cashEl.innerText=cash.toLocaleString();
+  deprEl.innerText=Math.round(depr).toLocaleString();
+  pbtEl.innerText=Math.round(pbt).toLocaleString();
+  taxAmtEl.innerText=Math.round(tax).toLocaleString();
+  netProfitEl.innerText=Math.round(net).toLocaleString();
+  divAmtEl.innerText=Math.round(div).toLocaleString();
+  retainedEl.innerText=Math.round(net-div).toLocaleString();
 }
 
-/* ================= BIND ================= */
-[interestEl, taxRateEl, divRateEl].forEach(el=>{
-  el.addEventListener("input", calculate);
-});
+/* BIND */
+const incomeEl=income, cashEl=cash;
+const incomeEl2=document.getElementById("income");
+const cashEl2=document.getElementById("cash");
+const deprEl=document.getElementById("depr");
+const pbtEl=document.getElementById("pbt");
+const taxAmtEl=document.getElementById("taxAmt");
+const netProfitEl=document.getElementById("netProfit");
+const divAmtEl=document.getElementById("divAmt");
+const retainedEl=document.getElementById("retained");
+const interestEl=document.getElementById("interest");
+const taxRateEl=document.getElementById("taxRate");
+const divRateEl=document.getElementById("divRate");
 
-/* INIT */
-calculate();
+function sync(){
+  incomeEl2.innerText=income.toLocaleString();
+  cashEl2.innerText=cash.toLocaleString();
+  calc();
+}
+[interestEl,taxRateEl,divRateEl].forEach(i=>i.oninput=calc);
+sync();
 </script>
 
 </body>
