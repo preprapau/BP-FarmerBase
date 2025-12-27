@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+<meta charset="UTF-8">
+<title>Short Info</title>
+<style>
+body{font-family:Noto Sans Devanagari,Arial;padding:20px}
+section{margin-bottom:25px}
+input{width:100%;padding:6px;margin:4px 0}
+</style>
+</head>
+<body>
+
+<h2>Short Information</h2>
+
+<section>
+<h3>संस्थागत परिचय</h3>
+<input placeholder="दर्ता मिति">
+<input placeholder="दर्ता निकाय">
+<input placeholder="दर्ता नं">
+<input placeholder="पान नं">
+</section>
+
+<section>
+<h3>लाभान्वित समूह</h3>
+<input placeholder="समूह प्रकार">
+<input type="number" placeholder="महिला संख्या" id="f">
+<input type="number" placeholder="पुरुष संख्या" id="m">
+<input placeholder="जम्मा संख्या" id="t" readonly>
+</section>
+
+<script>
+function calc(){
+ t.value=(+f.value||0)+(+m.value||0);
+}
+f.oninput=m.oninput=calc;
+</script>
+
+</body>
+</html>
