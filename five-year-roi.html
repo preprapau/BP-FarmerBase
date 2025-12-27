@@ -2,286 +2,185 @@
 <html lang="ne">
 <head>
 <meta charset="UTF-8">
-<title>5-Year ROI | FarmerBase BPMS</title>
+<title>5-Year ROI Analysis</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
 body{
-  font-family:"Noto Sans Devanagari","Kalimati","Mangal","Nirmala UI",system-ui,Arial;
+  font-family:"Noto Sans Devanagari","Kalimati","Mangal",system-ui,Arial;
   background:#f4f7f6;
   margin:0;
 }
-.container{
-  max-width:1150px;
+.wrap{
+  max-width:1000px;
   margin:25px auto;
   background:#fff;
   padding:25px;
   border-radius:10px;
 }
-h2,h3{color:#2e7d32;margin-top:0}
-
-/* PROGRESS */
-.progress{
-  background:#e8f5e9;
-  border:1px solid #c8e6c9;
-  padding:12px;
-  border-radius:8px;
-  margin-bottom:15px;
-}
-.bar{height:8px;background:#2e7d32;width:86%;border-radius:6px;margin-top:8px}
-
-/* TABLE */
-table{width:100%;border-collapse:collapse;margin-top:12px}
-th,td{
-  border:1px solid #ccc;
-  padding:6px;
-  text-align:right;
-}
-th{background:#f0f0f0}
-.left{text-align:left}
-
-/* BOX */
-.box{
-  border:1px solid #ddd;
-  border-radius:8px;
-  padding:15px;
+h2{color:#2e7d32;margin-top:0}
+table{
+  width:100%;
+  border-collapse:collapse;
   margin-top:15px;
 }
-.green{background:#e8f5e9}
-.big{font-size:18px;font-weight:700}
-
-/* INPUT */
-input[type=number]{width:70px}
-
-/* NAV */
-.nav{
-  display:flex;
-  justify-content:space-between;
-  margin-top:30px;
+th,td{
+  border:1px solid #ccc;
+  padding:8px;
+  text-align:right;
 }
-button{
-  padding:8px 16px;
-  border:none;
-  border-radius:6px;
-  cursor:pointer;
-  background:#2e7d32;
-  color:#fff;
+th{text-align:center;background:#f0f0f0}
+.left{text-align:left}
+input{
+  width:70px;
+  padding:6px;
 }
-
-@media print{
-  button,.progress,.growth{display:none}
+.green{background:#e8f5e9;font-weight:bold}
+.note{
+  font-size:13px;
+  color:#555;
+  margin-top:10px;
 }
 </style>
 </head>
 
 <body>
 
-<div class="container">
+<div class="wrap">
+<h2>📈 ५ वर्षे ROI विश्लेषण</h2>
 
-<!-- PROGRESS -->
-<div class="progress">
-  <b>चरण ६ / ७ (८६%)</b><br>
-  Short Info → Detail → Expense → Income → Profit/Loss → <b>5-Year ROI</b> → Proposal
-  <div class="bar"></div>
-</div>
+<!-- ================= GROWTH INPUT ================= -->
+<h3>वार्षिक % वृद्धि</h3>
 
-<h2>📈 पाँच वर्ष ROI विश्लेषण</h2>
+<label>
+  <input type="checkbox" id="yearWiseToggle">
+  प्रत्येक वर्ष फरक % प्रयोग गर्ने
+</label>
 
-<!-- GROWTH -->
-<div class="box growth">
-  <h3>📊 वार्षिक वृद्धि अनुमान (%)</h3>
-  आम्दानी वृद्धि :
-  <input type="number" id="incGrowth" value="10"> %
-  &nbsp;&nbsp;
-  खर्च वृद्धि :
-  <input type="number" id="expGrowth" value="6"> %
-</div>
-
-<!-- ROI TABLE -->
 <table>
-<thead>
+<tr>
+  <th class="left">वर्ष</th>
+  <th>आम्दानी वृद्धि %</th>
+  <th>खर्च वृद्धि %</th>
+</tr>
+<tr><td class="left">वर्ष १</td><td><input class="incRate" value="10"></td><td><input class="expRate" value="6"></td></tr>
+<tr><td class="left">वर्ष २</td><td><input class="incRate" value="10"></td><td><input class="expRate" value="6"></td></tr>
+<tr><td class="left">वर्ष ३</td><td><input class="incRate" value="10"></td><td><input class="expRate" value="6"></td></tr>
+<tr><td class="left">वर्ष ४</td><td><input class="incRate" value="10"></td><td><input class="expRate" value="6"></td></tr>
+<tr><td class="left">वर्ष ५</td><td><input class="incRate" value="10"></td><td><input class="expRate" value="6"></td></tr>
+</table>
+
+<!-- ================= ROI TABLE ================= -->
+<h3 style="margin-top:25px">ROI विवरण</h3>
+
+<table>
 <tr>
   <th class="left">वर्ष</th>
   <th>आम्दानी</th>
   <th>खर्च</th>
-  <th>ह्रासकट्टी</th>
   <th>नाफा</th>
-  <th>बचत नाफा</th>
-  <th>Cumulative Cashflow</th>
+  <th>संचित नगद प्रवाह</th>
 </tr>
-</thead>
-<tbody id="roiBody"></tbody>
+
+<tr>
+  <td class="left">वर्ष १</td>
+  <td id="inc0">0</td>
+  <td id="exp0">0</td>
+  <td id="profit0">0</td>
+  <td id="cum0">0</td>
+</tr>
+<tr>
+  <td class="left">वर्ष २</td>
+  <td id="inc1">0</td>
+  <td id="exp1">0</td>
+  <td id="profit1">0</td>
+  <td id="cum1">0</td>
+</tr>
+<tr>
+  <td class="left">वर्ष ३</td>
+  <td id="inc2">0</td>
+  <td id="exp2">0</td>
+  <td id="profit2">0</td>
+  <td id="cum2">0</td>
+</tr>
+<tr>
+  <td class="left">वर्ष ४</td>
+  <td id="inc3">0</td>
+  <td id="exp3">0</td>
+  <td id="profit3">0</td>
+  <td id="cum3">0</td>
+</tr>
+<tr>
+  <td class="left">वर्ष ५</td>
+  <td id="inc4">0</td>
+  <td id="exp4">0</td>
+  <td id="profit4">0</td>
+  <td id="cum4">0</td>
+</tr>
 </table>
 
-<!-- SUMMARY -->
-<div class="box green">
-  <div class="big">ROI : <span id="roiPercent">0</span>%</div>
-  <div>Payback Period : <b><span id="payback">–</span></b></div>
-</div>
-
-<!-- CHART -->
-<div class="box">
-  <h3>📊 ५ वर्षे आम्दानी / खर्च / Cashflow चार्ट</h3>
-  <canvas id="roiChart" height="120"></canvas>
-</div>
-
-<div class="nav">
-  <button onclick="location.href='profit-loss-demo.html'">⬅ Previous</button>
-  <button onclick="location.href='full-proposal.html'">Next ➡</button>
+<div class="note">
+✔️ आम्दानी र खर्च Expense / Income पेजबाट स्वतः लिइन्छ<br>
+✔️ ह्रासकट्टी खर्चमा समावेश भइसकेको मानिन्छ<br>
+✔️ Toggle OFF = सबै वर्ष एउटै %<br>
+✔️ Toggle ON = प्रत्येक वर्ष फरक %
 </div>
 
 </div>
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
-let key = localStorage.getItem("activeProject");
-if(!key){
-  alert("पहिले Project खोल्नुहोस्");
-  location.href="index.html";
-}
-let p = JSON.parse(localStorage.getItem(key));
-
-/* BASE INCOME */
+/* ===== BASE VALUES FROM PROJECT ===== */
 let baseIncome = 0;
-(p.incomeData||[]).forEach(i=>{
-  baseIncome += Number(i.amount||0);
-});
-
-/* BASE EXPENSE + DEPRECIATION */
 let baseExpense = 0;
-let depreciation = 0;
-(p.expenseData||[]).forEach(e=>{
-  if(e.category==="प्रारम्भिक लगानी"){
-    depreciation += Number(e.amount||0) * 0.10;
-  }else{
-    baseExpense += Number(e.amount||0);
+let baseDep = 0;
+
+try{
+  let key = localStorage.getItem("activeProject");
+  if(key){
+    let p = JSON.parse(localStorage.getItem(key));
+    (p.incomeData||[]).forEach(i=>baseIncome+=Number(i.amount||0));
+    (p.expenseData||[]).forEach(e=>{
+      if(e.category==="मेशीन औजार / प्रविधि"||e.category==="पूर्वाधार निर्माण")
+        baseDep+=e.amount*0.15;
+      else
+        baseExpense+=e.amount;
+    });
   }
-});
+}catch(e){}
 
-/* INITIAL INVESTMENT */
-let investment = 0;
-(p.expenseData||[]).forEach(e=>{
-  if(e.category==="प्रारम्भिक लगानी"){
-    investment += Number(e.amount||0);
-  }
-});
+/* ===== INPUTS ===== */
+const incRates=document.querySelectorAll(".incRate");
+const expRates=document.querySelectorAll(".expRate");
+const toggle=document.getElementById("yearWiseToggle");
 
-/* DIVIDEND / RETAINED */
-let retainedRate = 1;
-if(p.profitAllocation){
-  let div = 0;
-  p.profitAllocation.forEach(a=> div += Number(a.percent||0));
-  retainedRate = 1 - (div/100);
-}
+/* ===== CALCULATION ===== */
+function calcROI(){
+  let income=baseIncome;
+  let expense=baseExpense;
+  let cumulative=-baseExpense;
 
-let chart;
+  for(let i=0;i<5;i++){
+    let ir=Number(incRates[toggle.checked?i:0].value||0);
+    let er=Number(expRates[toggle.checked?i:0].value||0);
 
-function drawChart(data){
-  let ctx = document.getElementById("roiChart").getContext("2d");
-  if(chart) chart.destroy();
-
-  chart = new Chart(ctx,{
-    type:"line",
-    data:{
-      labels:["वर्ष 1","वर्ष 2","वर्ष 3","वर्ष 4","वर्ष 5"],
-      datasets:[
-        {
-          label:"आम्दानी",
-          data:data.income,
-          borderColor:"#2e7d32",
-          fill:false,
-          tension:0.3
-        },
-        {
-          label:"खर्च",
-          data:data.expense,
-          borderColor:"#c62828",
-          fill:false,
-          tension:0.3
-        },
-        {
-          label:"Cumulative Cashflow",
-          data:data.cumulative,
-          borderColor:"#1565c0",
-          fill:false,
-          tension:0.3
-        }
-      ]
-    },
-    options:{
-      responsive:true,
-      plugins:{legend:{position:"bottom"}}
-    }
-  });
-}
-
-function calculateROI(){
-  roiBody.innerHTML="";
-  let incG = Number(incGrowth.value||0)/100;
-  let expG = Number(expGrowth.value||0)/100;
-
-  let cumulative = 0;
-  let totalReturn = 0;
-  let payback = null;
-
-  let chartData = {income:[],expense:[],cumulative:[]};
-
-  for(let y=1;y<=5;y++){
-    let incomeY = baseIncome * Math.pow(1+incG, y-1);
-    let expenseY = baseExpense * Math.pow(1+expG, y-1);
-    let profitY = incomeY - expenseY - depreciation;
-    let retainedY = profitY * retainedRate;
-
-    cumulative += retainedY;
-    totalReturn += retainedY;
-
-    if(cumulative >= investment && payback===null){
-      payback = "वर्ष " + y;
+    if(i>0){
+      income+=income*(ir/100);
+      expense+=expense*(er/100);
     }
 
-    roiBody.innerHTML += `
-      <tr>
-        <td class="left">वर्ष ${y}</td>
-        <td>${Math.round(incomeY)}</td>
-        <td>${Math.round(expenseY)}</td>
-        <td>${Math.round(depreciation)}</td>
-        <td>${Math.round(profitY)}</td>
-        <td>${Math.round(retainedY)}</td>
-        <td>${Math.round(cumulative)}</td>
-      </tr>
-    `;
+    let profit=income-expense-baseDep;
+    cumulative+=profit;
 
-    chartData.income.push(Math.round(incomeY));
-    chartData.expense.push(Math.round(expenseY));
-    chartData.cumulative.push(Math.round(cumulative));
+    document.getElementById("inc"+i).innerText=Math.round(income).toLocaleString();
+    document.getElementById("exp"+i).innerText=Math.round(expense).toLocaleString();
+    document.getElementById("profit"+i).innerText=Math.round(profit).toLocaleString();
+    document.getElementById("cum"+i).innerText=Math.round(cumulative).toLocaleString();
   }
-
-  roiPercent.innerText = investment>0
-    ? Math.round((totalReturn/investment)*100)
-    : 0;
-
-  payback.innerText = payback || "५ वर्षपछि";
-
-  drawChart(chartData);
-
-  p.fiveYearROI = {
-    investment,
-    totalReturn,
-    roi:roiPercent.innerText,
-    payback
-  };
-  p.lastEdited = new Date().toLocaleString("ne-NP");
-  localStorage.setItem(key,JSON.stringify(p));
 }
 
-/* EVENTS */
-["input","change","keyup"].forEach(evt=>{
-  incGrowth.addEventListener(evt, calculateROI);
-  expGrowth.addEventListener(evt, calculateROI);
-});
-
-calculateROI();
+/* ===== EVENTS ===== */
+document.querySelectorAll("input").forEach(i=>i.addEventListener("input",calcROI));
+calcROI();
 </script>
 
 </body>
