@@ -2,209 +2,300 @@
 <html lang="ne">
 <head>
 <meta charset="UTF-8">
-<title>Business Proposal</title>
+<title>Full Business Proposal</title>
 
 <style>
+/* ========== BASIC ========== */
 body{
   font-family:"Noto Sans Devanagari","Kalimati","Mangal",system-ui,Arial;
-  line-height:1.6;color:#000
+  line-height:1.6;
+  color:#000;
 }
-h1,h2,h3{color:#1b5e20}
-table{border-collapse:collapse;width:100%;margin:10px 0}
-th,td{border:1px solid #999;padding:6px}
-th{background:#eef5ee}
+h1,h2,h3{color:#1b5e20;margin-top:0}
 .page{page-break-after:always}
 .annex{page-break-before:always}
 .center{text-align:center}
-.small{font-size:13px;color:#555}
+.small{font-size:12px;color:#555}
 
-/* screen only */
-.no-print{}
-
-/* buttons */
-.toggle,.print-btn{
-  position:fixed;right:15px;padding:8px 14px;
-  background:#2e7d32;color:#fff;border:none;
-  border-radius:6px;cursor:pointer
+/* ========== TABLE ========== */
+table{
+  width:100%;
+  border-collapse:separate;
+  border-spacing:0;
+  margin:14px 0;
+  font-size:14px;
+  border:1px solid #cfd8dc;
+  border-radius:8px;
 }
-.toggle{top:15px}
-.print-btn{bottom:15px}
+th{
+  background:#f1f8f4;
+  color:#1b5e20;
+  padding:10px 8px;
+  text-align:left;
+}
+td{
+  padding:9px 8px;
+  border-top:1px solid #e0e0e0;
+}
+tr:nth-child(even){background:#fafafa}
+.num{text-align:right}
+.total-row td{font-weight:700;background:#e8f5e9}
 
-/* print */
+/* ========== LETTERHEAD ========== */
+.letterhead{text-align:center;margin-bottom:20px}
+.lh-row{display:flex;align-items:center;gap:14px}
+.lh-logo img{width:70px;height:70px;object-fit:contain}
+.lh-text{flex:1}
+.lh-org{font-size:22px;font-weight:800;text-transform:uppercase}
+.lh-address{font-size:14px}
+.lh-reg{font-size:12px}
+.lh-line{border-top:2px solid #000;margin-top:8px}
+
+/* ========== TOP BAR ========== */
+.top-action-bar{
+  position:sticky;top:0;z-index:999;
+  display:flex;gap:10px;
+  padding:8px 12px;
+  background:#f1f8f4;
+  border-bottom:1px solid #cfd8dc
+}
+.top-action-bar a{
+  text-decoration:none;
+  padding:6px 12px;
+  border-radius:16px;
+  font-size:13px;
+}
+.btn-home{border:1px solid #a5d6a7;color:#1b5e20}
+.btn-edit{background:#2e7d32;color:#fff}
+
+/* ========== FOOTER ========== */
+.page-footer{
+  position:fixed;
+  bottom:8mm;
+  left:0;right:0;
+  text-align:center;
+  font-size:11px;
+  color:#555;
+  border-top:1px solid #ccc;
+  padding-top:4px;
+  background:#fff;
+}
+
+/* ========== SIGNATURE ========== */
+.signature-dual-wrap{
+  margin-top:50px;
+  display:flex;
+  justify-content:flex-end;
+  gap:60px;
+}
+.sig-box{width:240px;text-align:center}
+.sig-img{max-width:220px;max-height:90px;display:none}
+.sig-line{border-top:1.5px solid #000;margin:6px 0}
+.sig-title{font-size:13px}
+.sig-contact{font-size:12px}
+
+/* ========== PROPOSAL BY ========== */
+.proposal-by{
+  margin-top:40px;
+  font-size:11px;
+  text-align:center;
+  color:#555;
+}
+
+/* ========== QR (COVER ONLY) ========== */
+.cover-qr{text-align:center;margin-top:20px}
+.cover-qr canvas{width:120px;height:120px}
+.cover-qr .qr-caption{font-size:11px;color:#555}
+
+/* ========== PRINT ========== */
 @media print{
-  .no-print,button{display:none!important}
-  @page{size:A4;margin:18mm}
-  body{font-size:14px}
+  .no-print,.top-action-bar{display:none!important}
+  a[href]:after{content:""!important}
+  a{text-decoration:none;color:#000}
+  .page-footer{font-size:10px}
 }
 </style>
 </head>
 
 <body>
 
-<button class="toggle no-print" onclick="toggleAutoEN()">NE / EN</button>
-<button class="print-btn no-print" onclick="window.print()">🖨️ Print / PDF</button>
+<!-- TOP BAR -->
+<div class="top-action-bar no-print">
+  <a href="index.html" class="btn-home">🏠 Go Home</a>
+  <a href="short-info.html" class="btn-edit">✏️ Edit</a>
+</div>
 
-<!-- ================= COVER ================= -->
-<div class="page center">
-<h1>कृषि व्यवसायिक परियोजना प्रस्ताव</h1>
-<h2 id="projectName">—</h2>
-<p>
-<b id="orgName">—</b><br>
-<span id="orgAddress">—</span>
-</p>
-<p class="small">प्रस्ताव मिति : <span id="proposalDate"></span></p>
+<!-- FOOTER -->
+<div class="page-footer">
+  <span id="pfOrgName">—</span>, <span id="pfAddress">—</span>
+</div>
+
+<!-- ================= COVER PAGE ================= -->
+<div class="page cover-page">
+
+  <div class="letterhead">
+    <div class="lh-row">
+      <div class="lh-logo"><img id="orgLogo"></div>
+      <div class="lh-text">
+        <div class="lh-org" id="lhOrgName">—</div>
+        <div class="lh-address" id="lhAddress">—</div>
+        <div class="lh-reg">
+          दर्ता नं: <span id="lhRegNo"></span> |
+          पान नं: <span id="lhPanNo"></span>
+        </div>
+      </div>
+    </div>
+    <hr class="lh-line">
+  </div>
+
+  <h1 class="center" id="projectName">PROJECT TITLE</h1>
+
+  <!-- QR -->
+  <div class="cover-qr">
+    <canvas id="qrCanvas"></canvas>
+    <div class="qr-caption">Scan for digital proposal</div>
+  </div>
 </div>
 
 <!-- ================= TOC ================= -->
 <div class="page">
 <h2>विषय सूची</h2>
-<ol>
-<li>संक्षिप्त विवरण</li>
-<li>व्यवसाय विवरण</li>
-<li>आर्थिक विश्लेषण</li>
-<li>नाफा / नोक्सान</li>
-<li>परिशिष्ट</li>
-</ol>
+<table>
+<tr><td>१. संक्षिप्त विवरण</td><td class="num">1</td></tr>
+<tr><td>२. व्यवसाय विवरण</td><td class="num">2</td></tr>
+<tr><td>३. आर्थिक विश्लेषण</td><td class="num">3</td></tr>
+<tr><td>४. नाफा / नोक्सान</td><td class="num">4</td></tr>
+<tr><td>परिशिष्ट</td><td class="num">5</td></tr>
+</table>
 </div>
 
 <!-- ================= SHORT INFO ================= -->
 <div class="page">
 <h2>संक्षिप्त विवरण</h2>
-<p id="shortInfoBox">—</p>
+<p id="shortInfoBox"></p>
 </div>
 
 <!-- ================= BUSINESS DETAIL ================= -->
 <div class="page">
 <h2>व्यवसाय विवरण</h2>
-<p id="bizDetail">—</p>
+<p id="bizDetail"></p>
 </div>
 
-<!-- ================= FINANCIAL SUMMARY ================= -->
+<!-- ================= FINANCIAL ================= -->
 <div class="page">
 <h2>आर्थिक विश्लेषण</h2>
 <table>
-<tr><th>कुल खर्च</th><td id="sumExpense">—</td></tr>
-<tr><th>कुल आम्दानी</th><td id="sumIncome">—</td></tr>
-<tr><th>वार्षिक नाफा</th><td id="sumProfit">—</td></tr>
+<tr><th>कुल खर्च</th><td class="num" id="sumExpense"></td></tr>
+<tr><th>कुल आम्दानी</th><td class="num" id="sumIncome"></td></tr>
+<tr class="total-row"><th>वार्षिक नाफा</th><td class="num" id="sumProfit"></td></tr>
 </table>
+
+<div class="signature-dual-wrap">
+  <div class="sig-box">
+    <img id="propSigImg" class="sig-img">
+    <div class="sig-line"></div>
+    <div id="propName"></div>
+    <div class="sig-title">Proprietor</div>
+    <div class="sig-contact">Contact: <span id="propContact"></span></div>
+  </div>
+
+  <div class="sig-box">
+    <img id="authSigImg" class="sig-img">
+    <div class="sig-line"></div>
+    <div id="authName"></div>
+    <div class="sig-title">Authorized Signatory</div>
+    <div class="sig-contact">Contact: <span id="authContact"></span></div>
+  </div>
 </div>
 
-<!-- ================= ANNEX : MAP ================= -->
-<div class="annex">
-<h2>परिशिष्ट : परियोजना स्थान</h2>
-<iframe id="mapFrame" width="100%" height="380" style="border:0"></iframe>
+<div class="proposal-by">
+  Proposal by :
+  <span id="pbName"></span> |
+  <span id="pbContact"></span> |
+  <span id="pbEmail"></span>
 </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/qrious@4.0.2/dist/qrious.min.js"></script>
 
 <script>
-/* ================= AUTO PICK PROJECT ================= */
+/* ===== LOAD PROJECT (SAFE) ===== */
 let project=null;
-
-// 1. try activeProject
-const activeKey = localStorage.getItem("activeProject");
-if(activeKey && localStorage.getItem(activeKey)){
-  project = JSON.parse(localStorage.getItem(activeKey));
-}
-
-// 2. fallback: last saved object
+const ak=localStorage.getItem("activeProject");
+if(ak && localStorage.getItem(ak)) project=JSON.parse(localStorage.getItem(ak));
 if(!project){
   for(let i=localStorage.length-1;i>=0;i--){
     try{
-      const k = localStorage.key(i);
-      const obj = JSON.parse(localStorage.getItem(k));
-      if(obj && typeof obj==="object"){
-        project = obj;
-        break;
-      }
+      const o=JSON.parse(localStorage.getItem(localStorage.key(i)));
+      if(o && typeof o==="object"){project=o;break;}
     }catch(e){}
   }
 }
+project=project||{};
+const get=(...k)=>{for(const x of k){if(project[x])return project[x]}return""};
+const getArr=(...k)=>{for(const x of k){if(Array.isArray(project[x]))return project[x]}return[]};
 
-// final fallback
-project = project || {};
+/* ===== FILL BASIC ===== */
+lhOrgName.innerText=get("orgName","organization","organizationName").toUpperCase();
+lhAddress.innerText=get("address","location");
+lhRegNo.innerText=get("regNo","registrationNo");
+lhPanNo.innerText=get("panNo","pan");
+projectName.innerText=get("projectName","name","title");
 
-/* ================= SAFE READERS ================= */
-const get = (...keys)=>{
-  for(const k of keys){
-    if(project[k]!==undefined && project[k]!==null) return project[k];
-  }
-  return "—";
-};
+pfOrgName.innerText=get("orgName","organization");
+pfAddress.innerText=get("address","location");
 
-const getArr = (...keys)=>{
-  for(const k of keys){
-    if(Array.isArray(project[k])) return project[k];
-  }
-  return [];
-};
+/* ===== LOGO ===== */
+if(project.logoUrl||project.orgLogo){
+  orgLogo.src=project.logoUrl||project.orgLogo;
+}
 
-/* ================= FILL BASIC ================= */
-projectName.innerText = get("projectName","name","title");
-orgName.innerText = get("orgName","organization","organizationName");
-orgAddress.innerText = get("address","orgAddress","location");
+/* ===== SHORT INFO ===== */
+shortInfoBox.innerHTML=
+  `<b>${get("orgName")}</b><br>
+   दर्ता नं: ${get("regNo")} | पान नं: ${get("panNo")}`;
 
-/* ================= SHORT INFO ================= */
-shortInfoBox.innerHTML = `
-<b>${get("orgName","organization","organizationName")}</b><br>
-दर्ता नं: ${get("regNo","registrationNo")} |
-PAN: ${get("panNo","pan")}<br>
-लाभान्वित समूह: ${get("beneficiaryType","beneficiary")}<br>
-महिला: ${get("female","women",0)},
-पुरुष: ${get("male","men",0)}
-`;
+/* ===== BUSINESS DETAIL ===== */
+bizDetail.innerHTML=
+  `<b>उद्देश्य:</b> ${get("objective")}<br>
+   <b>स्थान:</b> ${get("location")}<br>
+   <b>अवधि:</b> ${get("duration")}`;
 
-/* ================= BUSINESS DETAIL ================= */
-bizDetail.innerHTML = `
-<b>उद्देश्य:</b> ${get("objective","goal")}<br>
-<b>स्थान:</b> ${get("location","address")}<br>
-<b>अवधि:</b> ${get("duration","period")}
-`;
-
-/* ================= FINANCIAL ================= */
+/* ===== FINANCIAL ===== */
 let expense=0,income=0;
 getArr("expenses","expenseData").forEach(e=>expense+=Number(e.amount||0));
 getArr("incomes","incomeData").forEach(i=>income+=Number(i.amount||0));
-const profit = income-expense;
+sumExpense.innerText=expense.toLocaleString();
+sumIncome.innerText=income.toLocaleString();
+sumProfit.innerText=(income-expense).toLocaleString();
 
-sumExpense.innerText = expense.toLocaleString();
-sumIncome.innerText = income.toLocaleString();
-sumProfit.innerText = profit.toLocaleString();
-
-/* ================= MAP ================= */
-const loc = get("location","address");
-if(loc!=="—"){
-  mapFrame.src =
-   "https://maps.google.com/maps?q="+
-   encodeURIComponent(loc)+"&z=13&output=embed";
+/* ===== SIGNATURES ===== */
+if(project.signatureImage||project.signatureUrl){
+  propSigImg.src=project.signatureImage||project.signatureUrl;
+  propSigImg.style.display="block";
 }
+propName.innerText=get("proprietorName","ownerName");
+propContact.innerText=get("contactNo","phone");
 
-/* ================= DATE ================= */
-proposalDate.innerText = new Date().toLocaleDateString();
-
-/* ================= AUTO ENGLISH ================= */
-const dict={
- "कृषि व्यवसायिक परियोजना प्रस्ताव":"Agricultural Business Proposal",
- "विषय सूची":"Table of Contents",
- "संक्षिप्त विवरण":"Executive Summary",
- "व्यवसाय विवरण":"Business Details",
- "आर्थिक विश्लेषण":"Financial Analysis",
- "कुल खर्च":"Total Expense",
- "कुल आम्दानी":"Total Income",
- "वार्षिक नाफा":"Annual Net Profit",
- "परिशिष्ट":"Annex",
- "परियोजना स्थान":"Project Location",
- "प्रस्ताव मिति":"Proposal Date"
-};
-
-let en=false;
-function toggleAutoEN(){
- en=!en;
- document.querySelectorAll("h1,h2,h3,p,th,td,li").forEach(el=>{
-   if(!el.dataset.ne) el.dataset.ne=el.innerText.trim();
-   el.dataset.en = dict[el.dataset.ne] || el.dataset.ne;
-   el.innerText = en ? el.dataset.en : el.dataset.ne;
- });
- document.documentElement.lang=en?"en":"ne";
+if(project.authorizedSignatureImage||project.authorizedSignatureUrl){
+  authSigImg.src=project.authorizedSignatureImage||project.authorizedSignatureUrl;
+  authSigImg.style.display="block";
 }
+authName.innerText=get("authorizedName");
+authContact.innerText=get("authorizedContact","contactNo");
+
+/* ===== PROPOSAL BY ===== */
+pbName.innerText=get("proposalByName","ownerName");
+pbContact.innerText=get("proposalByContact","contactNo");
+pbEmail.innerText=get("proposalByEmail","email");
+
+/* ===== QR ===== */
+new QRious({
+  element:qrCanvas,
+  value:project.proposalUrl||window.location.href,
+  size:120,
+  level:"H"
+});
 </script>
 
 </body>
