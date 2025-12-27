@@ -12,7 +12,7 @@ body{
   margin:0;
 }
 .container{
-  max-width:900px;
+  max-width:950px;
   margin:25px auto;
   background:#fff;
   padding:25px;
@@ -20,6 +20,7 @@ body{
 }
 h2{margin-top:0;color:#2e7d32}
 
+/* ===== PROGRESS ===== */
 .progress{
   background:#e8f5e9;
   border:1px solid #c8e6c9;
@@ -29,6 +30,7 @@ h2{margin-top:0;color:#2e7d32}
 }
 .bar{height:8px;background:#2e7d32;width:71%;border-radius:6px;margin-top:8px}
 
+/* ===== BOX ===== */
 .box{
   border:1px solid #ddd;
   border-radius:8px;
@@ -37,30 +39,40 @@ h2{margin-top:0;color:#2e7d32}
 }
 .green{background:#e8f5e9}
 .blue{background:#e3f2fd}
+.yellow{background:#fffde7}
 .gray{background:#fafafa}
-.big{font-size:22px;font-weight:700}
+.big{font-size:20px;font-weight:700}
 .right{text-align:right}
 
+/* ===== TABLE ===== */
 table{width:100%;border-collapse:collapse}
 th,td{border:1px solid #ccc;padding:6px}
 th{background:#f0f0f0}
 
-.nav{
-  display:flex;
-  justify-content:space-between;
-  margin-top:30px;
-}
+/* ===== INPUT ===== */
+input[type=text]{width:100%}
+input[type=number]{width:80px}
+
+/* ===== BUTTON ===== */
 button{
-  padding:8px 16px;
+  padding:6px 14px;
   border:none;
   border-radius:6px;
   cursor:pointer;
   background:#2e7d32;
   color:#fff;
 }
+.del{background:#c62828}
+
+/* ===== NAV ===== */
+.nav{
+  display:flex;
+  justify-content:space-between;
+  margin-top:30px;
+}
 
 @media print{
-  button,.progress{display:none}
+  button,.progress,.nav{display:none}
 }
 </style>
 </head>
@@ -105,32 +117,38 @@ button{
   <div class="big" id="netProfit">0</div>
 </div>
 
-<!-- DIVIDEND SECTION -->
+<!-- PROFIT ALLOCATION (BOTTOM) -->
 <div class="box blue">
-  <b>🔹 लाभांश वितरण (Profit Utilization)</b>
-  <table style="margin-top:10px">
-    <tr>
-      <th>लाभांश वितरण %</th>
-      <td class="right" id="divPercent">0%</td>
-    </tr>
-    <tr>
-      <th>लाभांश वितरण रकम</th>
-      <td class="right" id="divAmount">0</td>
-    </tr>
-    <tr>
-      <th>बचत / सञ्चित नाफा</th>
-      <td class="right" id="retainedProfit">0</td>
-    </tr>
-  </table>
-</div>
+  <h3>🔹 नाफा वितरण / लाभांश (Profit Allocation)</h3>
 
-<div class="box">
-  <b>नोट:</b>
-  <ul>
-    <li>नाफा = आम्दानी − (चालु खर्च + ह्रासकट्टी)</li>
-    <li>लाभांश नाफाबाट वितरण गरिएको रकम हो</li>
-    <li>यस पेजमा कुनै पनि edit गर्न मिल्दैन</li>
-  </ul>
+  <div class="big">उपलब्ध नाफा: <span id="profitBase">0</span></div><br>
+
+  <table>
+    <thead>
+      <tr>
+        <th>विधा / प्रयोजन</th>
+        <th>%</th>
+        <th>रकम</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody id="allocBody"></tbody>
+    <tfoot>
+      <tr class="big">
+        <td>जम्मा</td>
+        <td id="totalPercent">0%</td>
+        <td id="totalAmount">0</td>
+        <td></td>
+      </tr>
+    </tfoot>
+  </table>
+
+  <br>
+  <input id="method" type="text" placeholder="जस्तै: मालिक / पुनः लगानी / सहकारी">
+  <input id="percent" type="number" min="0" max="100" placeholder="%">
+  <button onclick="addAlloc()">＋ Add</button>
+
+  <div id="notice" class="box yellow" style="display:none;margin-top:10px"></div>
 </div>
 
 <div class="nav">
@@ -148,48 +166,73 @@ if(!key){
 }
 let p = JSON.parse(localStorage.getItem(key));
 
-/* INCOME */
+/* ===== INCOME ===== */
 let income = 0;
 (p.incomeData||[]).forEach(i=> income += Number(i.amount||0));
 
-/* EXPENSE */
-let cash = 0;
-let depr = 0;
+/* ===== EXPENSE ===== */
+let cash = 0, depr = 0;
 (p.expenseData||[]).forEach(e=>{
-  if(e.category==="प्रारम्भिक लगानी"){
-    depr += Number(e.amount||0) * 0.10;
-  }else{
-    cash += Number(e.amount||0);
-  }
+  if(e.category==="प्रारम्भिक लगानी") depr += Number(e.amount||0)*0.10;
+  else cash += Number(e.amount||0);
 });
 
-/* PROFIT */
+/* ===== PROFIT ===== */
 let profit = income - (cash + depr);
 
-/* DIVIDEND */
-let percent = Number(p.dividendPercent||0);
-let divAmt = profit>0 ? profit*(percent/100) : 0;
-let retained = profit - divAmt;
-
-/* DISPLAY */
+/* DISPLAY SUMMARY */
 totalIncome.innerText = income;
 cashExpense.innerText = cash;
 depreciation.innerText = Math.round(depr);
 totalExpense.innerText = Math.round(cash + depr);
 netProfit.innerText = profit>=0 ? "रु. "+Math.round(profit) : "नोक्सान : रु. "+Math.abs(Math.round(profit));
+profitBase.innerText = Math.round(profit);
 
-divPercent.innerText = percent+"%";
-divAmount.innerText = Math.round(divAmt);
-retainedProfit.innerText = Math.round(retained);
+/* ===== ALLOCATION ===== */
+let alloc = p.profitAllocation || [];
 
-/* SAVE SNAPSHOT */
-p.profitLoss = {
-  income, cash, depreciation:Math.round(depr),
-  profit:Math.round(profit),
-  dividend:Math.round(divAmt),
-  retained:Math.round(retained)
-};
-localStorage.setItem(key, JSON.stringify(p));
+function renderAlloc(){
+  allocBody.innerHTML="";
+  let sumP=0,sumA=0;
+
+  alloc.forEach((a,i)=>{
+    let amt = profit * (a.percent/100);
+    sumP += a.percent;
+    sumA += amt;
+
+    allocBody.innerHTML+=`
+      <tr>
+        <td>${a.method}</td>
+        <td>${a.percent}%</td>
+        <td class="right">${Math.round(amt)}</td>
+        <td><button class="del" onclick="removeAlloc(${i})">✖</button></td>
+      </tr>`;
+  });
+
+  totalPercent.innerText = sumP+"%";
+  totalAmount.innerText = Math.round(sumA);
+
+  notice.style.display = sumP===100?"none":"block";
+  notice.innerText = "⚠️ कुल वितरण 100% हुनुपर्छ (अहिले "+sumP+"%)";
+}
+renderAlloc();
+
+function addAlloc(){
+  if(!method.value||!percent.value) return;
+  alloc.push({method:method.value,percent:Number(percent.value)});
+  method.value="";percent.value="";
+  saveAlloc();
+}
+function removeAlloc(i){
+  alloc.splice(i,1);
+  saveAlloc();
+}
+function saveAlloc(){
+  p.profitAllocation = alloc;
+  p.lastEdited = new Date().toLocaleString("ne-NP");
+  localStorage.setItem(key, JSON.stringify(p));
+  renderAlloc();
+}
 </script>
 
 </body>
