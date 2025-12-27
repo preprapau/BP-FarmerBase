@@ -2,20 +2,25 @@
 <html lang="ne">
 <head>
 <meta charset="UTF-8">
-<title>Expense Entry – BPMS (FINAL)</title>
+<title>Expense Entry – BPMS (Final Locked)</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
+
 <style>
-  body{font-family:system-ui,Arial;background:#f4f7f6;padding:20px}
-  h2{color:#2e7d32}
-  select,input,button{padding:8px;margin:4px}
-  table{width:100%;border-collapse:collapse;margin-top:15px}
-  th,td{border:1px solid #ccc;padding:8px}
-  th{background:#e8f5e9}
-  .group-row{background:#c8e6c9;font-weight:bold}
-  .total-row{background:#f1f8e9;font-weight:bold}
-  .note{font-size:13px;color:#555;margin-top:8px}
-  .depr-col{text-align:right}
-  @media print{.no-print{display:none}}
+body{
+  font-family:system-ui,Arial;
+  background:#f4f7f6;
+  padding:20px;
+}
+h2{color:#2e7d32}
+select,input,button{padding:8px;margin:4px}
+table{width:100%;border-collapse:collapse;margin-top:15px}
+th,td{border:1px solid #ccc;padding:8px}
+th{background:#e8f5e9}
+.group-row{background:#c8e6c9;font-weight:bold}
+.total-row{background:#f1f8e9;font-weight:bold}
+.note{font-size:13px;color:#555;margin-top:8px}
+.depr-col{text-align:right}
+@media print{.no-print{display:none}}
 </style>
 </head>
 
@@ -42,76 +47,86 @@
 </select>
 
 <input id="title" placeholder="खर्च शीर्षक">
-<input id="amount" type="number" placeholder="रकम (रु.)">
+<input id="qty" type="number" placeholder="परिमाण" min="1">
+<input id="rate" type="number" placeholder="दर (रु.)">
 <button onclick="addExpense()">➕ Add</button>
 
 <div class="note">
-✔ ह्रासकट्टी <b>मेशीन औजार / प्रविधि</b> र <b>पूर्वाधार निर्माण</b> मा मात्र (Advanced Mode)<br>
-✔ <b>प्रारम्भिक लगानी</b> देखिन्छ तर ह्रासकट्टी लाग्दैन<br>
-✔ कच्चापदार्थ / विविध / चालु खर्चमा ह्रासकट्टी हुँदैन
+✔ विधा माथि Central रूपमा देखिन्छ<br>
+✔ ह्रासकट्टी <b>मेशीन औजार</b> र <b>पूर्वाधार</b> मा मात्र (Advanced Mode)<br>
+✔ <b>प्रारम्भिक लगानी</b> cash मा गनिन्छ, ह्रासकट्टी हुँदैन
 </div>
 
 <!-- TABLE -->
 <table>
-  <thead>
-    <tr>
-      <th>विधा</th>
-      <th>शीर्षक</th>
-      <th>रकम</th>
-      <th class="depr-col">ह्रासकट्टी (वार्षिक)</th>
-      <th></th>
-    </tr>
-  </thead>
-  <tbody id="rows"></tbody>
-  <tfoot>
-    <tr class="total-row">
-      <td colspan="2">कुल खर्च (Cash)</td>
-      <td id="totalExpense">0</td>
-      <td class="depr-col"></td>
-      <td></td>
-    </tr>
-    <tr class="total-row">
-      <td colspan="3">कुल वार्षिक ह्रासकट्टी</td>
-      <td class="depr-col" id="totalDepr">0</td>
-      <td></td>
-    </tr>
-  </tfoot>
+<thead>
+<tr>
+  <th>शीर्षक</th>
+  <th>परिमाण</th>
+  <th>दर</th>
+  <th>रकम</th>
+  <th class="depr-col">ह्रासकट्टी (वार्षिक)</th>
+  <th></th>
+</tr>
+</thead>
+
+<tbody id="rows"></tbody>
+
+<tfoot>
+<tr class="total-row">
+  <td colspan="3">कुल खर्च (Cash)</td>
+  <td id="totalExpense">0</td>
+  <td class="depr-col"></td>
+  <td></td>
+</tr>
+<tr class="total-row">
+  <td colspan="4">कुल वार्षिक ह्रासकट्टी</td>
+  <td class="depr-col" id="totalDepr">0</td>
+  <td></td>
+</tr>
+</tfoot>
 </table>
 
 <script>
 /* ================= DATA ================= */
 let expenses = JSON.parse(localStorage.getItem("expenses") || "[]");
 
-/* ================= DEPRECIATION RULES =================
-   NOTE:
-   - ONLY these categories depreciate (Advanced Mode)
-   - Initial Investment DOES NOT depreciate
-*/
+/* ================= DEPRECIATION RULES ================= */
 const DEPR_RULES = {
-  "मेशीन औजार / प्रविधि": 0.15,   // 15% yearly
-  "पूर्वाधार निर्माण": 0.05       // 5% yearly
+  "मेशीन औजार / प्रविधि": 0.15,   // 15%
+  "पूर्वाधार निर्माण": 0.05       // 5%
 };
 
-let MODE = "simple";
+/* ================= MODE ================= */
+let MODE = localStorage.getItem("advancedMode") || "simple";
+advancedMode.checked = (MODE==="advanced");
 
-/* ================= MODE TOGGLE ================= */
-document.getElementById("advancedMode").addEventListener("change", e=>{
+advancedMode.addEventListener("change", e=>{
   MODE = e.target.checked ? "advanced" : "simple";
+  localStorage.setItem("advancedMode", MODE);
   render();
 });
 
 /* ================= ADD ================= */
 function addExpense(){
-  if(!title.value || !amount.value){
-    alert("सबै विवरण भर्नुहोस्");
+  if(!title.value || !rate.value){
+    alert("शीर्षक र दर अनिवार्य छ");
     return;
   }
+
+  const q = Number(qty.value || 1);
+  const r = Number(rate.value);
+  const amt = q * r;
+
   expenses.push({
     category: category.value,
     title: title.value,
-    amount: Number(amount.value)
+    qty: q,
+    rate: r,
+    amount: amt
   });
-  title.value=""; amount.value="";
+
+  title.value=""; qty.value=""; rate.value="";
   saveAndRender();
 }
 
@@ -127,49 +142,48 @@ function saveAndRender(){
   render();
 }
 
-/* ================= RENDER (GROUPED + DEPR) ================= */
+/* ================= RENDER ================= */
 function render(){
   const grouped = {};
   let cashTotal = 0;
   let deprTotal = 0;
 
   expenses.forEach(e=>{
-    if(!grouped[e.category]) grouped[e.category] = [];
+    if(!grouped[e.category]) grouped[e.category]=[];
     grouped[e.category].push(e);
 
-    // Cash vs Depreciation accounting
     if(MODE==="advanced" && DEPR_RULES[e.category]){
       deprTotal += e.amount * DEPR_RULES[e.category];
     }else{
-      cashTotal += e.amount; // includes Initial Investment
+      cashTotal += e.amount;
     }
   });
 
-  let html = "";
+  let html="";
   Object.keys(grouped).forEach(cat=>{
-    html += `<tr class="group-row"><td colspan="5">◆ ${cat}</td></tr>`;
+    html += `<tr class="group-row"><td colspan="6">◆ ${cat}</td></tr>`;
     grouped[cat].forEach(e=>{
-      const deprCell =
+      const depr =
         (MODE==="advanced" && DEPR_RULES[e.category])
           ? Math.round(e.amount * DEPR_RULES[e.category]).toLocaleString()
           : "";
       html += `
         <tr>
-          <td>${e.category}</td>
           <td>${e.title}</td>
+          <td>${e.qty}</td>
+          <td>${e.rate.toLocaleString()}</td>
           <td>${e.amount.toLocaleString()}</td>
-          <td class="depr-col">${deprCell}</td>
+          <td class="depr-col">${depr}</td>
           <td><button onclick="del(${expenses.indexOf(e)})">❌</button></td>
         </tr>`;
     });
   });
 
-  document.getElementById("rows").innerHTML = html;
-  document.getElementById("totalExpense").innerText = cashTotal.toLocaleString();
-  document.getElementById("totalDepr").innerText =
+  rows.innerHTML = html;
+  totalExpense.innerText = cashTotal.toLocaleString();
+  totalDepr.innerText =
     MODE==="advanced" ? Math.round(deprTotal).toLocaleString() : "0";
 
-  // show/hide depreciation column
   document.querySelectorAll(".depr-col").forEach(el=>{
     el.style.display = MODE==="advanced" ? "" : "none";
   });
