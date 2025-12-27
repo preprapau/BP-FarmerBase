@@ -2,49 +2,92 @@
 <html lang="ne">
 <head>
 <meta charset="UTF-8">
-<title>Profit / Loss | BPMS</title>
+<title>नाफा / नोक्सान | BPMS</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
 body{
   font-family:"Noto Sans Devanagari","Kalimati","Mangal",system-ui,Arial;
-  background:#f4f7f6;margin:0;
+  background:#f4f7f6;
+  margin:0;
 }
 .wrap{
-  max-width:950px;margin:25px auto;background:#fff;
-  padding:25px;border-radius:10px;
+  max-width:950px;
+  margin:25px auto;
+  background:#fff;
+  padding:25px;
+  border-radius:10px;
 }
-h2{color:#2e7d32;margin-top:0}
-table{width:100%;border-collapse:collapse;margin-top:10px}
-th,td{border:1px solid #ccc;padding:8px}
-th{background:#f0f0f0;text-align:left}
+h2{
+  color:#2e7d32;
+  margin-top:0;
+}
+table{
+  width:100%;
+  border-collapse:collapse;
+  margin-top:10px;
+}
+th,td{
+  border:1px solid #ccc;
+  padding:8px;
+}
+th{
+  background:#f0f0f0;
+  text-align:left;
+}
 .right{text-align:right}
 .big{font-size:18px;font-weight:700}
 .green{background:#e8f5e9}
 .blue{background:#e3f2fd}
+input{
+  padding:6px;
+  width:90px;
+}
+.note{
+  font-size:13px;
+  color:#555;
+  margin-top:8px;
+}
 .nav{
-  display:flex;justify-content:space-between;margin-top:25px
+  max-width:950px;
+  margin:0 auto 30px auto;
+  display:flex;
+  justify-content:space-between;
 }
 button{
-  padding:8px 16px;border:none;border-radius:6px;
-  background:#2e7d32;color:#fff;cursor:pointer
+  padding:8px 18px;
+  border:none;
+  border-radius:6px;
+  background:#2e7d32;
+  color:#fff;
+  cursor:pointer;
 }
-input{padding:6px;width:80px}
-.note{font-size:13px;color:#555;margin-top:8px}
+button:hover{opacity:.9}
 </style>
 </head>
 
 <body>
+
 <div class="wrap">
 
-<h2>📊 नाफा / नोक्सान (Profit & Loss Statement)</h2>
+<h2>📊 नाफा / नोक्सान विवरण (Profit & Loss Statement)</h2>
 
-<!-- ================= PROFIT LOSS SUMMARY ================= -->
+<!-- ================= PROFIT & LOSS ================= -->
 <table>
-<tr><th>कुल आम्दानी</th><td class="right" id="income">0</td></tr>
-<tr><th>कुल खर्च (Cash)</th><td class="right" id="cash">0</td></tr>
-<tr><th>ह्रासकट्टी</th><td class="right" id="depr">0</td></tr>
-<tr><th>बैंक ब्याज</th>
+<tr>
+  <th>कुल आम्दानी</th>
+  <td class="right" id="income">0</td>
+</tr>
+<tr>
+  <th>कुल खर्च (Cash)</th>
+  <td class="right" id="cash">0</td>
+</tr>
+<tr>
+  <th>ह्रासकट्टी</th>
+  <td class="right" id="depr">0</td>
+</tr>
+<tr>
+  <th>बैंक ब्याज</th>
   <td class="right">
     <input id="interest" value="0">
   </td>
@@ -69,8 +112,8 @@ input{padding:6px;width:80px}
 </tr>
 </table>
 
-<!-- ================= DIVIDEND DISTRIBUTION ================= -->
-<h3 style="margin-top:25px;color:#2e7d32">💰 लाभांश वितरण (Dividend Distribution)</h3>
+<!-- ================= DIVIDEND ================= -->
+<h3 style="margin-top:25px;color:#2e7d32">💰 लाभांश वितरण</h3>
 
 <table class="blue">
 <tr>
@@ -97,12 +140,12 @@ input{padding:6px;width:80px}
 ✔️ % परिवर्तन गर्दा रकम स्वतः अपडेट हुन्छ
 </div>
 
+</div> <!-- wrap end -->
+
 <!-- ================= NAVIGATION MENU ================= -->
 <div class="nav">
   <button onclick="location.href='income-demo.html'">⬅ Previous</button>
   <button onclick="location.href='five-year-roi.html'">Next ➡</button>
-</div>
-
 </div>
 
 <script>
@@ -124,13 +167,26 @@ let income = 0;
 let cash = 0, depr = 0;
 (p.expenseData || []).forEach(e=>{
   if(e.category==="मेशीन औजार / प्रविधि" || e.category==="पूर्वाधार निर्माण"){
-    depr += e.amount * 0.15;
+    depr += e.amount * 0.15;   // depreciation
   }else{
-    cash += e.amount;
+    cash += e.amount;         // cash expense
   }
 });
 
 /* ================= CALCULATION ================= */
+const incomeEl = document.getElementById("income");
+const cashEl = document.getElementById("cash");
+const deprEl = document.getElementById("depr");
+const pbtEl = document.getElementById("pbt");
+const taxAmtEl = document.getElementById("taxAmt");
+const netProfitEl = document.getElementById("netProfit");
+const divAmtEl = document.getElementById("divAmt");
+const retainedEl = document.getElementById("retained");
+
+const interestEl = document.getElementById("interest");
+const taxRateEl = document.getElementById("taxRate");
+const divRateEl = document.getElementById("divRate");
+
 function calculate(){
   const interest = Number(interestEl.value || 0);
   const taxRate = Number(taxRateEl.value || 0);
@@ -153,19 +209,6 @@ function calculate(){
 }
 
 /* ================= BIND ================= */
-const incomeEl = document.getElementById("income");
-const cashEl = document.getElementById("cash");
-const deprEl = document.getElementById("depr");
-const pbtEl = document.getElementById("pbt");
-const taxAmtEl = document.getElementById("taxAmt");
-const netProfitEl = document.getElementById("netProfit");
-const divAmtEl = document.getElementById("divAmt");
-const retainedEl = document.getElementById("retained");
-
-const interestEl = document.getElementById("interest");
-const taxRateEl = document.getElementById("taxRate");
-const divRateEl = document.getElementById("divRate");
-
 [interestEl, taxRateEl, divRateEl].forEach(el=>{
   el.addEventListener("input", calculate);
 });
