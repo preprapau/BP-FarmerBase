@@ -2,66 +2,64 @@
 <html lang="ne">
 <head>
 <meta charset="UTF-8">
-<title>नाफा / नोक्सान (वार्षिक) | BPMS</title>
+<title>नाफा / नोक्सान (वार्षिक)</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
 body{
-  font-family:"Noto Sans Devanagari","Kalimati","Mangal","Nirmala UI",system-ui,Arial;
-  background:#f4f7f6;margin:0
+  font-family:"Noto Sans Devanagari","Kalimati","Mangal","Nirmala UI",system-ui;
+  background:#f4f7f6;
+  margin:0;
 }
-.wrap{max-width:1100px;margin:auto;padding:20px}
-h2,h3{color:#2e7d32}
-
-.card{
+.wrap{
+  max-width:1000px;
+  margin:25px auto;
   background:#fff;
-  border-radius:14px;
-  padding:20px;
-  margin-top:20px
+  padding:25px;
+  border-radius:12px;
 }
+h2{color:#2e7d32;margin-top:0}
 
 table{
   width:100%;
-  border-collapse:collapse
+  border-collapse:collapse;
+  margin-top:15px;
 }
 th,td{
+  border-bottom:1px solid #ddd;
   padding:10px;
-  border-bottom:1px solid #ddd
 }
-th{
-  background:#f1f5f1;
-  text-align:left
-}
+th{text-align:left;background:#f1f5f1}
 .right{text-align:right}
-
-input[type=number]{
-  width:80px;
-  padding:6px
-}
 
 .green{color:#2e7d32;font-weight:bold}
 .red{color:#c62828;font-weight:bold}
 
+.nav{
+  display:flex;
+  justify-content:space-between;
+  margin-top:25px;
+}
 button{
-  padding:8px 14px;
+  padding:8px 18px;
   border:none;
   border-radius:6px;
   background:#2e7d32;
   color:#fff;
-  cursor:pointer
+  cursor:pointer;
 }
 
 @media print{
-  button{display:none}
+  button,.nav{display:none}
+  a[href]:after{content:""}
 }
 </style>
 </head>
 
 <body>
+
 <div class="wrap">
 
-<!-- ================= PROFIT LOSS ================= -->
-<div class="card">
 <h2>📊 नाफा / नोक्सान (वार्षिक)</h2>
 
 <table>
@@ -73,139 +71,80 @@ button{
 <tr><td>बैंक ब्याज</td><td class="right" id="int">0</td></tr>
 
 <tr><th>कर अघिको नाफा (PBT)</th><th class="right" id="pbt">0</th></tr>
-<tr>
-  <td>कर (%)
-    <input type="number" id="taxRate" value="25">
-  </td>
-  <td class="right" id="tax">0</td>
-</tr>
+<tr><td>कर (२५%)</td><td class="right" id="taxEl">0</td></tr>
 <tr>
   <th>खुद नाफा (PAT)</th>
-  <th class="right" id="profit">0</th>
+  <th class="right green" id="profit">0</th>
 </tr>
 </table>
-</div>
 
-<!-- ================= DIVIDEND ================= -->
-<div class="card">
-<h3>💰 लाभांश वितरण</h3>
-
-<table id="divTable">
-<thead>
-<tr>
-  <th>विवरण</th>
-  <th>%</th>
-  <th class="right">रकम</th>
-  <th></th>
-</tr>
-</thead>
-<tbody>
-<tr>
-  <td><input value="स्वामी / साझेदार"></td>
-  <td><input type="number" class="divPct" value="60"></td>
-  <td class="right divAmt">0</td>
-  <td></td>
-</tr>
-<tr>
-  <td><input value="पुनः लगानी"></td>
-  <td><input type="number" class="divPct" value="40"></td>
-  <td class="right divAmt">0</td>
-  <td></td>
-</tr>
-</tbody>
-</table>
-
-<br>
-<button onclick="addDividend()">➕ Add Option</button>
+<div class="nav">
+  <button onclick="location.href='income-demo.html'">⬅ Income</button>
+  <button onclick="location.href='five-year-roi.html'">Next ➡ ROI</button>
 </div>
 
 </div>
 
 <script>
-/* ================= LOAD PROJECT ================= */
+/* ===== LOAD PROJECT ===== */
 let key = localStorage.getItem("activeProject");
+if(!key){
+  alert("Project भेटिएन");
+  location.href="index.html";
+}
 let p = JSON.parse(localStorage.getItem(key)) || {};
 
-/* ================= TOTAL INCOME ================= */
+/* ===== TOTAL INCOME ===== */
 let totalIncome = 0;
-(p.incomeData||[]).forEach(i=>{
-  totalIncome += Number(i.amount||0);
+(p.incomeData || []).forEach(i=>{
+  totalIncome += Number(i.amount || 0);
 });
 
-/* ================= EXPENSE SPLIT ================= */
+/* ===== EXPENSE BREAKDOWN ===== */
 let operatingExpense = 0;
 let depreciation = 0;
 let interest = 0;
 
-(p.expenseData||[]).forEach(e=>{
-  let amt = Number(e.amount||0);
-  let cat = (e.category||"").toLowerCase();
-  let title = (e.title||"").toLowerCase();
+(p.expenseData || []).forEach(e=>{
+  let amt = Number(e.amount || 0);
+  let cat = (e.category || "").toLowerCase();
+  let title = (e.title || "").toLowerCase();
 
-  if(cat.includes("ब्याज") || title.includes("ब्याज")){
+  /* 🔴 BANK INTEREST */
+  if(title.includes("ब्याज") || cat.includes("ब्याज")){
     interest += amt;
+    return;
   }
-  else if(
+
+  /* 🔵 DEPRECIATION ITEMS */
+  if(
     cat.includes("मेशिन") ||
     cat.includes("औजार") ||
     cat.includes("पूर्वाधार") ||
     cat.includes("भवन")
   ){
     depreciation += amt * 0.15;
+    return;
   }
-  else{
-    operatingExpense += amt;
-  }
+
+  /* 🟢 OPERATING EXPENSE */
+  operatingExpense += amt;
 });
 
-/* ================= PROFIT CALC ================= */
-function calcPL(){
-  let taxRate = Number(document.getElementById("taxRate").value||0);
+/* ===== PROFIT CALC ===== */
+let PBT = totalIncome - operatingExpense - depreciation - interest;
+let taxRate = Number(p.taxRate || 25);
+let tax = PBT > 0 ? (PBT * taxRate / 100) : 0;
+let PAT = PBT - tax;
 
-  let PBT = totalIncome - operatingExpense - depreciation - interest;
-  let tax = PBT>0 ? (PBT*taxRate/100) : 0;
-  let PAT = PBT - tax;
-
-  inc.innerText = Math.round(totalIncome);
-  cash.innerText = Math.round(operatingExpense);
-  depr.innerText = Math.round(depreciation);
-  int.innerText = Math.round(interest);
-  pbt.innerText = Math.round(PBT);
-  taxEl.innerText = Math.round(tax);
-
-  profit.innerText = Math.round(PAT);
-  profit.className = PAT>=0?"green":"red";
-
-  calcDividend(PAT);
-}
-
-/* ================= DIVIDEND ================= */
-function calcDividend(PAT){
-  let rows = document.querySelectorAll("#divTable tbody tr");
-  rows.forEach(r=>{
-    let pct = Number(r.querySelector(".divPct").value||0);
-    r.querySelector(".divAmt").innerText = Math.round(PAT*pct/100);
-  });
-}
-
-function addDividend(){
-  let tr = document.createElement("tr");
-  tr.innerHTML = `
-    <td><input placeholder="नयाँ विकल्प"></td>
-    <td><input type="number" class="divPct" value="0"></td>
-    <td class="right divAmt">0</td>
-    <td><button onclick="this.parentElement.parentElement.remove()">✖</button></td>
-  `;
-  document.querySelector("#divTable tbody").appendChild(tr);
-  calcPL();
-}
-
-/* ================= EVENTS ================= */
-document.addEventListener("input",calcPL);
-
-/* ================= INIT ================= */
-const taxEl = document.getElementById("tax");
-calcPL();
+/* ===== RENDER ===== */
+inc.innerText   = Math.round(totalIncome);
+cash.innerText  = Math.round(operatingExpense);
+depr.innerText  = Math.round(depreciation);
+int.innerText   = Math.round(interest);
+pbt.innerText   = Math.round(PBT);
+taxEl.innerText = Math.round(tax);
+profit.innerText= Math.round(PAT);
 </script>
 
 </body>
