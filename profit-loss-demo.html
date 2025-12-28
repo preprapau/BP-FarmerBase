@@ -24,6 +24,7 @@ th,td{
 }
 th{background:#f1f5f1;text-align:left}
 .right{text-align:right}
+
 .green{color:#2e7d32;font-weight:bold}
 .red{color:#c62828;font-weight:bold}
 
@@ -55,10 +56,13 @@ button{
 <tr><td>बैंक ब्याज</td><td class="right" id="interest">0</td></tr>
 <tr><th>कर अघिको नाफा (PBT)</th><th class="right" id="pbt">0</th></tr>
 <tr><td>कर (२५%)</td><td class="right" id="tax">0</td></tr>
-<tr><th>खुद नाफा (PAT)</th><th class="right green" id="pat">0</th></tr>
+<tr>
+  <th>खुद नाफा (PAT)</th>
+  <th class="right green" id="pat">0</th>
+</tr>
 </table>
 
-<!-- ===== DIVIDEND ===== -->
+<!-- ================= DIVIDEND ================= -->
 <h3 style="margin-top:30px">💰 लाभांश वितरण</h3>
 
 <table id="divTable">
@@ -88,59 +92,67 @@ button{
 </div>
 
 <script>
-/* ===== LOAD PROJECT ===== */
+/* ================= LOAD PROJECT ================= */
 let key = localStorage.getItem("activeProject");
+if(!key){
+  alert("Project भेटिएन");
+  location.href="index.html";
+}
 let p = JSON.parse(localStorage.getItem(key)) || {};
 
-/* ===== INCOME ===== */
+/* ================= TOTAL INCOME ================= */
 let totalIncome = 0;
 (p.incomeData||[]).forEach(i=>{
   totalIncome += Number(i.amount||0);
 });
 
-/* ===== EXPENSE BREAK ===== */
+/* ================= EXPENSE BREAKDOWN ================= */
 let operating = 0;
 let depreciation = 0;
-let interest = 0;
+let interestAmt = 0;
 
 (p.expenseData||[]).forEach(e=>{
   let amt = Number(e.amount||0);
   let cat = (e.category||"").toLowerCase();
   let title = (e.title||"").toLowerCase();
 
-  // 🔴 ब्याज FIX (यही हो exact source)
+  /* 🔴 BANK INTEREST (FINAL FIX) */
   if(title.includes("ब्याज") || cat.includes("लगानी")){
-    interest += amt;
+    interestAmt += amt;
     return;
   }
 
-  // 🔵 ह्रासकट्टी
-  if(cat.includes("मेशिन") || cat.includes("औजार") || cat.includes("पूर्वाधार")){
+  /* 🔵 DEPRECIATION ITEMS */
+  if(
+    cat.includes("मेशिन") ||
+    cat.includes("औजार") ||
+    cat.includes("पूर्वाधार") ||
+    cat.includes("भवन")
+  ){
     depreciation += amt * 0.15;
     return;
   }
 
-  // 🟢 चालु खर्च
+  /* 🟢 OPERATING EXPENSE */
   operating += amt;
 });
 
-/* ===== PROFIT ===== */
-let PBT = totalIncome - operating - depreciation - interest;
-let taxRate = Number(p.taxRate||25);
-let tax = PBT>0 ? PBT*taxRate/100 : 0;
-let PAT = PBT - tax;
+/* ================= PROFIT CALC ================= */
+let PBT = totalIncome - operating - depreciation - interestAmt;
+let taxRate = Number(p.taxRate || 25);   // default 25%
+let taxAmount = PBT > 0 ? (PBT * taxRate / 100) : 0;
+let PAT = PBT - taxAmount;
 
-/* ===== RENDER ===== */
-inc.innerText = Math.round(totalIncome);
-cash.innerText = Math.round(operating);
-depr.innerText = Math.round(depreciation);
-interestEl = document.getElementById("interest");
-interestEl.innerText = Math.round(interest);
-pbt.innerText = Math.round(PBT);
-tax.innerText = Math.round(tax);
-pat.innerText = Math.round(PAT);
+/* ================= RENDER ================= */
+document.getElementById("inc").innerText = Math.round(totalIncome);
+document.getElementById("cash").innerText = Math.round(operating);
+document.getElementById("depr").innerText = Math.round(depreciation);
+document.getElementById("interest").innerText = Math.round(interestAmt);
+document.getElementById("pbt").innerText = Math.round(PBT);
+document.getElementById("tax").innerText = Math.round(taxAmount);
+document.getElementById("pat").innerText = Math.round(PAT);
 
-/* ===== DIVIDEND ===== */
+/* ================= DIVIDEND ================= */
 function calcDividend(){
   let rows=document.querySelectorAll("#divTable tr");
   let totalPerc=0;
@@ -148,7 +160,7 @@ function calcDividend(){
     if(i===0) return;
     let p = Number(r.querySelector(".dPerc").value||0);
     totalPerc+=p;
-    r.querySelector(".dAmt").innerText=Math.round(PAT*p/100);
+    r.querySelector(".dAmt").innerText = Math.round(PAT*p/100);
   });
   warn.innerText = totalPerc>100 ? "⚠️ कुल % 100 भन्दा बढी भयो" : "";
 }
