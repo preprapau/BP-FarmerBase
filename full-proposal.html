@@ -2,46 +2,71 @@
 <html lang="ne">
 <head>
 <meta charset="UTF-8">
-<title>व्यवसाय प्रस्ताव</title>
+<title>Full Proposal | BPMS</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
-*{box-sizing:border-box}
 body{
-  font-family:"Noto Sans Devanagari",system-ui,Arial;
+  font-family:"Noto Sans Devanagari","Kalimati","Mangal","Nirmala UI",system-ui,Arial;
   background:#f4f7f6;
   margin:0;
 }
-.page{
+.container{
   max-width:900px;
-  margin:0 auto;
+  margin:25px auto;
   background:#fff;
-  padding:32px;
-  page-break-after:always;
+  padding:30px;
+  border-radius:10px;
 }
-h1,h2,h3{margin-top:0;color:#2e7d32}
-p,li{line-height:1.9}
+h1,h2,h3{color:#2e7d32}
+h1{text-align:center;margin-top:0}
 
-/* ToC */
-#toc ol{padding-left:20px}
-
-/* Summary box */
-.summary{
-  border:2px solid #e0e0e0;
-  background:#fafafa;
-  padding:15px;
-  margin:15px 0;
+.meta{
+  text-align:center;
+  font-size:13px;
+  color:#555;
+  margin-bottom:20px;
 }
-.summary div{
+
+.section{margin-top:25px}
+.section h2{
+  border-bottom:2px solid #e0e0e0;
+  padding-bottom:5px;
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  margin-top:10px;
+}
+th,td{
+  border:1px solid #ccc;
+  padding:6px;
+  text-align:left;
+}
+th{background:#f0f0f0}
+.right{text-align:right}
+
+.note{font-size:13px;color:#666}
+
+.nav{
   display:flex;
   justify-content:space-between;
-  padding:4px 0;
+  margin-top:30px;
+}
+button{
+  padding:8px 16px;
+  border:none;
+  border-radius:6px;
+  cursor:pointer;
+  background:#2e7d32;
+  color:#fff;
 }
 
 /* ===== PRINT FINAL ===== */
 @media print{
   body{background:#fff}
-  .no-print,button,input,select,textarea{display:none!important}
+  button,.nav{display:none!important}
   a[href]:after{content:""!important}
   @page{size:A4;margin:20mm}
 }
@@ -50,103 +75,229 @@ p,li{line-height:1.9}
 
 <body>
 
-<!-- ================= TABLE OF CONTENTS ================= -->
-<div class="page" id="toc">
-<h2>विषयसूची</h2>
-<ol id="tocList"></ol>
+<div class="container">
+
+<h1 id="bpTitle">व्यवसायिक प्रस्तावना</h1>
+
+<div class="meta">
+  <span id="fpStatus"></span> |
+  Version : v<span id="fpVersion"></span><br>
+  Created : <span id="fpCreated"></span> |
+  Last Edited : <span id="fpEdited"></span>
 </div>
 
-<!-- ================= BUSINESS DETAIL BY TOPIC ================= -->
-<div class="page">
-<h2>व्यवसाय / परियोजना विवरण</h2>
-<div id="businessTopics"></div>
+<!-- ===== EXECUTIVE SUMMARY ===== -->
+<div class="section">
+<h2>कार्यकारी सारांश</h2>
+
+<table>
+<tr><th>कुल खर्च</th><td class="right" id="sumExpense"></td></tr>
+<tr><th>कुल आम्दानी</th><td class="right" id="sumIncome"></td></tr>
+<tr><th>नाफा / नोक्सान</th><td class="right" id="sumNet"></td></tr>
+</table>
+
+<p class="note" id="summaryConclusion"></p>
+</div>
+
+<!-- ===== SHORT INFO ===== -->
+<div class="section">
+<h2>१. संक्षिप्त परिचय</h2>
+<table>
+<tr><th>व्यवसाय/प्रस्तावनाको नाम</th><td id="si_name"></td></tr>
+<tr><th>सञ्चालन हुने स्थान</th><td id="si_location"></td></tr>
+<tr><th>सञ्चालन गर्ने संस्था</th><td id="si_org"></td></tr>
+<tr><th>प्रोप्राइटर</th><td id="si_owner"></td></tr>
+<tr><th>सम्पर्क व्यक्ति</th><td id="si_contact"></td></tr>
+<tr><th>सम्पर्क नम्बर</th><td id="si_phone"></td></tr>
+<tr><th>उत्पादन/व्यवसायिक प्रकृति</th><td id="si_products"></td></tr>
+<tr><th>मुख्य बजार</th><td id="si_market"></td></tr>
+<tr><th>कुल पूँजी</th><td id="si_capital"></td></tr>
+</table>
+</div>
+
+<!-- ===== BUSINESS DETAIL ===== -->
+<div class="section">
+<h2>२. व्यवसायको विस्तृत विवरण</h2>
+<div id="detailBox"></div>
+</div>
+
+<!-- ===== EXPENSE ===== -->
+<div class="section">
+<h2>३. खर्च विवरण (वार्षिक)</h2>
+<table>
+<thead>
+<tr>
+  <th>क्याटेगोरी</th>
+  <th>शीर्षक</th>
+  <th class="right">परिमाण</th>
+  <th class="right">दर</th>
+  <th class="right">रकम</th>
+</tr>
+</thead>
+<tbody id="expenseBody"></tbody>
+<tfoot>
+<tr>
+  <th colspan="4" class="right">कुल खर्च</th>
+  <th class="right" id="expenseTotal"></th>
+</tr>
+</tfoot>
+</table>
+</div>
+
+<!-- ===== INCOME ===== -->
+<div class="section">
+<h2>४. आम्दानी विवरण (वार्षिक)</h2>
+<table>
+<thead>
+<tr>
+  <th>क्याटेगोरी</th>
+  <th>शीर्षक</th>
+  <th class="right">परिमाण</th>
+  <th class="right">दर</th>
+  <th class="right">रकम</th>
+</tr>
+</thead>
+<tbody id="incomeBody"></tbody>
+<tfoot>
+<tr>
+  <th colspan="4" class="right">कुल आम्दानी</th>
+  <th class="right" id="incomeTotal"></th>
+</tr>
+</tfoot>
+</table>
+</div>
+
+<!-- ===== PROFIT LOSS ===== -->
+<div class="section">
+<h2>५. नाफा / नोक्सान</h2>
+<table>
+<tr><th>कुल आम्दानी</th><td class="right" id="pl_income"></td></tr>
+<tr><th>कुल खर्च</th><td class="right" id="pl_expense"></td></tr>
+<tr><th>नाफा / नोक्सान</th><td class="right" id="pl_net"></td></tr>
+</table>
+</div>
+
+<!-- ===== ROI ===== -->
+<div class="section">
+<h2>६. पाँच वर्षे ROI सारांश</h2>
+<table>
+<tr><th>प्रारम्भिक लगानी</th><td class="right" id="roi_inv"></td></tr>
+<tr><th>कुल नाफा (५ वर्ष)</th><td class="right" id="roi_profit"></td></tr>
+<tr><th>ROI (%)</th><td class="right" id="roi_percent"></td></tr>
+<tr><th>Payback Period</th><td id="roi_payback"></td></tr>
+</table>
+</div>
+
+<div class="nav">
+  <button onclick="goHome()">⬅ Home</button>
+  <button onclick="window.print()">🖨 Print</button>
+</div>
+
 </div>
 
 <script>
-/* ===== LOAD PROJECT ===== */
+/* ===== SAFETY ===== */
 let key = localStorage.getItem("activeProject");
-let project = key ? JSON.parse(localStorage.getItem(key)) : {};
+if(!key){
+  alert("Project भेटिएन");
+  location.href="index.html";
+}
+let p = JSON.parse(localStorage.getItem(key)||"{}");
 
-/* ===== FINANCIAL TOTALS ===== */
-let totalExpense = 0, totalIncome = 0;
-(project.expenseData||[]).forEach(e=>totalExpense+=Number(e.amount||0));
-(project.incomeData||[]).forEach(i=>totalIncome+=Number(i.amount||0));
-let profit = totalIncome - totalExpense;
+/* ===== HELPERS ===== */
+function safe(v){ return v && v!=="" ? v : "<i>(सूचना उपलब्ध छैन)</i>"; }
+function money(n){ return "रु. " + Number(n||0).toLocaleString("ne-NP"); }
 
-function fmt(n){ return "रु. " + Number(n).toLocaleString("ne-NP"); }
+/* ===== FINAL FREEZE MARK ===== */
+p.status = "final";
+p.version = p.version || "1.0";
+localStorage.setItem(key, JSON.stringify(p));
 
-sumExpense.innerText = fmt(totalExpense);
-sumIncome.innerText  = fmt(totalIncome);
-sumProfit.innerText  = profit>=0 ? "नाफा : "+fmt(profit) : "नोक्सान : "+fmt(Math.abs(profit));
+/* ===== META ===== */
+fpStatus.innerText = "Final Proposal";
+fpVersion.innerText = p.version;
+fpCreated.innerText = p.createdAt || "";
+fpEdited.innerText = p.lastEdited || "";
+
+/* ===== SHORT INFO ===== */
+let s = p.shortInfo || {};
+bpTitle.innerText = s.bp_name || "व्यवसायिक प्रस्तावना";
+si_name.innerHTML = safe(s.bp_name);
+si_location.innerHTML = safe(s.bp_location);
+si_org.innerHTML = safe(s.bp_org);
+si_owner.innerHTML = safe(s.bp_owner);
+si_contact.innerHTML = safe(s.bp_contact_person);
+si_phone.innerHTML = safe(s.bp_phone);
+si_products.innerHTML = safe(s.bp_products);
+si_market.innerHTML = safe(s.bp_market);
+si_capital.innerHTML = safe(s.bp_capital);
+
+/* ===== BUSINESS DETAIL ===== */
+let dbox = document.getElementById("detailBox");
+(p.businessDetail||[]).forEach((d,i)=>{
+  dbox.innerHTML += `
+    <div style="margin-bottom:18px">
+      <h3>${i+1}. ${d.topic}</h3>
+      <p>${(d.content||"").replace(/\n/g,"<br>")}</p>
+    </div>`;
+});
+if(!dbox.innerHTML) dbox.innerHTML="<i>(विवरण उपलब्ध छैन)</i>";
+
+/* ===== EXPENSE ===== */
+let eTotal=0;
+(p.expenseData||[]).forEach(e=>{
+  eTotal+=Number(e.amount||0);
+  expenseBody.innerHTML+=`
+    <tr>
+      <td>${e.category}</td>
+      <td>${e.title}</td>
+      <td class="right">${e.qty}</td>
+      <td class="right">${e.rate}</td>
+      <td class="right">${money(e.amount)}</td>
+    </tr>`;
+});
+expenseTotal.innerText = money(eTotal);
+
+/* ===== INCOME ===== */
+let iTotal=0;
+(p.incomeData||[]).forEach(i=>{
+  iTotal+=Number(i.amount||0);
+  incomeBody.innerHTML+=`
+    <tr>
+      <td>${i.category}</td>
+      <td>${i.title}</td>
+      <td class="right">${i.qty}</td>
+      <td class="right">${i.rate}</td>
+      <td class="right">${money(i.amount)}</td>
+    </tr>`;
+});
+incomeTotal.innerText = money(iTotal);
+
+/* ===== PROFIT LOSS ===== */
+pl_income.innerText = money(iTotal);
+pl_expense.innerText = money(eTotal);
+let net = iTotal - eTotal;
+pl_net.innerText = net>=0 ? "नाफा : "+money(net) : "नोक्सान : "+money(Math.abs(net));
+
+/* ===== EXECUTIVE SUMMARY ===== */
+sumExpense.innerText = money(eTotal);
+sumIncome.innerText  = money(iTotal);
+sumNet.innerText     = net>=0 ? "नाफा : "+money(net) : "नोक्सान : "+money(Math.abs(net));
 
 summaryConclusion.innerText =
-  profit>=0
-  ? "खर्च र आम्दानीको विश्लेषण अनुसार यस व्यवसायले दीर्घकालीन रूपमा नाफामूलक हुने स्पष्ट आधार देखाएको छ। तसर्थ, यस प्रस्ताव कार्यान्वयनयोग्य रहेको निष्कर्ष निकालिएको छ।"
-  : "प्रारम्भिक चरणमा खर्च बढी देखिए पनि उचित व्यवस्थापन र बजार विस्तारसँगै भविष्यमा नाफामूलक हुने सम्भावना देखिन्छ।";
+  net>=0
+  ? "खर्च तथा आम्दानीको विश्लेषण अनुसार यस व्यवसायले दीर्घकालीन रूपमा नाफामूलक हुने स्पष्ट आधार देखाएको छ। तसर्थ, यस प्रस्ताव कार्यान्वयनयोग्य रहेको निष्कर्ष निकालिएको छ।"
+  : "प्रारम्भिक चरणमा खर्च बढी देखिए पनि उचित व्यवस्थापन तथा बजार विस्तारसँगै भविष्यमा नाफामूलक हुने सम्भावना देखिन्छ।";
 
-;
-<h2>व्यवसाय / परियोजना विवरण</h2>
-<div id="businessTopics"></div>
+/* ===== ROI ===== */
+let r = p.fiveYearROI || {};
+roi_inv.innerText = money(r.investment);
+roi_profit.innerText = money(r.totalProfit);
+roi_percent.innerText = r.roi || "";
+roi_payback.innerText = r.payback || "";
 
-* ===== BUSINESS BY TOPIC (AUTO-DETECT ENTRY KEY) ===== */
-
-const box = document.getElementById("businessTopics");
-
-// possible keys used by entry pages
-const biz =
-  project.businessDetail ||
-  project.business ||
-  project.details ||
-  project.topics ||
-  [];
-
-if(Array.isArray(biz) && biz.length){
-  biz.forEach((t,i)=>{
-    box.innerHTML += `
-      <section style="margin-bottom:20px">
-        <h3>${i+1}. ${t.topic || t.title || "विषय"}</h3>
-        <p>${(t.content || t.text || "").replace(/\\n/g,"<br>")}</p>
-      </section>
-    `;
-  });
-} else {
-  box.innerHTML =
-    "<p style='color:#777;font-style:italic'>व्यवसाय विवरण Entry बाट आएको छैन ।</p>";
-}
-/* ===== TOC WITH PAGE NO (PRINT-BASED) ===== */
-document.querySelectorAll("h2").forEach((h,i)=>{
-  const li = document.createElement("li");
-  li.innerText = h.innerText + " ........ " + (i+1);
-  tocList.appendChild(li);
-});
-  /* ===== BUSINESS DETAIL FROM ENTRY ===== */
-
-const box = document.getElementById("businessTopics");
-
-/*
- Entry page मा Business कुन नामले save छ
- त्यही auto-detect गर्ने
-*/
-const biz =
-  project.businessDetail ||
-  project.business ||
-  project.details ||
-  project.topics ||
-  [];
-
-if(Array.isArray(biz) && biz.length){
-  biz.forEach((t,i)=>{
-    box.innerHTML += `
-      <div style="margin-top:20px">
-        <h3>${i+1}. ${t.topic || t.title || "विषय"}</h3>
-        <p>${(t.content || t.text || "").replace(/\\n/g,"<br>")}</p>
-      </div>
-    `;
-  });
-} else {
-  box.innerHTML =
-    "<p style='color:#777;font-style:italic'>व्यवसाय विवरण Entry बाट आएको छैन ।</p>";
-}
+/* ===== NAV ===== */
+function goHome(){location.href="index.html";}
 </script>
 
 </body>
