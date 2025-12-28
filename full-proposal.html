@@ -60,6 +60,12 @@ th,td{
 th{background:#f0f0f0}
 .right{text-align:right}
 
+.note{
+  font-size:13px;
+  color:#666;
+  margin-top:8px;
+}
+
 .nav{
   display:flex;
   justify-content:space-between;
@@ -74,11 +80,13 @@ button.action{
   color:#fff;
 }
 
+/* ===== PRINT FINAL ===== */
 @media print{
   .nav,.lang-switch{display:none}
   body{background:#fff}
-  a[href]:after{content:""} /* URL hide */
+  a[href]:after{content:""}
 }
+@page{margin:20mm}
 </style>
 </head>
 
@@ -100,6 +108,16 @@ button.action{
   Last Updated: <span id="fpEdited"></span>
 </div>
 
+<!-- ===== EXECUTIVE SUMMARY ===== -->
+<div class="section">
+<h2 id="h_exec"></h2>
+<table>
+<tr><th id="l_exp"></th><td class="right" id="sumExpense"></td></tr>
+<tr><th id="l_inc"></th><td class="right" id="sumIncome"></td></tr>
+<tr><th id="l_net"></th><td class="right" id="sumNet"></td></tr>
+</table>
+<p class="note" id="roiNote"></p>
+</div>
 
 <!-- ===== BUSINESS DETAIL ===== -->
 <div class="section">
@@ -163,6 +181,16 @@ button.action{
 </table>
 </div>
 
+<!-- ===== ROI ===== -->
+<div class="section">
+<h2 id="h_roi"></h2>
+<table>
+<tr><th id="roi_i"></th><td class="right" id="roi_inv"></td></tr>
+<tr><th id="roi_p"></th><td class="right" id="roi_profit"></td></tr>
+<tr><th id="roi_r"></th><td class="right" id="roi_percent"></td></tr>
+</table>
+</div>
+
 <div class="nav">
   <button class="action" onclick="location.href='index.html'">⬅ Home</button>
   <button class="action" onclick="window.print()">🖨 Print</button>
@@ -186,14 +214,8 @@ localStorage.setItem(key, JSON.stringify(p));
 
 /* ===== LANGUAGE ===== */
 let LANG = localStorage.getItem("bp_lang") || "ne";
-function setLang(l){
-  LANG = l;
-  localStorage.setItem("bp_lang",l);
-  renderLang();
-}
-function t(ne,en){
-  return LANG==="en" ? (en||ne) : ne;
-}
+function setLang(l){ LANG=l; localStorage.setItem("bp_lang",l); render(); }
+function t(ne,en){ return LANG==="en" ? (en||ne) : ne; }
 
 /* ===== HELPERS ===== */
 function money(n){
@@ -201,20 +223,24 @@ function money(n){
 }
 
 /* ===== META ===== */
-fpStatus.innerText = p.status==="final" ? "Final Proposal" : "Draft";
+fpStatus.innerText = "Final Proposal";
 fpVersion.innerText = p.version;
 fpCreated.innerText = p.createdAt || "";
 fpEdited.innerText = p.lastEdited || "";
 
 /* ===== RENDER ===== */
-function renderLang(){
+function render(){
 
-  /* HEADINGS */
-  h_exec.innerText   = t("१. कार्यकारी सारांश","1. Executive Summary");
-  h_detail.innerText = t("२. व्यवसाय विवरण","2. Business Details");
-  h_expense.innerText= t("३. खर्च विवरण (वार्षिक)","3. Annual Expense");
-  h_income.innerText = t("४. आम्दानी विवरण (वार्षिक)","4. Annual Income");
-  h_profit.innerText = t("५. नाफा / नोक्सान","5. Profit / Loss");
+  h_exec.innerText   = t("कार्यकारी सारांश","Executive Summary");
+  h_detail.innerText = t("व्यवसाय विवरण","Business Details");
+  h_expense.innerText= t("खर्च विवरण (वार्षिक)","Annual Expense");
+  h_income.innerText = t("आम्दानी विवरण (वार्षिक)","Annual Income");
+  h_profit.innerText = t("नाफा / नोक्सान","Profit / Loss");
+  h_roi.innerText    = t("५ वर्षे ROI सारांश","Five-Year ROI Summary");
+
+  l_exp.innerText = t("कुल खर्च","Total Expense");
+  l_inc.innerText = t("कुल आम्दानी","Total Income");
+  l_net.innerText = t("नाफा / नोक्सान","Net Result");
 
   th_cat.innerText = th_cat2.innerText = t("क्याटेगोरी","Category");
   th_title.innerText = th_title2.innerText = t("शीर्षक","Description");
@@ -228,44 +254,49 @@ function renderLang(){
   pl_e_l.innerText = t("कुल खर्च","Total Expense");
   pl_n_l.innerText = t("नाफा / नोक्सान","Net Result");
 
-  /* TITLE */
+  roi_i.innerText = t("प्रारम्भिक लगानी","Initial Investment");
+  roi_p.innerText = t("कुल नाफा (५ वर्ष)","Total Profit (5 Years)");
+  roi_r.innerText = t("ROI (%)","ROI (%)");
+
   bpTitle.innerText = t(
     p.shortInfo?.bp_name || "व्यवसायिक प्रस्ताव",
     p.shortInfo?.bp_name_en || p.shortInfo?.bp_name || "Business Proposal"
   );
 
-  /* EXEC SUMMARY */
-  execSummary.innerText = t(
-    p.shortInfo?.bp_summary || "यस प्रस्तावले व्यवसाय योजना र आर्थिक अवस्था प्रस्तुत गर्दछ।",
-    p.shortInfo?.bp_summary_en || "This proposal outlines the business plan and financial overview."
-  );
-
-  /* BUSINESS DETAIL */
+  /* ===== BUSINESS DETAIL ===== */
   detailBox.innerHTML="";
   (p.businessDetail||[]).forEach((d,i)=>{
     detailBox.innerHTML+=`
       <h3>${i+1}. ${t(d.topic,d.topic_en)}</h3>
       <p>${(t(d.content,d.content_en)||"").replace(/\n/g,"<br>")}</p>`;
   });
-  if(!detailBox.innerHTML) detailBox.innerHTML="<i>"+t("सूचना उपलब्ध छैन","Information not available")+"</i>";
+  if(!detailBox.innerHTML)
+    detailBox.innerHTML="<i>"+t("सूचना उपलब्ध छैन","Information not available")+"</i>";
 
-  /* EXPENSE */
+  /* ===== CATEGORY-WISE EXPENSE ===== */
   expenseBody.innerHTML="";
-  let eTotal=0;
+  let eTotal=0, groups={};
   (p.expenseData||[]).forEach(e=>{
-    eTotal+=Number(e.amount||0);
-    expenseBody.innerHTML+=`
-      <tr>
-        <td>${e.category||""}</td>
-        <td>${e.title||""}</td>
-        <td class="right">${e.qty||""}</td>
-        <td class="right">${e.rate||""}</td>
-        <td class="right">${money(e.amount)}</td>
-      </tr>`;
+    let c=e.category||t("अन्य","Others");
+    (groups[c]=groups[c]||[]).push(e);
+  });
+  Object.keys(groups).forEach(c=>{
+    expenseBody.innerHTML+=`<tr><th colspan="5" style="background:#eef5ee">${c}</th></tr>`;
+    groups[c].forEach(e=>{
+      eTotal+=Number(e.amount||0);
+      expenseBody.innerHTML+=`
+        <tr>
+          <td></td>
+          <td>${e.title||""}</td>
+          <td class="right">${e.qty||""}</td>
+          <td class="right">${e.rate||""}</td>
+          <td class="right">${money(e.amount)}</td>
+        </tr>`;
+    });
   });
   expenseTotal.innerText = money(eTotal);
 
-  /* INCOME */
+  /* ===== INCOME ===== */
   incomeBody.innerHTML="";
   let iTotal=0;
   (p.incomeData||[]).forEach(i=>{
@@ -281,14 +312,35 @@ function renderLang(){
   });
   incomeTotal.innerText = money(iTotal);
 
-  /* PROFIT */
-  pl_income.innerText = money(iTotal);
+  /* ===== PROFIT ===== */
+  sumExpense.innerText = money(eTotal);
+  sumIncome.innerText  = money(iTotal);
+  sumNet.innerText     = money(iTotal-eTotal);
+  pl_income.innerText  = money(iTotal);
   pl_expense.innerText = money(eTotal);
-  pl_net.innerText = money(iTotal-eTotal);
+  pl_net.innerText     = money(iTotal-eTotal);
+
+  /* ===== 5-YEAR ROI (YEAR-WISE %) ===== */
+  let incG=[10,12,8,7,5], expG=[5,6,6,5,4];
+  let ci=iTotal, ce=eTotal, ti=0, te=0;
+  for(let y=0;y<5;y++){
+    if(y>0){ ci*=1+incG[y]/100; ce*=1+expG[y]/100; }
+    ti+=ci; te+=ce;
+  }
+  let p5=ti-te;
+  roi_inv.innerText    = money(eTotal);
+  roi_profit.innerText = money(p5);
+  roi_percent.innerText= ((p5/eTotal)*100).toFixed(2)+" %";
+
+  roiNote.innerText = t(
+    "पाँच वर्षे वित्तीय प्रक्षेपण आम्दानी र खर्चमा वर्षगत प्रतिशत वृद्धिका आधारमा तयार गरिएको हो।",
+    "The five-year financial projection is prepared using year-wise growth assumptions for income and expenses."
+  );
 }
 
-renderLang();
+render();
 </script>
 
 </body>
 </html>
+
