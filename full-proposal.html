@@ -113,17 +113,36 @@ tfoot th{background:#e8f5e9;font-weight:bold}
   <div id="detailBox"></div>
 </div>
 
-<!-- ===================== PAGE 6 : PRODUCTION SUMMARY ===================== -->
-<div class="page keep-together">
-  <h2>४. उत्पादन तथा बिक्री योजना (सारांश)</h2>
-  <table>
-    <tr><th>प्रारम्भिक वयस्क संख्या</th><td id="ps_adult"></td></tr>
-    <tr><th>वार्षिक उत्पादन (औसत)</th><td id="ps_production"></td></tr>
-    <tr><th>वार्षिक बिक्री (औसत)</th><td id="ps_sell"></td></tr>
-    <tr><th>प्रतिस्थापन</th><td id="ps_replace"></td></tr>
-    <tr><th>५ वर्षको कुल बिक्री</th><td id="ps_5yr"></td></tr>
-  </table>
+<div class="section">
+  <h2>३. उत्पादन तथा बिक्री योजना</h2>
+  <div id="prodSalesBox"></div>
 </div>
+
+<script>
+(function(){
+  let box = document.getElementById("prodSalesBox");
+
+  if(!p.businessDetail || !p.businessDetail.length){
+    box.innerHTML = "<i>(उत्पादन तथा बिक्री योजना उपलब्ध छैन)</i>";
+    return;
+  }
+
+  let plan = p.businessDetail.find(
+    d => d.topic && d.topic.trim() === "उत्पादन तथा बिक्री योजना"
+  );
+
+  if(!plan){
+    box.innerHTML = "<i>(Business Detail मा ‘उत्पादन तथा बिक्री योजना’ शीर्षक भेटिएन)</i>";
+    return;
+  }
+
+  box.innerHTML = `
+    <div class="note">
+      ${plan.content.replace(/\n/g,"<br>")}
+    </div>
+  `;
+})();
+</script>
 
 <!-- ===================== PAGE 7 : EXPENSE (CATEGORY-WISE) ===================== -->
 <div class="page">
