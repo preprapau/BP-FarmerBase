@@ -2,129 +2,314 @@
 <html lang="ne">
 <head>
 <meta charset="UTF-8">
-<title>Print Safe Table – Final</title>
+<title>Full Business Proposal | BPMS</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
 /* ===== BASE ===== */
 body{
   font-family:"Noto Sans Devanagari","Kalimati","Mangal","Nirmala UI",system-ui,Arial;
-  background:#f4f7f6;
-  margin:0;
-  padding:20px;
+  background:#f4f7f6;margin:0;
 }
-.wrap{
+.page{
   max-width:900px;
-  margin:auto;
+  margin:20px auto;
   background:#fff;
-  padding:30px;
+  padding:32px;
   border-radius:10px;
+  page-break-after:always;
 }
-h2{
-  color:#2e7d32;
-  margin-top:0;
-}
-
-/* ===== TABLE ===== */
-table{
-  width:100%;
-  border-collapse:collapse;
-  margin-top:15px;
-}
-th,td{
-  border:1px solid #ccc;
-  padding:8px;
-}
-th{
-  background:#f1f5f1;
-}
+h1,h2,h3{color:#2e7d32;margin-top:0}
+h2{border-bottom:2px solid #e0e0e0;padding-bottom:6px}
+.center{text-align:center}
 .right{text-align:right}
 
-/* ===== PRINT FIX (FINAL & FREEZE) ===== */
+/* ===== TABLE ===== */
+table{width:100%;border-collapse:collapse;margin-top:12px}
+th,td{border:1px solid #ccc;padding:8px}
+th{background:#f1f5f1}
+
+/* ===== KEEP TOGETHER ===== */
+.keep-together{page-break-inside:avoid;break-inside:avoid}
+
+/* ===== PRINT FIX ===== */
 @media print{
-
-  body{
-    background:#fff;
-  }
-
-  /* Table header repeat */
-  thead{
-    display:table-header-group;
-  }
-
-  /* Table footer (कुल जम्मा) repeat */
-  tfoot{
-    display:table-footer-group;
-  }
-
-  /* Row बीचमै नटुटोस् */
-  tr{
-    page-break-inside:avoid;
-    break-inside:avoid;
-  }
-
-  table{
-    page-break-inside:auto;
-  }
-
-  /* URL नदेखियोस् */
-  a[href]:after{
-    content:"";
-  }
+  body{background:#fff}
+  a[href]:after{content:""}
+  thead{display:table-header-group}
+  tfoot{display:table-footer-group}
+  tr{page-break-inside:avoid;break-inside:avoid}
 }
+tfoot th{background:#e8f5e9;font-weight:bold}
 
-/* Footer highlight */
-tfoot th{
-  background:#e8f5e9;
-  font-weight:bold;
-}
+/* ===== COVER ===== */
+.cover{padding:90px 30px;text-align:center}
+.cover h1{font-size:36px}
+.tagline{font-size:18px;color:#555;margin:18px 0}
+.footer{margin-top:70px;font-size:14px;color:#555}
+
+/* ===== TOC ===== */
+.toc li{display:flex;justify-content:space-between;border-bottom:1px dotted #aaa;padding:6px 0}
 </style>
 </head>
 
 <body>
 
-<div class="wrap">
+<!-- ===================== PAGE 1 : COVER ===================== -->
+<div class="page cover">
+  <h1 id="cv_name">व्यवसायिक प्रस्ताव</h1>
+  <div class="tagline">सतत कृषि • आत्मनिर्भर आम्दानी • दीर्घकालीन विकास</div>
 
-<h2>📑 खर्च विवरण (उदाहरण)</h2>
+  <div id="proposalQR"></div>
+  <div style="font-size:13px;color:#555;margin-top:6px">
+    📱 QR Scan गरी Digital Proposal पढ्न सक्नुहुन्छ
+  </div>
 
-<table>
-  <thead>
-    <tr>
-      <th>क्याटेगोरी</th>
-      <th>शीर्षक</th>
-      <th class="right">रकम (रु.)</th>
-    </tr>
-  </thead>
-
-  <tbody>
-    <!-- धेरै पंक्ति भए पनि -->
-    <tr>
-      <td>चालु खर्च</td>
-      <td>दाना</td>
-      <td class="right">150000</td>
-    </tr>
-    <tr>
-      <td>चालु खर्च</td>
-      <td>औषधि</td>
-      <td class="right">50000</td>
-    </tr>
-    <tr>
-      <td>पूर्वाधार</td>
-      <td>सेड निर्माण</td>
-      <td class="right">900000</td>
-    </tr>
-    <!-- copy rows as needed -->
-  </tbody>
-
-  <tfoot>
-    <tr>
-      <th colspan="2" class="right">कुल जम्मा</th>
-      <th class="right">1100000</th>
-    </tr>
-  </tfoot>
-</table>
-
+  <div class="footer">
+    <b id="cv_org"></b><br>
+    <span id="cv_addr"></span>
+  </div>
 </div>
+
+<!-- ===================== PAGE 2 : ToC ===================== -->
+<div class="page">
+  <h2>Table of Contents</h2>
+  <ol class="toc">
+    <li><span>१. संक्षिप्त परिचय</span><span>1</span></li>
+    <li><span>२. कार्यकारी सारांश</span><span>2</span></li>
+    <li><span>३. व्यवसाय / परियोजनाको विस्तृत विवरण</span><span>3</span></li>
+    <li><span>४. उत्पादन तथा बिक्री योजना (सारांश)</span><span>4</span></li>
+    <li><span>५. खर्च विवरण</span><span>5</span></li>
+    <li><span>६. आम्दानी विवरण</span><span>6</span></li>
+    <li><span>७. नाफा / नोक्सान तथा लाभांश</span><span>7</span></li>
+    <li><span>८. ५ वर्षे ROI</span><span>8</span></li>
+  </ol>
+</div>
+
+<!-- ===================== PAGE 3 : SHORT INFO ===================== -->
+<div class="page keep-together">
+  <h2>१. संक्षिप्त परिचय</h2>
+  <table>
+    <tr><th>व्यवसाय नाम</th><td id="si_name"></td></tr>
+    <tr><th>संस्था</th><td id="si_org"></td></tr>
+    <tr><th>सञ्चालन स्थान</th><td id="si_location"></td></tr>
+    <tr><th>प्रोप्राइटर</th><td id="si_owner"></td></tr>
+    <tr><th>सम्पर्क नम्बर</th><td id="si_phone"></td></tr>
+    <tr><th>व्यवसायिक प्रकृति</th><td id="si_products"></td></tr>
+    <tr><th>मुख्य बजार</th><td id="si_market"></td></tr>
+    <tr><th>कुल पूँजी</th><td id="si_capital"></td></tr>
+  </table>
+</div>
+
+<!-- ===================== PAGE 4 : EXEC SUMMARY ===================== -->
+<div class="page keep-together">
+  <h2>२. कार्यकारी सारांश</h2>
+  <p id="execSummary"></p>
+</div>
+
+<!-- ===================== PAGE 5 : BUSINESS DETAIL ===================== -->
+<div class="page">
+  <h2>३. व्यवसाय / परियोजनाको विस्तृत विवरण</h2>
+  <div id="detailBox"></div>
+</div>
+
+<!-- ===================== PAGE 6 : PRODUCTION SUMMARY ===================== -->
+<div class="page keep-together">
+  <h2>४. उत्पादन तथा बिक्री योजना (सारांश)</h2>
+  <table>
+    <tr><th>प्रारम्भिक वयस्क संख्या</th><td id="ps_adult"></td></tr>
+    <tr><th>वार्षिक उत्पादन (औसत)</th><td id="ps_production"></td></tr>
+    <tr><th>वार्षिक बिक्री (औसत)</th><td id="ps_sell"></td></tr>
+    <tr><th>प्रतिस्थापन</th><td id="ps_replace"></td></tr>
+    <tr><th>५ वर्षको कुल बिक्री</th><td id="ps_5yr"></td></tr>
+  </table>
+</div>
+
+<!-- ===================== PAGE 7 : EXPENSE (CATEGORY-WISE) ===================== -->
+<div class="page">
+  <h2>५. खर्च विवरण</h2>
+  <table class="print-table">
+    <thead>
+      <tr>
+        <th>क्याटेगोरी</th>
+        <th>शीर्षक</th>
+        <th class="right">रकम</th>
+      </tr>
+    </thead>
+    <tbody id="expBody"></tbody>
+    <tfoot>
+      <tr>
+        <th colspan="2" class="right">कुल खर्च</th>
+        <th class="right" id="expTotal"></th>
+      </tr>
+    </tfoot>
+  </table>
+</div>
+
+<!-- ===================== PAGE 8 : INCOME ===================== -->
+<div class="page">
+  <h2>६. आम्दानी विवरण</h2>
+  <table class="print-table">
+    <thead>
+      <tr>
+        <th>क्याटेगोरी</th>
+        <th>शीर्षक</th>
+        <th class="right">रकम</th>
+      </tr>
+    </thead>
+    <tbody id="incBody"></tbody>
+    <tfoot>
+      <tr>
+        <th colspan="2" class="right">कुल आम्दानी</th>
+        <th class="right" id="incTotal"></th>
+      </tr>
+    </tfoot>
+  </table>
+</div>
+
+<!-- ===================== PAGE 9 : PROFIT / DIVIDEND ===================== -->
+<div class="page">
+  <h2>७. नाफा / नोक्सान तथा लाभांश</h2>
+  <table>
+    <tr><th>कुल आम्दानी</th><td class="right" id="pl_inc"></td></tr>
+    <tr><th>चालु खर्च</th><td class="right" id="pl_cash"></td></tr>
+    <tr><th>ह्रासकट्टी (15%)</th><td class="right" id="pl_dep"></td></tr>
+    <tr><th>बैंक ब्याज</th><td class="right" id="pl_int"></td></tr>
+    <tr><th>कर अघिको नाफा (PBT)</th><td class="right" id="pl_pbt"></td></tr>
+    <tr><th>कर (25%)</th><td class="right" id="pl_tax"></td></tr>
+    <tr><th><b>खुद नाफा (PAT)</b></th><td class="right" id="pl_pat"></td></tr>
+  </table>
+
+  <h3 style="margin-top:18px">लाभांश वितरण</h3>
+  <table>
+    <thead>
+      <tr><th>विधा</th><th>%</th><th class="right">रकम</th></tr>
+    </thead>
+    <tbody id="divBody"></tbody>
+  </table>
+</div>
+
+<!-- ===================== PAGE 10 : 5-YEAR ROI ===================== -->
+<div class="page">
+  <h2>८. ५ वर्षे ROI</h2>
+  <table class="print-table" id="roiTable">
+    <thead>
+      <tr>
+        <th>वर्ष</th>
+        <th class="right">आम्दानी</th>
+        <th class="right">खर्च</th>
+        <th class="right">नाफा</th>
+        <th class="right">संचित नगद प्रवाह</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/qrious@4.0.2/dist/qrious.min.js"></script>
+<script>
+/* ===================== LOAD ===================== */
+let key=localStorage.getItem("activeProject");
+let p=JSON.parse(localStorage.getItem(key)||"{}");
+let s=p.shortInfo||{};
+
+/* ===================== COVER & QR ===================== */
+cv_name.innerText=s.bp_name||"व्यवसायिक प्रस्ताव";
+cv_org.innerText=s.bp_org||"";
+cv_addr.innerText=s.bp_location||"";
+new QRious({element:proposalQR,value:location.href,size:160});
+
+/* ===================== SHORT INFO ===================== */
+si_name.innerText=s.bp_name||"";
+si_org.innerText=s.bp_org||"";
+si_location.innerText=s.bp_location||"";
+si_owner.innerText=s.bp_owner||"";
+si_phone.innerText=s.bp_phone||"";
+si_products.innerText=s.bp_products||"";
+si_market.innerText=s.bp_market||"";
+si_capital.innerText=s.bp_capital||"";
+
+/* ===================== EXEC SUMMARY ===================== */
+execSummary.innerText=
+`यस ${s.bp_products||""} व्यवसायमा कुल पूँजी ${s.bp_capital||""} लगानी प्रस्ताव गरिएको छ।
+वार्षिक आम्दानी करिब स्वतः गणना भई देखाइएको छ र ५ वर्षे अवधिमा लगानी फिर्ता हुने अपेक्षा गरिएको छ।`;
+
+/* ===================== BUSINESS DETAIL ===================== */
+let db=document.getElementById("detailBox");
+if(Array.isArray(p.businessDetail)&&p.businessDetail.length){
+  p.businessDetail.forEach((d,i)=>{
+    db.innerHTML+=`<h3>${i+1}. ${d.topic}</h3><p>${String(d.content||"").replace(/\n/g,"<br>")}</p>`;
+  });
+}else db.innerHTML="<i>(व्यवसाय विवरण उपलब्ध छैन)</i>";
+
+/* ===================== PRODUCTION SUMMARY ===================== */
+let ps=p.productionPlan||{};
+ps_adult.innerText=ps.adult||"—";
+ps_production.innerText=ps.annualProduction||"—";
+ps_sell.innerText=ps.annualSell||"—";
+ps_replace.innerText=ps.replacement||"—";
+ps_5yr.innerText=ps.fiveYearSell||"—";
+
+/* ===================== EXPENSE (CATEGORY-WISE) ===================== */
+let expMap={}, expTotal=0;
+(p.expenseData||[]).forEach(e=>{
+  let c=e.category||"अन्य";
+  expMap[c]=expMap[c]||[];
+  expMap[c].push(e);
+  expTotal+=Number(e.amount||0);
+});
+for(let c in expMap){
+  let sub=0;
+  expBody.innerHTML+=`<tr><th colspan="3">${c}</th></tr>`;
+  expMap[c].forEach(e=>{
+    sub+=Number(e.amount||0);
+    expBody.innerHTML+=`<tr><td></td><td>${e.title}</td><td class="right">${e.amount}</td></tr>`;
+  });
+  expBody.innerHTML+=`<tr><th colspan="2" class="right">उप–कुल</th><th class="right">${sub}</th></tr>`;
+}
+expTotal.innerText=expTotal;
+
+/* ===================== INCOME ===================== */
+let incT=0;
+(p.incomeData||[]).forEach(i=>{
+  incT+=Number(i.amount||0);
+  incBody.innerHTML+=`<tr><td>${i.category}</td><td>${i.title}</td><td class="right">${i.amount}</td></tr>`;
+});
+incTotal.innerText=incT;
+
+/* ===================== PROFIT / DIVIDEND ===================== */
+let cash=0,dep=0,intt=0;
+(p.expenseData||[]).forEach(e=>{
+  let a=Number(e.amount||0);
+  let k=(e.category+e.title).toLowerCase();
+  if(k.includes("interest")||k.includes("ब्याज")) intt+=a;
+  else if(k.includes("मेसिन")||k.includes("पूर्वाधार")||k.includes("shed")) dep+=a*0.15;
+  else cash+=a;
+});
+pl_inc.innerText=incT;
+pl_cash.innerText=cash;
+pl_dep.innerText=Math.round(dep);
+pl_int.innerText=intt;
+let pbt=incT-cash-dep-intt;
+let tax=Math.max(0,Math.round(pbt*0.25));
+let pat=pbt-tax;
+pl_pbt.innerText=pbt; pl_tax.innerText=tax; pl_pat.innerText=pat;
+
+let divs=p.dividends||[{title:"स्वामी / साझेदार",pct:60},{title:"पुनः लगानी",pct:40}];
+divs.forEach(d=>{
+  divBody.innerHTML+=`<tr><td>${d.title}</td><td>${d.pct}%</td><td class="right">${Math.round(pat*d.pct/100)}</td></tr>`;
+});
+
+/* ===================== ROI ===================== */
+let tb=document.querySelector("#roiTable tbody");
+let cum=0, income=incT, expense=cash+dep;
+for(let y=1;y<=5;y++){
+  let prof=income-expense;
+  cum+=prof;
+  tb.innerHTML+=`<tr><td>वर्ष ${y}</td><td class="right">${Math.round(income)}</td><td class="right">${Math.round(expense)}</td><td class="right">${Math.round(prof)}</td><td class="right">${Math.round(cum)}</td></tr>`;
+  income*=1.1; expense*=1.06;
+}
+</script>
 
 </body>
 </html>
