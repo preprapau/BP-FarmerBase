@@ -20,6 +20,41 @@ body{
 }
 h1{color:#2e7d32;text-align:center;margin-top:0}
 
+/* ===== Tabs ===== */
+.tabs{
+  display:flex;
+  gap:10px;
+  margin-bottom:15px;
+}
+.tab-btn{
+  padding:8px 14px;
+  border:none;
+  border-radius:20px;
+  cursor:pointer;
+  background:#e0e0e0;
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+.tab-btn.active{
+  background:#2e7d32;
+  color:#fff;
+}
+.badge{
+  background:#fff;
+  color:#2e7d32;
+  font-size:12px;
+  padding:2px 8px;
+  border-radius:12px;
+  font-weight:bold;
+}
+.tab-btn.active .badge{
+  background:#c8e6c9;
+}
+.tab-content{display:none}
+.tab-content.active{display:block}
+
+/* ===== Table ===== */
 table{
   width:100%;
   border-collapse:collapse;
@@ -37,7 +72,7 @@ input{
   padding:4px;
 }
 
-button{
+button.main{
   padding:8px 18px;
   border:none;
   border-radius:6px;
@@ -47,9 +82,17 @@ button{
   margin-top:15px;
 }
 
+.error{
+  color:#d32f2f;
+  font-size:13px;
+  margin-top:8px;
+}
+
+/* ===== Print ===== */
 @media print{
-  input,button{display:none}
+  input,button,.tabs{display:none}
   body{background:#fff}
+  .tab-content{display:block !important}
   table{page-break-inside:avoid}
 }
 </style>
@@ -60,7 +103,19 @@ button{
 <div class="container">
 <h1>उत्पादन तथा बिक्री योजना</h1>
 
-<h3>आधारभूत विवरण</h3>
+<!-- ===== Tabs ===== -->
+<div class="tabs">
+  <button class="tab-btn active" onclick="openTab('inputTab',this)">
+    📝 विवरण
+  </button>
+  <button class="tab-btn" onclick="openTab('calcTab',this)">
+    📊 गणना <span class="badge">५ वर्ष</span>
+  </button>
+</div>
+
+<!-- ===== INPUT TAB ===== -->
+<div id="inputTab" class="tab-content active">
+
 <table>
 <tr><th>प्रारम्भिक बयस्क संख्या</th><td><input id="adultStart" value="300"></td></tr>
 <tr><th>ब्याउने दर (%)</th><td><input id="breedRate" value="90"></td></tr>
@@ -72,7 +127,15 @@ button{
 <tr><th>प्रतिस्थापन (बयस्क बिक्री %) </th><td><input id="replaceRate" value="10"></td></tr>
 </table>
 
-<h3>५ वर्षे परिणाम</h3>
+<div id="errorBox" class="error"></div>
+
+<button class="main" onclick="calculate()">💾 Save & Calculate</button>
+
+</div>
+
+<!-- ===== CALC TAB ===== -->
+<div id="calcTab" class="tab-content">
+
 <table>
 <thead>
 <tr>
@@ -89,55 +152,87 @@ button{
 <tbody id="resultBody"></tbody>
 </table>
 
-<button onclick="calculate()">💾 Save & Calculate</button>
+</div>
+
 </div>
 
 <script>
+/* ===== TAB SWITCH ===== */
+function openTab(id,btn){
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+}
+
+/* ===== LOAD PROJECT ===== */
 let key = localStorage.getItem("activeProject");
 let project = JSON.parse(localStorage.getItem(key)||"{}");
 
+/* ===== VALIDATION ===== */
+function validPercent(v){
+  return v>=0 && v<=100;
+}
+
 function calculate(){
 
-  let adult = +adultStart.value;
-  let breedRate = +breedRate.value/100;
-  let kidsPerAdult = +kidsPerAdult.value;
-  let deathRate = +deathRate.value/100;
-  let maleRatio = +maleRatio.value/100;
-  let keepMale = +keepMale.value/100;
-  let keepFemale = +keepFemale.value/100;
-  let replaceRate = +replaceRate.value/100;
+  let err = "";
 
+  let adult = +adultStart.value;
+  let breedRate = +breedRate.value;
+  let kidsPerAdult = +kidsPerAdult.value;
+  let deathRate = +deathRate.value;
+  let maleRatio = +maleRatio.value;
+  let keepMale = +keepMale.value;
+  let keepFemale = +keepFemale.value;
+  let replaceRate = +replaceRate.value;
+
+  if(
+    ![breedRate,deathRate,maleRatio,keepMale,keepFemale,replaceRate]
+      .every(validPercent)
+  ){
+    err = "❌ सबै प्रतिशत मान ०–१०० भित्र हुनुपर्छ ।";
+  }
+
+  if(maleRatio>100){
+    err = "❌ भाले अनुपात १००% भन्दा बढी हुन सक्दैन ।";
+  }
+
+  if(err){
+    errorBox.innerText = err;
+    return;
+  }
+  errorBox.innerText="";
+
+  /* ===== LOGIC ===== */
   resultBody.innerHTML="";
   let results=[];
 
-  for(let year=1; year<=5; year++){
+  for(let year=1;year<=5;year++){
 
-    let breeders = adult * breedRate;
+    let breeders = adult * (breedRate/100);
     let born = breeders * kidsPerAdult;
 
-    let died = born * deathRate;
+    let died = born * (deathRate/100);
     let survived = born - died;
 
-    let male = survived * maleRatio;
+    let male = survived * (maleRatio/100);
     let female = survived - male;
 
-    let maleKept = male * keepMale;
+    let maleKept = male * (keepMale/100);
     let maleSold = male - maleKept;
 
-    let femaleKept = female * keepFemale;
+    let femaleKept = female * (keepFemale/100);
     let femaleSold = female - femaleKept;
 
-    let adultSold = adult * replaceRate;
+    let adultSold = adult * (replaceRate/100);
 
     let nextAdult =
       (adult - adultSold) +
       maleKept +
       femaleKept;
 
-    results.push({
-      year,adult,born,died,
-      maleSold,femaleSold,adultSold,nextAdult
-    });
+    results.push({year,adult,born,died,maleSold,femaleSold,adultSold,nextAdult});
 
     resultBody.innerHTML += `
     <tr>
@@ -154,13 +249,15 @@ function calculate(){
     adult = nextAdult;
   }
 
+  /* ===== SAVE ===== */
   project.productionSales = {
-    logic:"Male/Female separate keep + adult carry-forward",
+    logic:"Male/Female separate keep %, adult carry-forward",
     result:results
   };
-
   project.lastEdited = new Date().toLocaleString("ne-NP");
   localStorage.setItem(key,JSON.stringify(project));
+
+  openTab('calcTab',document.querySelectorAll('.tab-btn')[1]);
 }
 
 window.onload = calculate;
