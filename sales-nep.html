@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+<meta charset="UTF-8">
+<title>उत्पादन तथा बिक्री योजना – पशु व्यवसाय</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+body{
+  font-family:"Noto Sans Devanagari","Kalimati","Mangal",system-ui,Arial;
+  background:#f4f6f8;
+  margin:0;
+}
+.wrap{
+  max-width:900px;
+  margin:30px auto;
+  background:#fff;
+  padding:25px;
+  border-radius:10px;
+}
+h1{margin-top:0;color:#2e7d32}
+h3{color:#2e7d32}
+table{
+  width:100%;
+  border-collapse:collapse;
+  margin-top:15px;
+}
+th,td{
+  border:1px solid #ccc;
+  padding:8px;
+  text-align:right;
+}
+th{
+  text-align:center;
+  background:#f0f0f0;
+}
+.left{text-align:left}
+input,select{
+  padding:6px;
+  width:100%;
+}
+.small{
+  font-size:13px;
+  color:#555;
+}
+button{
+  padding:8px 16px;
+  border:none;
+  border-radius:6px;
+  cursor:pointer;
+  background:#2e7d32;
+  color:#fff;
+}
+</style>
+</head>
+
+<body>
+
+<div class="wrap">
+<h1>उत्पादन तथा बिक्री योजना</h1>
+
+<h3>आधारभूत विवरण</h3>
+<table>
+<tr>
+  <td class="left">जनावरको प्रकार</td>
+  <td colspan="2">
+    <select id="animal">
+      <option value="pig">बङ्गुर</option>
+      <option value="goat">बाख्रा</option>
+    </select>
+  </td>
+</tr>
+
+<tr>
+  <td class="left">प्रारम्भिक बयस्क जनावर संख्या</td>
+  <td colspan="2">
+    <input id="initialAdults" type="number" value="300">
+  </td>
+</tr>
+
+<tr>
+  <td class="left">प्रति बयस्क वार्षिक औसत बच्चा संख्या</td>
+  <td colspan="2">
+    <input id="avgOffspring" type="number" value="20">
+  </td>
+</tr>
+
+<tr>
+  <td class="left">भाले प्रतिशत (%)</td>
+  <td colspan="2">
+    <input id="maleRatio" type="number" value="50">
+  </td>
+</tr>
+</table>
+
+<p class="small">
+नोट: पोथी प्रतिशत = १०० − भाले प्रतिशत
+</p>
+
+<h3>वर्षगत मापदण्ड (प्रत्येक वर्ष फरक हुन सक्छ)</h3>
+<table>
+<thead>
+<tr>
+  <th>वर्ष</th>
+  <th>ब्याउने दर (%)</th>
+  <th>बच्चाबच्ची मृत्युदर (%)</th>
+  <th>भाले बिक्री (%)</th>
+  <th>पोथी बिक्री (%)</th>
+  <th>प्रतिस्थापन (%)</th>
+</tr>
+</thead>
+<tbody id="yearInputs"></tbody>
+</table>
+
+<br>
+<button onclick="calculate()">योजना गणना गर्नुहोस्</button>
+
+<h3>परिणाम (स्वतः गणना)</h3>
+<table>
+<thead>
+<tr>
+  <th>वर्ष</th>
+  <th>बयस्क संख्या</th>
+  <th>जन्मिएका बच्चा</th>
+  <th>बाँचेकाहरू</th>
+  <th>बिक्री संख्या</th>
+  <th>अर्को वर्षका बयस्क</th>
+</tr>
+</thead>
+<tbody id="result"></tbody>
+</table>
+
+</div>
+
+<script>
+/* ===== YEAR INPUT INIT ===== */
+let years = 5;
+let tbody = document.getElementById("yearInputs");
+
+for(let y=1; y<=years; y++){
+  tbody.innerHTML += `
+  <tr>
+    <td>${y}</td>
+    <td><input type="number" value="${90+y}"></td>
+    <td><input type="number" value="${11-y}"></td>
+    <td><input type="number" value="${70+y*2}"></td>
+    <td><input type="number" value="${50+y*2}"></td>
+    <td><input type="number" value="10"></td>
+  </tr>`;
+}
+
+/* ===== CALCULATION LOGIC ===== */
+function calculate(){
+  let adults = +initialAdults.value;
+  let avgOff = +avgOffspring.value;
+  let maleR = +maleRatio.value;
+
+  let rows = tbody.querySelectorAll("tr");
+  let out = document.getElementById("result");
+  out.innerHTML = "";
+
+  rows.forEach((r,i)=>{
+    let cells = r.querySelectorAll("input");
+
+    let breedingAdults = adults * (cells[0].value / 100);
+    let born = breedingAdults * avgOff;
+
+    let survived = born * (1 - cells[1].value / 100);
+
+    let male = survived * (maleR / 100);
+    let female = survived * (100 - maleR) / 100;
+
+    let sold =
+      male * (cells[2].value / 100) +
+      female * (cells[3].value / 100);
+
+    let kept =
+      (male - male * (cells[2].value / 100)) +
+      (female - female * (cells[3].value / 100));
+
+    let replaced = adults * (cells[4].value / 100);
+
+    let nextAdults = adults - replaced + kept;
+
+    out.innerHTML += `
+    <tr>
+      <td>${i+1}</td>
+      <td>${Math.round(adults)}</td>
+      <td>${Math.round(born)}</td>
+      <td>${Math.round(survived)}</td>
+      <td>${Math.round(sold)}</td>
+      <td>${Math.round(nextAdults)}</td>
+    </tr>`;
+
+    adults = nextAdults;
+  });
+}
+</script>
+
+</body>
+</html>
