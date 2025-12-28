@@ -52,12 +52,12 @@ ol{line-height:1.8}
   text-align:center;font-size:13px;color:#444
 }
 
-/* Print */
-.no-print{ }
+/* ===== FINAL PRINT MODE (LOCKED) ===== */
 @media print{
-  body{background:#fff}
-  a[href]:after{content:""}
-  .no-print{display:none!important}
+  body{background:#fff!important}
+  .no-print,button,input,select,textarea{display:none!important}
+  a[href]:after{content:""!important}
+  @page{size:A4;margin:20mm}
 }
 </style>
 </head>
@@ -104,11 +104,9 @@ ol{line-height:1.8}
       प्रक्रिया अगाडि बढाइदिनुहुन अनुरोध गर्दछु।
     </p>
 
-    <!-- PROPOSAL LINK -->
+    <!-- PROPOSAL LINK (screen only) -->
     <p class="no-print">
-      📄 <a id="proposalLink" href="#" target="_blank">
-        पूर्ण व्यवसाय प्रस्ताव हेर्नुहोस्
-      </a>
+      📄 <a id="proposalLink" href="#" target="_blank">पूर्ण व्यवसाय प्रस्ताव हेर्नुहोस्</a>
     </p>
 
     <!-- ATTACHMENTS -->
@@ -117,11 +115,23 @@ ol{line-height:1.8}
     <ol id="attachmentList"></ol>
 
     <div class="no-print" style="margin-top:10px">
-      <input type="text" id="attachInput"
-             placeholder="कागजपत्रको नाम लेख्नुहोस्"
+      <input type="text" id="attachInput" placeholder="कागजपत्रको नाम लेख्नुहोस्"
              style="width:70%;padding:6px">
       <button onclick="addAttachment()">Add</button>
     </div>
+  </div>
+
+  <!-- SIGNATORY TOGGLE (screen only) -->
+  <div class="no-print" style="margin:14px 0">
+    <label>
+      <input type="radio" name="signMode" value="owner" checked onchange="setSignatory('owner')">
+      निवेदक / Proprietor
+    </label>
+    &nbsp;&nbsp;
+    <label>
+      <input type="radio" name="signMode" value="auth" onchange="setSignatory('auth')">
+      Authorized Signatory
+    </label>
   </div>
 
   <!-- SIGNATURE -->
@@ -130,15 +140,12 @@ ol{line-height:1.8}
 
     <img id="signImg"><br>
 
-    <input type="file" accept="image/*"
-           class="no-print"
-           onchange="loadSignature(event)">
+    <input type="file" accept="image/*" class="no-print" onchange="loadSignature(event)">
 
     <p>
-      .................................<br>
-      निवेदक<br>
-      पद:<br>
-      संस्थाको नाम
+      <span id="sigName">.................................</span><br>
+      <span id="sigPost">निवेदक / Proprietor</span><br>
+      <span id="sigOrg">संस्थाको नाम</span>
     </p>
   </div>
 
@@ -159,7 +166,7 @@ let project = key ? JSON.parse(localStorage.getItem(key)) : {};
 document.getElementById("proposalLink").href =
   location.href.replace("letterhead.html","proposal.html");
 
-/* ===== NEPALI DATE (Simple) ===== */
+/* ===== NEPALI DATE (simple) ===== */
 function getNepaliDate(){
   const d=new Date();
   let y=d.getFullYear()+56, m=d.getMonth()+9, day=d.getDate();
@@ -167,17 +174,6 @@ function getNepaliDate(){
   return `${y}/${String(m).padStart(2,"0")}/${String(day).padStart(2,"0")}`;
 }
 document.getElementById("nepDate").innerText = getNepaliDate();
-
-/* ===== SIGNATURE UPLOAD ===== */
-function loadSignature(e){
-  const file=e.target.files[0]; if(!file) return;
-  const r=new FileReader();
-  r.onload=()=>{ signImg.src=r.result; signImg.style.display="block";
-    localStorage.setItem("LETTER_SIGNATURE", r.result); };
-  r.readAsDataURL(file);
-}
-const savedSign=localStorage.getItem("LETTER_SIGNATURE");
-if(savedSign){ signImg.src=savedSign; signImg.style.display="block"; }
 
 /* ===== ATTACHMENTS ===== */
 if(!project.attachments) project.attachments=[];
@@ -205,7 +201,35 @@ function removeAttachment(i){
   renderAttachments();
 }
 renderAttachments();
+
+/* ===== AUTHORIZED SIGNATORY TOGGLE ===== */
+const SIGN_KEY="LETTER_SIGNATORY_MODE";
+const signatoryData={
+  owner:{name:".................................",post:"निवेदक / Proprietor",org:"संस्थाको नाम",signKey:"SIGN_OWNER"},
+  auth:{name:".................................",post:"Authorized Signatory",org:"संस्थाको नाम",signKey:"SIGN_AUTH"}
+};
+function setSignatory(mode){
+  localStorage.setItem(SIGN_KEY,mode);
+  applySignatory(mode);
+}
+function applySignatory(mode){
+  const d=signatoryData[mode]||signatoryData.owner;
+  sigName.innerText=d.name; sigPost.innerText=d.post; sigOrg.innerText=d.org;
+  const saved=localStorage.getItem(d.signKey);
+  if(saved){signImg.src=saved;signImg.style.display="block"}else{signImg.style.display="none"}
+  document.querySelectorAll('input[name="signMode"]').forEach(r=>r.checked=(r.value===mode));
+}
+function loadSignature(e){
+  const file=e.target.files[0]; if(!file) return;
+  const mode=localStorage.getItem(SIGN_KEY)||"owner";
+  const keyS=signatoryData[mode].signKey;
+  const r=new FileReader();
+  r.onload=()=>{signImg.src=r.result;signImg.style.display="block";localStorage.setItem(keyS,r.result)};
+  r.readAsDataURL(file);
+}
+applySignatory(localStorage.getItem(SIGN_KEY)||"owner");
 </script>
 
 </body>
 </html>
+
