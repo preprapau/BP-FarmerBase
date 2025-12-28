@@ -17,7 +17,7 @@ body{
   padding:30px;
   border-radius:10px;
 }
-h1,h2,h3{color:#2e7d32}
+h1,h2,h3{color:#2e7d32;margin-top:0}
 h1{text-align:center}
 
 .section{margin-top:35px}
@@ -38,14 +38,8 @@ th,td{
 th{background:#eef5ee}
 .right{text-align:right}
 
-.toc a{
-  display:block;
-  text-decoration:none;
-  color:#2e7d32;
-  margin:4px 0;
-}
-
 @media print{
+  body{background:#fff}
   thead{display:table-header-group}
   tfoot{display:table-footer-group}
   tr{page-break-inside:avoid}
@@ -60,30 +54,44 @@ th{background:#eef5ee}
 <h1 id="title">व्यवसाय प्रस्ताव</h1>
 
 <!-- ================= TOC ================= -->
-<div class="section toc">
+<div class="section">
 <h2>विषयसूची</h2>
-<a href="#short">१. संक्षिप्त परिचय</a>
-<a href="#prod">२. उत्पादन तथा बिक्री योजना</a>
-<a href="#expense">३. खर्च विवरण</a>
-<a href="#income">४. आम्दानी विवरण</a>
-<a href="#profit">५. नाफा / नोक्सान</a>
+<ol>
+  <li>संक्षिप्त परिचय</li>
+  <li>व्यवसाय विवरण</li>
+  <li>उत्पादन तथा बिक्री योजना</li>
+  <li>खर्च विवरण</li>
+  <li>आम्दानी विवरण</li>
+  <li>नाफा / नोक्सान</li>
+</ol>
 </div>
 
 <!-- ================= SHORT INFO ================= -->
-<div class="section" id="short">
+<div class="section">
 <h2>१. संक्षिप्त परिचय</h2>
 <table>
-<tr><th>व्यवसाय</th><td id="si_name"></td></tr>
-<tr><th>स्थान</th><td id="si_location"></td></tr>
+<tr><th>व्यवसाय नाम</th><td id="si_name"></td></tr>
+<tr><th>सञ्चालन स्थान</th><td id="si_location"></td></tr>
 <tr><th>संस्था</th><td id="si_org"></td></tr>
-<tr><th>सम्पर्क</th><td id="si_phone"></td></tr>
+<tr><th>प्रोप्राइटर</th><td id="si_owner"></td></tr>
+<tr><th>सम्पर्क व्यक्ति</th><td id="si_contact"></td></tr>
+<tr><th>सम्पर्क नम्बर</th><td id="si_phone"></td></tr>
+<tr><th>व्यवसायिक प्रकृति</th><td id="si_products"></td></tr>
+<tr><th>मुख्य बजार</th><td id="si_market"></td></tr>
+<tr><th>कुल पूँजी</th><td id="si_capital"></td></tr>
+<tr><th>संक्षिप्त विवरण</th><td id="si_summary"></td></tr>
 </table>
 </div>
 
-<!-- ================= PRODUCTION SALES ================= -->
-<div class="section" id="prod">
-<h2>२. उत्पादन तथा बिक्री योजना</h2>
+<!-- ================= BUSINESS DETAIL ================= -->
+<div class="section">
+<h2>२. व्यवसाय विवरण</h2>
+<div id="detailBox"></div>
+</div>
 
+<!-- ================= PRODUCTION SALES ================= -->
+<div class="section">
+<h2>३. उत्पादन तथा बिक्री योजना</h2>
 <table>
 <thead>
 <tr>
@@ -100,8 +108,8 @@ th{background:#eef5ee}
 </div>
 
 <!-- ================= EXPENSE ================= -->
-<div class="section" id="expense">
-<h2>३. खर्च विवरण (विधागत)</h2>
+<div class="section">
+<h2>४. खर्च विवरण (विधागत)</h2>
 <table>
 <thead>
 <tr>
@@ -121,8 +129,8 @@ th{background:#eef5ee}
 </div>
 
 <!-- ================= INCOME ================= -->
-<div class="section" id="income">
-<h2>४. आम्दानी विवरण</h2>
+<div class="section">
+<h2>५. आम्दानी विवरण</h2>
 <table>
 <thead>
 <tr>
@@ -141,8 +149,8 @@ th{background:#eef5ee}
 </div>
 
 <!-- ================= PROFIT ================= -->
-<div class="section" id="profit">
-<h2>५. नाफा / नोक्सान</h2>
+<div class="section">
+<h2>६. नाफा / नोक्सान</h2>
 <table>
 <tr><th>कुल आम्दानी</th><td class="right" id="pIncome"></td></tr>
 <tr><th>कुल खर्च</th><td class="right" id="pExpense"></td></tr>
@@ -154,34 +162,53 @@ th{background:#eef5ee}
 
 <script>
 /* ===== LOAD PROJECT ===== */
-let key=localStorage.getItem("activeProject");
-let p=key?JSON.parse(localStorage.getItem(key)):{};
+let key = localStorage.getItem("activeProject");
+let p = key ? JSON.parse(localStorage.getItem(key)) : {};
 
-/* SHORT INFO */
-let s=p.shortInfo||{};
-title.innerText=s.bp_name||"व्यवसाय प्रस्ताव";
-si_name.innerText=s.bp_name||"";
-si_location.innerText=s.bp_location||"";
-si_org.innerText=s.bp_org||"";
-si_phone.innerText=s.bp_phone||"";
+/* ===== SHORT INFO (FULL) ===== */
+let s = p.shortInfo || {};
+title.innerText = s.bp_name || "व्यवसाय प्रस्ताव";
+si_name.innerText = s.bp_name || "";
+si_location.innerText = s.bp_location || "";
+si_org.innerText = s.bp_org || "";
+si_owner.innerText = s.bp_owner || "";
+si_contact.innerText = s.bp_contact_person || "";
+si_phone.innerText = s.bp_phone || "";
+si_products.innerText = s.bp_products || "";
+si_market.innerText = s.bp_market || "";
+si_capital.innerText = s.bp_capital || "";
+si_summary.innerText = s.bp_summary || "";
+
+/* ===== BUSINESS DETAIL (ALL TOPICS) ===== */
+let dBox = document.getElementById("detailBox");
+if(Array.isArray(p.businessDetail) && p.businessDetail.length){
+  p.businessDetail.forEach((d,i)=>{
+    dBox.innerHTML += `
+      <h3>${i+1}. ${d.topic}</h3>
+      <p>${String(d.content||"").replace(/\n/g,"<br>")}</p>
+    `;
+  });
+}else{
+  dBox.innerHTML = "<i>व्यवसाय विवरण उपलब्ध छैन</i>";
+}
 
 /* ===== PRODUCTION SALES (FROM productionSalesPlan) ===== */
-let ps=JSON.parse(localStorage.getItem("productionSalesPlan")||"null");
+let ps = JSON.parse(localStorage.getItem("productionSalesPlan")||"null");
 if(ps){
-  let adult=ps.adult;
+  let adult = ps.adult;
   for(let y=1;y<=5;y++){
-    let breeding=adult*ps.breedRate/100;
-    let born=breeding*ps.kids;
-    let alive=born*(100-ps.death)/100;
+    let breeding = adult*ps.breedRate/100;
+    let born = breeding*ps.kids;
+    let alive = born*(100-ps.death)/100;
 
-    let male=alive*ps.maleRate/100;
-    let female=alive-male;
+    let male = alive*ps.maleRate/100;
+    let female = alive-male;
 
-    let keepF=female*ps.keepFemale/100;
-    let sellKids=alive-keepF;
-    let replaceSell=adult*ps.replacement/100;
+    let keepF = female*ps.keepFemale/100;
+    let sellKids = alive-keepF;
+    let replaceSell = adult*ps.replacement/100;
 
-    prodBody.innerHTML+=`
+    prodBody.innerHTML += `
       <tr>
         <td>${y}</td>
         <td>${Math.round(adult)}</td>
@@ -190,39 +217,54 @@ if(ps){
         <td>${Math.round(replaceSell)}</td>
         <td>${Math.round(adult+keepF)}</td>
       </tr>`;
-    adult+=keepF;
+    adult += keepF;
   }
 }
 
-/* ===== EXPENSE CATEGORY WISE ===== */
-let eTotal=0;
+/* ===== EXPENSE CATEGORY-WISE ===== */
+let expMap = {}, expTotal = 0;
 (p.expenseData||[]).forEach(e=>{
-  eTotal+=Number(e.amount||0);
-  expBody.innerHTML+=`
-    <tr>
-      <td>${e.category||""}</td>
-      <td>${e.title||""}</td>
-      <td class="right">${e.amount||0}</td>
-    </tr>`;
+  let cat = e.category || "अन्य";
+  if(!expMap[cat]) expMap[cat]=[];
+  expMap[cat].push(e);
+  expTotal += Number(e.amount||0);
 });
-expTotal.innerText=eTotal;
+for(let cat in expMap){
+  let sub = 0;
+  expBody.innerHTML += `<tr><th colspan="3">${cat}</th></tr>`;
+  expMap[cat].forEach(e=>{
+    sub += Number(e.amount||0);
+    expBody.innerHTML += `
+      <tr>
+        <td></td>
+        <td>${e.title}</td>
+        <td class="right">${e.amount}</td>
+      </tr>`;
+  });
+  expBody.innerHTML += `
+    <tr>
+      <th colspan="2" class="right">उप–कुल</th>
+      <th class="right">${sub}</th>
+    </tr>`;
+}
+expTotal.innerText = expTotal;
 
 /* ===== INCOME ===== */
-let iTotal=0;
+let incTotal = 0;
 (p.incomeData||[]).forEach(i=>{
-  iTotal+=Number(i.amount||0);
-  incBody.innerHTML+=`
+  incTotal += Number(i.amount||0);
+  incBody.innerHTML += `
     <tr>
-      <td>${i.title||""}</td>
-      <td class="right">${i.amount||0}</td>
+      <td>${i.title}</td>
+      <td class="right">${i.amount}</td>
     </tr>`;
 });
-incTotal.innerText=iTotal;
+incTotal.innerText = incTotal;
 
 /* ===== PROFIT ===== */
-pIncome.innerText=iTotal;
-pExpense.innerText=eTotal;
-pNet.innerText=iTotal-eTotal;
+pIncome.innerText = incTotal;
+pExpense.innerText = expTotal;
+pNet.innerText = incTotal - expTotal;
 </script>
 
 </body>
