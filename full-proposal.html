@@ -2,236 +2,119 @@
 <html lang="ne">
 <head>
 <meta charset="UTF-8">
-<title>Business Proposal</title>
+<title>BPMS Full Proposal</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-
 <style>
-body{
-  font-family:"Noto Sans Devanagari",system-ui,Arial;
-  background:#f4f6f8;
-  margin:0;
-  padding:20px;
-}
-.page{
-  max-width:900px;
-  margin:auto;
-  background:#fff;
-  padding:40px;
-  box-shadow:0 6px 24px rgba(0,0,0,.12);
-}
-h1,h2{
-  color:#1b5e20;
-}
-h2{
-  margin-top:40px;
-  border-bottom:2px solid #c8e6c9;
-  padding-bottom:6px;
-}
-table{
-  width:100%;
-  border-collapse:collapse;
-  margin-top:10px;
-}
-table th, table td{
-  border:1px solid #ccc;
-  padding:8px;
-}
-table th{
-  background:#e8f5e9;
-}
+body{font-family:Noto Sans Devanagari,system-ui;background:#f4f6f8;margin:0;padding:20px}
+.page{max-width:900px;margin:auto;background:#fff;padding:40px;box-shadow:0 6px 24px rgba(0,0,0,.12)}
+h1,h2{color:#1b5e20}
+h2{margin-top:40px;border-bottom:2px solid #c8e6c9}
+table{width:100%;border-collapse:collapse;margin-top:10px}
+th,td{border:1px solid #ccc;padding:8px}
+th{background:#e8f5e9}
 .right{text-align:right}
-
-.sign-row{
-  display:flex;
-  justify-content:space-between;
-  margin-top:50px;
-}
-.sign-box{
-  width:45%;
-  text-align:center;
-}
-.qr{
-  text-align:right;
-  margin-top:30px;
-}
-
-@media print{
-  body{background:#fff}
-  .page{box-shadow:none}
-}
+.sign-row{display:flex;justify-content:space-between;margin-top:50px}
+.sign-box{text-align:center;width:45%}
+.qr{text-align:right;margin-top:30px}
+@media print{body{background:#fff}.page{box-shadow:none}}
 </style>
 </head>
-
 <body>
-
 <div class="page">
+<h1 id="orgName">Proposal</h1>
+<p id="coverText"></p>
 
-  <!-- TITLE -->
-  <h1 id="orgName">Proposal</h1>
-  <p id="coverText"></p>
+<h2>संक्षिप्त विवरण</h2>
+<div id="summary"></div>
 
-  <!-- SUMMARY -->
-  <h2>संक्षिप्त विवरण</h2>
-  <div id="summary"></div>
+<h2>व्यवसाय विवरण</h2>
+<div id="businessDetail"></div>
 
-  <!-- BUSINESS DETAIL -->
-  <h2>व्यवसाय विवरण</h2>
-  <div id="businessDetail"></div>
+<h2>खर्च विवरण</h2>
+<table><thead><tr><th>शीर्षक</th><th class="right">रकम</th></tr></thead>
+<tbody id="expenseTable"></tbody></table>
 
-  <!-- EXPENSE -->
-  <h2>खर्च विवरण</h2>
-  <table>
-    <thead>
-      <tr>
-        <th>शीर्षक</th>
-        <th class="right">रकम</th>
-      </tr>
-    </thead>
-    <tbody id="expenseTable"></tbody>
-  </table>
+<h2>आम्दानी विवरण</h2>
+<table><thead><tr><th>शीर्षक</th><th class="right">रकम</th></tr></thead>
+<tbody id="incomeTable"></tbody></table>
 
-  <!-- INCOME -->
-  <h2>आम्दानी विवरण</h2>
-  <table>
-    <thead>
-      <tr>
-        <th>शीर्षक</th>
-        <th class="right">रकम</th>
-      </tr>
-    </thead>
-    <tbody id="incomeTable"></tbody>
-  </table>
+<h2>आर्थिक सारांश</h2>
+<table>
+<tr><th>कुल खर्च</th><td class="right" id="totalExpense">0</td></tr>
+<tr><th>कुल आम्दानी</th><td class="right" id="totalIncome">0</td></tr>
+<tr><th>वार्षिक नाफा</th><td class="right" id="yearlyProfit">0</td></tr>
+</table>
 
-  <!-- TOTAL -->
-  <h2>आर्थिक सारांश</h2>
-  <table>
-    <tr>
-      <th>कुल खर्च</th>
-      <td class="right" id="totalExpense">0</td>
-    </tr>
-    <tr>
-      <th>कुल आम्दानी</th>
-      <td class="right" id="totalIncome">0</td>
-    </tr>
-    <tr>
-      <th>वार्षिक नाफा</th>
-      <td class="right" id="yearlyProfit">0</td>
-    </tr>
-  </table>
+<div class="sign-row">
+<div class="sign-box">
+<b>Proprietor</b><br>
+<span id="pbName"></span><br>
+<span id="pbContact"></span>
+</div>
+<div class="sign-box">
+<b>Authorized Signatory</b><br>
+<span id="authName"></span><br>
+<span id="authContact"></span>
+</div>
+</div>
 
-  <!-- SIGN -->
-  <div class="sign-row">
-    <div class="sign-box">
-      <b>Proprietor</b><br>
-      <span id="pbName"></span><br>
-      <span id="pbContact"></span>
-    </div>
-
-    <div class="sign-box">
-      <b>Authorized Signatory</b><br>
-      <span id="authName"></span><br>
-      <span id="authContact"></span>
-    </div>
-  </div>
-
-  <!-- QR -->
-  <div class="qr">
-    <canvas id="qrCanvas"></canvas>
-  </div>
-
+<div class="qr"><canvas id="qrCanvas"></canvas></div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/qrious@4.0.2/dist/qrious.min.js"></script>
-
 <script>
-/* ===== LOAD FINAL BPMS PROJECT ===== */
 let project=null;
-
 Object.keys(localStorage).forEach(k=>{
-  if(k.startsWith("bpms_")){
-    const p=JSON.parse(localStorage.getItem(k));
-    if(p.status==="final"){
-      project=p;
-    }
-  }
+ if(k.startsWith("bpms_")){
+  const p=JSON.parse(localStorage.getItem(k));
+  if(p.status==="final") project=p;
+ }
 });
+function v(o,k,d=""){return o&&o[k]?o[k]:d;}
+document.getElementById("orgName").innerText=v(project,"name","Business Proposal");
+document.getElementById("coverText").innerText="यस संस्थाद्वारा प्रस्तुत गरिएको व्यवसाय प्रस्ताव विचारार्थ पेश गरिएको छ।";
 
-function v(o,k,d=""){
-  return o && o[k] ? o[k] : d;
+if(project && project.summaryDetail){
+ document.getElementById("summary").innerText=project.summaryDetail;
 }
 
-/* TITLE */
-document.getElementById("orgName").innerText =
-  v(project,"name","Business Proposal");
-
-document.getElementById("coverText").innerText =
-  "यस संस्थाद्वारा प्रस्तुत गरिएको व्यवसाय प्रस्ताव विचारार्थ पेश गरिएको छ।";
-
-/* SUMMARY */
-if(project.summary){
-  document.getElementById("summary").innerText = project.summary;
+if(project && Array.isArray(project.businessDetail)){
+ document.getElementById("businessDetail").innerHTML =
+  project.businessDetail.map((d,i)=>`<p>${i+1}. ${d}</p>`).join("");
 }
 
-/* BUSINESS DETAIL */
-if(Array.isArray(project.businessDetail)){
-  document.getElementById("businessDetail").innerHTML =
-    project.businessDetail.map((d,i)=>
-      `<p>${i+1}. ${d}</p>`
-    ).join("");
+let te=0;
+if(project && Array.isArray(project.expenseData)){
+ document.getElementById("expenseTable").innerHTML =
+  project.expenseData.map(e=>{
+   const a=Number(e.amount||0); te+=a;
+   return `<tr><td>${e.title||e.name}</td><td class="right">${a}</td></tr>`;
+  }).join("");
+}
+document.getElementById("totalExpense").innerText=te;
+
+let ti=0;
+if(project && Array.isArray(project.incomeData)){
+ document.getElementById("incomeTable").innerHTML =
+  project.incomeData.map(i=>{
+   const a=Number(i.amount||0); ti+=a;
+   return `<tr><td>${i.title||i.name}</td><td class="right">${a}</td></tr>`;
+  }).join("");
+}
+document.getElementById("totalIncome").innerText=ti;
+document.getElementById("yearlyProfit").innerText=ti-te;
+
+if(project && project.proprietorDetail){
+ document.getElementById("pbName").innerText=v(project.proprietorDetail,"name","");
+ document.getElementById("pbContact").innerText=v(project.proprietorDetail,"contact","");
 }
 
-/* EXPENSE */
-let totalExpense=0;
-if(Array.isArray(project.expenseData)){
-  document.getElementById("expenseTable").innerHTML =
-    project.expenseData.map(e=>{
-      const amt=Number(e.amount||0);
-      totalExpense+=amt;
-      return `<tr><td>${e.title||e.name}</td><td class="right">${amt}</td></tr>`;
-    }).join("");
-}
-document.getElementById("totalExpense").innerText=totalExpense;
-
-/* INCOME */
-let totalIncome=0;
-if(Array.isArray(project.incomeData)){
-  document.getElementById("incomeTable").innerHTML =
-    project.incomeData.map(i=>{
-      const amt=Number(i.amount||0);
-      totalIncome+=amt;
-      return `<tr><td>${i.title||i.name}</td><td class="right">${amt}</td></tr>`;
-    }).join("");
-}
-document.getElementById("totalIncome").innerText=totalIncome;
-
-/* PROFIT */
-document.getElementById("yearlyProfit").innerText =
-  totalIncome-totalExpense;
-
-/* PROPRIETOR */
-if(project.proprietorDetail){
-  document.getElementById("pbName").innerText =
-    v(project.proprietorDetail,"name","");
-  document.getElementById("pbContact").innerText =
-    v(project.proprietorDetail,"contact","");
+if(project && project.authorizedSignatory){
+ document.getElementById("authName").innerText=v(project.authorizedSignatory,"name","");
+ document.getElementById("authContact").innerText=v(project.authorizedSignatory,"contact","");
 }
 
-/* AUTHORIZED SIGN */
-if(project.authorizedSignatory){
-  document.getElementById("authName").innerText =
-    v(project.authorizedSignatory,"name","");
-  document.getElementById("authContact").innerText =
-    v(project.authorizedSignatory,"contact","");
-}
-
-/* QR */
-new QRious({
-  element:document.getElementById("qrCanvas"),
-  value:location.href,
-  size:120,
-  level:"H"
-});
+new QRious({element:qrCanvas,value:location.href,size:120,level:"H"});
 </script>
-
 </body>
 </html>
