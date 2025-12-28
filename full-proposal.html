@@ -270,7 +270,33 @@ function render(){
   });
   if(!detailBox.innerHTML)
     detailBox.innerHTML="<i>"+t("सूचना उपलब्ध छैन","Information not available")+"</i>";
+<!-- ===== PRODUCTION – SALES SUMMARY ===== -->
+<div class="section">
+<h2>उत्पादन तथा बिक्री योजना (सारांश)</h2>
 
+<table>
+<tr>
+  <th>५ औं वर्षको बयस्क संख्या</th>
+  <td class="right" id="ps_adult"></td>
+</tr>
+<tr>
+  <th>वार्षिक कुल बिक्री (बच्चा)</th>
+  <td class="right" id="ps_sell_kids"></td>
+</tr>
+<tr>
+  <th>बयस्क बिक्री (प्रतिस्थापन)</th>
+  <td class="right" id="ps_replace"></td>
+</tr>
+<tr>
+  <th>कुल बिक्री (एक वर्ष)</th>
+  <td class="right" id="ps_total_sell"></td>
+</tr>
+</table>
+
+<p class="note">
+📌 उत्पादन तथा बिक्री योजना प्रणालीगत गणनामा आधारित छ।
+</p>
+</div>
   /* ===== CATEGORY-WISE EXPENSE ===== */
   expenseBody.innerHTML="";
   let eTotal=0, groups={};
@@ -337,6 +363,49 @@ function render(){
 }
 
 render();
+  <script>
+/* ===== PRODUCTION–SALES SUMMARY ===== */
+(function(){
+  const raw = localStorage.getItem("productionSalesPlan");
+  if(!raw) return;
+
+  const d = JSON.parse(raw);
+  let adult = d.adult;
+
+  let lastAlive = 0;
+  let lastSellKids = 0;
+  let lastReplace = 0;
+
+  for(let y=1;y<=5;y++){
+    let breeding = adult * d.breedRate / 100;
+    let born = breeding * d.kids;
+    let alive = born * (100 - d.death) / 100;
+
+    let male = alive * d.maleRate / 100;
+    let female = alive - male;
+
+    let keepF = female * d.keepFemale / 100;
+    let sellKids = alive - keepF;
+
+    let replaceSell = adult * d.replacement / 100;
+
+    // store 5th year only
+    if(y===5){
+      lastAlive = adult;
+      lastSellKids = sellKids;
+      lastReplace = replaceSell;
+    }
+
+    adult = adult + keepF;
+  }
+
+  ps_adult.innerText = Math.round(lastAlive);
+  ps_sell_kids.innerText = Math.round(lastSellKids);
+  ps_replace.innerText = Math.round(lastReplace);
+  ps_total_sell.innerText =
+    Math.round(lastSellKids + lastReplace);
+})();
+</script>
 </script>
 
 </body>
