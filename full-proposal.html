@@ -4,77 +4,184 @@
 <meta charset="UTF-8">
 <title>बङ्गुर पालन व्यवसाय – Final Proposal</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
+
 <style>
-body{font-family:Noto Sans Devanagari,system-ui;background:#f4f7f6;margin:0}
-.page{max-width:900px;margin:auto;background:#fff;padding:30px}
-h1,h2,h3{color:#2e7d32}
-.cover{text-align:center;padding:80px 20px;page-break-after:always}
-.cover h1{font-size:36px}
-footer{margin-top:80px;font-size:14px;color:#555}
-ul{line-height:1.8}
+:root{
+  --green:#2e7d32;
+  --light:#f0f7f2;
+  --text:#333;
+}
+
+*{box-sizing:border-box}
+body{
+  font-family:"Noto Sans Devanagari",system-ui,Arial;
+  background:#f4f7f6;
+  margin:0;
+  color:var(--text);
+}
+
+/* Generic page */
+.page{
+  max-width:900px;
+  margin:0 auto;
+  background:#fff;
+  padding:32px;
+}
+
+/* Headings */
+h1,h2,h3{color:var(--green); margin-top:0}
+h2{margin-top:8px}
+
+/* ===== COVER PAGE ===== */
+.cover{
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  text-align:center;
+  background:linear-gradient(180deg,#e8f5e9,#ffffff);
+  page-break-after:always;
+}
+.cover .biz-name{
+  font-size:38px;
+  font-weight:700;
+  letter-spacing:.5px;
+}
+.cover .sub{
+  margin-top:6px;
+  font-size:18px;
+}
+.cover .theme{
+  margin:18px 0 24px;
+  font-size:20px;
+  font-style:italic;
+}
+.cover .visual{
+  display:flex;
+  gap:28px;
+  align-items:center;
+  justify-content:center;
+  flex-wrap:wrap;
+}
+.cover .qr-wrap{
+  text-align:center;
+}
+.cover .qr-wrap small{
+  display:block;
+  margin-top:8px;
+  color:#555;
+}
+.cover footer{
+  margin-top:56px;
+  font-size:14px;
+  color:#555;
+}
+
+/* ===== EXEC SUMMARY ===== */
+ul{line-height:1.9}
+
+/* ===== BUSINESS DETAIL ===== */
+.section{
+  margin-bottom:22px;
+}
+
+/* ===== PRINT ===== */
 @media print{
- a[href]:after{content:""}
- .no-print{display:none}
+  body{background:#fff}
+  a[href]:after{content:""}
+  .no-print{display:none!important}
 }
 </style>
 </head>
+
 <body>
 
+<!-- ===== COVER PAGE ===== -->
 <div class="page cover">
-<h1 id="bizName">बङ्गुर पालन व्यवसाय</h1>
-<p>व्यवसाय प्रस्ताव</p>
-<p>सतत कृषि, आत्मनिर्भर आम्दानी</p>
-<div id="qr"></div>
-<footer>
-© बङ्गुर पालन व्यवसाय<br>
-कालिका गाउँपालिका–५, रसुवा
-</footer>
+  <div class="biz-name" id="bizName">बङ्गुर पालन व्यवसाय</div>
+  <div class="sub">व्यवसाय प्रस्ताव</div>
+
+  <div class="theme">सतत कृषि, आत्मनिर्भर आम्दानी</div>
+
+  <div class="visual">
+    <!-- (Optional future: chart placeholder) -->
+    <div class="qr-wrap">
+      <div id="qr" style="width:140px;margin:0 auto"></div>
+      <small>Scan to read full proposal</small>
+    </div>
+  </div>
+
+  <footer>
+    © बङ्गुर पालन व्यवसाय<br>
+    कालिका गाउँपालिका–५, रसुवा
+  </footer>
 </div>
 
+<!-- ===== EXECUTIVE SUMMARY ===== -->
 <div class="page">
-<h2>कार्यकारी सारांश</h2>
-<h3>परियोजना सफल हुने कारणहरू</h3>
-<ul id="successReasons"></ul>
-<h3>निष्कर्ष</h3>
-<p id="bizConclusion"></p>
+  <h2>कार्यकारी सारांश</h2>
+
+  <h3>परियोजना सफल हुने कारणहरू</h3>
+  <ul id="successReasons"></ul>
+
+  <h3>निष्कर्ष</h3>
+  <p id="bizConclusion"></p>
 </div>
 
+<!-- ===== BUSINESS DETAIL ===== -->
 <div class="page">
-<h2>व्यवसाय / परियोजनाको विस्तृत विवरण</h2>
-<div id="businessDetail"></div>
+  <h2>व्यवसाय / परियोजनाको विस्तृत विवरण</h2>
+  <div id="businessDetail"></div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/qrious@4.0.2/dist/qrious.min.js"></script>
 <script>
-let key=localStorage.getItem("activeProject");
-let project=JSON.parse(localStorage.getItem(key));
+/* ===== LOAD PROJECT ===== */
+let key = localStorage.getItem("activeProject");
+let project = key ? JSON.parse(localStorage.getItem(key)) : null;
 
+/* ===== QR ===== */
 new QRious({
- element:document.getElementById("qr"),
- value:location.href,
- size:140
+  element: document.getElementById("qr"),
+  value: location.href,
+  size: 140
 });
 
+/* ===== Helper: get topic by name ===== */
 function getTopic(name){
- if(!Array.isArray(project.businessDetail))return null;
- return project.businessDetail.find(t=>t.topic.trim()===name);
+  if(!project || !Array.isArray(project.businessDetail)) return null;
+  return project.businessDetail.find(t => t.topic && t.topic.trim() === name);
 }
 
-let success=getTopic("परियोजना सफल हुने कारणहरू");
-if(success){
- successReasons.innerHTML=success.content.split("\n").map(l=>`<li>${l}</li>`).join("");
+/* ===== Success Reasons (list from content lines) ===== */
+let success = getTopic("परियोजना सफल हुने कारणहरू");
+if(success && success.content){
+  document.getElementById("successReasons").innerHTML =
+    success.content
+      .split("\n")
+      .filter(l => l.trim())
+      .map(l => `<li>${l}</li>`)
+      .join("");
 }
 
-let con=getTopic("निष्कर्ष");
-if(con) bizConclusion.innerText=con.content;
+/* ===== Conclusion ===== */
+let con = getTopic("निष्कर्ष");
+if(con && con.content){
+  document.getElementById("bizConclusion").innerText = con.content;
+}
 
-project.businessDetail.forEach((t,i)=>{
- businessDetail.innerHTML+=`
-  <section>
-   <h3>${i+1}. ${t.topic}</h3>
-   <p>${t.content.replace(/\n/g,"<br>")}</p>
-  </section>`;
-});
+/* ===== Full Business Detail Render ===== */
+if(project && Array.isArray(project.businessDetail)){
+  const box = document.getElementById("businessDetail");
+  project.businessDetail.forEach((t,i)=>{
+    box.innerHTML += `
+      <div class="section">
+        <h3>${i+1}. ${t.topic}</h3>
+        <p>${(t.content||"").replace(/\\n/g,"<br>")}</p>
+      </div>`;
+  });
+}
 </script>
 
 </body>
