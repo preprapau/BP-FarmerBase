@@ -261,13 +261,37 @@ if(Array.isArray(p.businessDetail)&&p.businessDetail.length){
   });
 }else db.innerHTML="<i>(व्यवसाय विवरण उपलब्ध छैन)</i>";
 
-/* ===================== PRODUCTION SUMMARY ===================== */
-let ps=p.productionPlan||{};
-ps_adult.innerText=ps.adult||"—";
-ps_production.innerText=ps.annualProduction||"—";
-ps_sell.innerText=ps.annualSell||"—";
-ps_replace.innerText=ps.replacement||"—";
-ps_5yr.innerText=ps.fiveYearSell||"—";
+<div class="section">
+  <h2>३. उत्पादन तथा बिक्री योजना</h2>
+  <div id="prodSalesBox"></div>
+</div>
+
+<script>
+(function(){
+  let box = document.getElementById("prodSalesBox");
+
+  if(!p.businessDetail || !p.businessDetail.length){
+    box.innerHTML = "<i>(उत्पादन तथा बिक्री योजना उपलब्ध छैन)</i>";
+    return;
+  }
+
+  let plan = p.businessDetail.find(
+    d => d.topic && d.topic.trim() === "उत्पादन तथा बिक्री योजना"
+  );
+
+  if(!plan){
+    box.innerHTML = "<i>(Business Detail मा ‘उत्पादन तथा बिक्री योजना’ शीर्षक भेटिएन)</i>";
+    return;
+  }
+
+  box.innerHTML = `
+    <div class="note">
+      ${plan.content.replace(/\n/g,"<br>")}
+    </div>
+  `;
+})();
+</script>
+
 
 /* ===================== EXPENSE (CATEGORY-WISE) ===================== */
 let expMap={}, expTotal=0;
