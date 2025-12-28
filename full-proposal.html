@@ -2,38 +2,32 @@
 <html lang="ne">
 <head>
 <meta charset="UTF-8">
-<title>Full Proposal | BPMS</title>
+<title>Final Business Proposal</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
 body{
-  font-family:"Noto Sans Devanagari","Kalimati","Mangal","Nirmala UI",system-ui,Arial;
+  font-family:"Noto Sans Devanagari","Kalimati",system-ui;
   background:#f4f7f6;
   margin:0;
 }
 .container{
   max-width:900px;
-  margin:25px auto;
+  margin:20px auto;
   background:#fff;
   padding:30px;
-  border-radius:10px;
 }
-h1,h2,h3{color:#2e7d32}
-h1{text-align:center;margin-top:0}
+h1,h2,h3{color:#2e7d32;margin-top:0}
+h1{text-align:center}
 
-.meta{
-  text-align:center;
-  font-size:13px;
-  color:#555;
-  margin-bottom:20px;
-}
-
-.section{margin-top:25px}
+/* ===== Sections ===== */
+.section{margin-top:30px}
 .section h2{
   border-bottom:2px solid #e0e0e0;
-  padding-bottom:5px;
+  padding-bottom:6px;
 }
 
+/* ===== Tables ===== */
 table{
   width:100%;
   border-collapse:collapse;
@@ -46,30 +40,43 @@ th,td{
 th{background:#f0f0f0}
 .right{text-align:right}
 
+/* ===== Notes ===== */
 .note{
   font-size:13px;
   color:#555;
   margin-top:8px;
 }
 
-.nav{
+/* ===== ToC ===== */
+.toc ul{
+  list-style:none;
+  padding:0;
+}
+.toc li{
   display:flex;
   justify-content:space-between;
-  margin-top:30px;
-}
-button{
-  padding:8px 16px;
-  border:none;
-  border-radius:6px;
-  cursor:pointer;
-  background:#2e7d32;
-  color:#fff;
+  border-bottom:1px dotted #ccc;
+  padding:6px 0;
 }
 
+/* ===== Print ===== */
 @media print{
   a[href]:after{content:""}
-  button,.nav{display:none}
   body{background:#fff}
+  .page{page-break-after:always}
+  footer{
+    position:fixed;
+    bottom:0;
+    left:0;
+    right:0;
+    text-align:center;
+    font-size:12px;
+    color:#555;
+  }
+  footer:after{
+    counter-increment:page;
+    content:"पृष्ठ " counter(page);
+  }
 }
 </style>
 </head>
@@ -79,15 +86,21 @@ button{
 
 <h1 id="bpTitle">व्यवसायिक प्रस्तावना</h1>
 
-<div class="meta">
-  <span id="fpStatus"></span> |
-  Version : v<span id="fpVersion"></span><br>
-  Created : <span id="fpCreated"></span> |
-  Last Edited : <span id="fpEdited"></span>
+<!-- ===== ToC ===== -->
+<div class="section page toc">
+<h2>विषयसूची</h2>
+<ul>
+  <li><span>१. संक्षिप्त परिचय</span><span>१</span></li>
+  <li><span>२. व्यवसायको विस्तृत विवरण</span><span>२</span></li>
+  <li><span>३. उत्पादन तथा बिक्री योजना (सारांश)</span><span>३</span></li>
+  <li><span>४. खर्च विवरण</span><span>४</span></li>
+  <li><span>५. आम्दानी विवरण</span><span>५</span></li>
+  <li><span>६. नाफा / नोक्सान</span><span>६</span></li>
+</ul>
 </div>
 
 <!-- ===== SHORT INFO ===== -->
-<div class="section">
+<div class="section page">
 <h2>१. संक्षिप्त परिचय</h2>
 <table>
 <tr><th>व्यवसायको नाम</th><td id="si_name"></td></tr>
@@ -99,44 +112,39 @@ button{
 </div>
 
 <!-- ===== BUSINESS DETAIL ===== -->
-<div class="section">
+<div class="section page">
 <h2>२. व्यवसायको विस्तृत विवरण</h2>
 <div id="detailBox"></div>
 </div>
 
 <!-- ===== PRODUCTION SALES SUMMARY ===== -->
-<div class="section">
+<div class="section page">
 <h2>३. उत्पादन तथा बिक्री योजना (सारांश)</h2>
-
 <table>
 <tr><th>५ औं वर्षको बयस्क संख्या</th><td class="right" id="ps_adult"></td></tr>
 <tr><th>वार्षिक बच्चा बिक्री</th><td class="right" id="ps_kids"></td></tr>
 <tr><th>बयस्क बिक्री (प्रतिस्थापन)</th><td class="right" id="ps_replace"></td></tr>
 <tr><th>कुल वार्षिक बिक्री</th><td class="right" id="ps_total"></td></tr>
 </table>
-
-<p class="note">
-📌 उत्पादन तथा बिक्री योजना वैज्ञानिक गणनामा आधारित छ।
-</p>
+<p class="note">📌 उत्पादन तथा बिक्री योजना वैज्ञानिक गणनामा आधारित छ।</p>
 </div>
 
 <!-- ===== EXPENSE ===== -->
-<div class="section">
+<div class="section page">
 <h2>४. खर्च विवरण (वार्षिक)</h2>
 <table>
 <thead>
 <tr>
-  <th>क्याटेगोरी</th>
-  <th>शीर्षक</th>
-  <th class="right">परिमाण</th>
-  <th class="right">दर</th>
+  <th>विवरण</th>
+  <th>परिमाण</th>
+  <th>दर</th>
   <th class="right">रकम</th>
 </tr>
 </thead>
 <tbody id="expenseBody"></tbody>
 <tfoot>
 <tr>
-  <th colspan="4" class="right">कुल खर्च</th>
+  <th colspan="3" class="right">कुल खर्च</th>
   <th class="right" id="expenseTotal"></th>
 </tr>
 </tfoot>
@@ -144,30 +152,29 @@ button{
 </div>
 
 <!-- ===== INCOME ===== -->
-<div class="section">
+<div class="section page">
 <h2>५. आम्दानी विवरण (वार्षिक)</h2>
 <table>
 <thead>
 <tr>
-  <th>क्याटेगोरी</th>
-  <th>शीर्षक</th>
-  <th class="right">परिमाण</th>
-  <th class="right">दर</th>
+  <th>विवरण</th>
+  <th>परिमाण</th>
+  <th>दर</th>
   <th class="right">रकम</th>
 </tr>
 </thead>
 <tbody id="incomeBody"></tbody>
 <tfoot>
 <tr>
-  <th colspan="4" class="right">कुल आम्दानी</th>
+  <th colspan="3" class="right">कुल आम्दानी</th>
   <th class="right" id="incomeTotal"></th>
 </tr>
 </tfoot>
 </table>
 </div>
 
-<!-- ===== PROFIT LOSS ===== -->
-<div class="section">
+<!-- ===== PROFIT ===== -->
+<div class="section page">
 <h2>६. नाफा / नोक्सान</h2>
 <table>
 <tr><th>कुल आम्दानी</th><td class="right" id="pl_income"></td></tr>
@@ -176,109 +183,95 @@ button{
 </table>
 </div>
 
-<div class="nav">
-  <button onclick="location.href='index.html'">⬅ Home</button>
-  <button onclick="window.print()">🖨 Print</button>
 </div>
 
-</div>
+<footer></footer>
 
 <script>
-/* ===== LOAD PROJECT ===== */
-let key = localStorage.getItem("activeProject");
-if(!key){ alert("Project भेटिएन"); location.href="index.html"; }
-let p = JSON.parse(localStorage.getItem(key)||"{}");
+let key=localStorage.getItem("activeProject");
+let p=JSON.parse(localStorage.getItem(key)||"{}");
 
-/* ===== META ===== */
-fpStatus.innerText = p.status==="final" ? "Final Proposal" : "Draft Proposal";
-fpVersion.innerText = p.version || "1.0";
-fpCreated.innerText = p.createdAt || "";
-fpEdited.innerText = p.lastEdited || "";
+/* Short Info */
+let s=p.shortInfo||{};
+bpTitle.innerText=s.bp_name||"व्यवसायिक प्रस्तावना";
+si_name.innerText=s.bp_name||"";
+si_location.innerText=s.bp_location||"";
+si_org.innerText=s.bp_org||"";
+si_owner.innerText=s.bp_owner||"";
+si_phone.innerText=s.bp_phone||"";
 
-/* ===== SHORT INFO ===== */
-let s = p.shortInfo||{};
-bpTitle.innerText = s.bp_name || "व्यवसायिक प्रस्तावना";
-si_name.innerText = s.bp_name||"";
-si_location.innerText = s.bp_location||"";
-si_org.innerText = s.bp_org||"";
-si_owner.innerText = s.bp_owner||"";
-si_phone.innerText = s.bp_phone||"";
-
-/* ===== BUSINESS DETAIL ===== */
+/* Business Detail */
 let box=document.getElementById("detailBox");
 (p.businessDetail||[]).forEach(d=>{
   box.innerHTML+=`<h3>${d.topic}</h3><p>${d.content}</p>`;
 });
 if(!box.innerHTML) box.innerHTML="<i>विवरण उपलब्ध छैन</i>";
 
-/* ===== PRODUCTION SALES SUMMARY ===== */
+/* Production Sales Summary */
 (function(){
   let raw=localStorage.getItem("productionSalesPlan");
   if(!raw) return;
-  let d=JSON.parse(raw);
-  let adult=d.adult;
-
-  let lastKids=0,lastReplace=0,lastAdult=0;
-
+  let d=JSON.parse(raw),adult=d.adult;
+  let kids=0,rep=0,last=0;
   for(let y=1;y<=5;y++){
-    let breed=adult*d.breedRate/100;
-    let born=breed*d.kids;
-    let alive=born*(100-d.death)/100;
-    let male=alive*d.maleRate/100;
-    let female=alive-male;
-
+    let alive=(adult*d.breedRate/100*d.kids)*(100-d.death)/100;
+    let female=alive*(100-d.maleRate)/100;
     let keepF=female*d.keepFemale/100;
-    let sellKids=alive-keepF;
     let replace=adult*d.replacement/100;
-
-    if(y===5){
-      lastAdult=adult;
-      lastKids=sellKids;
-      lastReplace=replace;
-    }
-    adult=adult+keepF;
+    if(y===5){last=adult;kids=alive-keepF;rep=replace;}
+    adult+=keepF;
   }
-
-  ps_adult.innerText=Math.round(lastAdult);
-  ps_kids.innerText=Math.round(lastKids);
-  ps_replace.innerText=Math.round(lastReplace);
-  ps_total.innerText=Math.round(lastKids+lastReplace);
+  ps_adult.innerText=Math.round(last);
+  ps_kids.innerText=Math.round(kids);
+  ps_replace.innerText=Math.round(rep);
+  ps_total.innerText=Math.round(kids+rep);
 })();
 
-/* ===== EXPENSE ===== */
-let eT=0;
+/* Expense Category-wise */
+let eTotal=0,emap={};
 (p.expenseData||[]).forEach(e=>{
-  eT+=e.amount;
+  if(!emap[e.category]) emap[e.category]={t:0,i:[]};
+  emap[e.category].t+=e.amount;
+  emap[e.category].i.push(e);
+  eTotal+=e.amount;
+});
+Object.keys(emap).forEach(c=>{
+  expenseBody.innerHTML+=`<tr style="font-weight:bold;background:#f9f9f9"><td colspan="4">${c}</td></tr>`;
+  emap[c].i.forEach(e=>{
+    expenseBody.innerHTML+=`
+    <tr>
+      <td>${e.title}</td>
+      <td>${e.qty}</td>
+      <td>${e.rate}</td>
+      <td class="right">${e.amount}</td>
+    </tr>`;
+  });
   expenseBody.innerHTML+=`
-  <tr>
-    <td>${e.category}</td>
-    <td>${e.title}</td>
-    <td class="right">${e.qty}</td>
-    <td class="right">${e.rate}</td>
-    <td class="right">${e.amount}</td>
+  <tr style="font-weight:bold">
+    <td colspan="3" class="right">उप–कुल</td>
+    <td class="right">${emap[c].t}</td>
   </tr>`;
 });
-expenseTotal.innerText=eT;
+expenseTotal.innerText=eTotal;
 
-/* ===== INCOME ===== */
+/* Income */
 let iT=0;
 (p.incomeData||[]).forEach(i=>{
   iT+=i.amount;
   incomeBody.innerHTML+=`
   <tr>
-    <td>${i.category}</td>
     <td>${i.title}</td>
-    <td class="right">${i.qty}</td>
-    <td class="right">${i.rate}</td>
+    <td>${i.qty}</td>
+    <td>${i.rate}</td>
     <td class="right">${i.amount}</td>
   </tr>`;
 });
 incomeTotal.innerText=iT;
 
-/* ===== PROFIT ===== */
+/* Profit */
 pl_income.innerText=iT;
-pl_expense.innerText=eT;
-pl_net.innerText=(iT-eT)>=0 ? "नाफा : "+(iT-eT) : "नोक्सान : "+Math.abs(iT-eT);
+pl_expense.innerText=eTotal;
+pl_net.innerText=(iT-eTotal)>=0?"नाफा : "+(iT-eTotal):"नोक्सान : "+Math.abs(iT-eTotal);
 </script>
 
 </body>
