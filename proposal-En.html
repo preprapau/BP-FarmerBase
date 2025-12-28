@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Business Proposal – Final</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+body{
+  font-family: system-ui, Arial, sans-serif;
+  background:#f4f7f6;
+  margin:0;
+}
+.container{
+  max-width:900px;
+  margin:25px auto;
+  background:#fff;
+  padding:30px;
+  border-radius:10px;
+}
+h1,h2,h3{color:#2e7d32}
+h1{text-align:center;margin-top:0}
+
+.meta{
+  text-align:center;
+  font-size:13px;
+  color:#555;
+  margin-bottom:20px;
+}
+
+.section{margin-top:26px}
+.section h2{
+  border-bottom:2px solid #e0e0e0;
+  padding-bottom:6px;
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  margin-top:10px;
+}
+th,td{
+  border:1px solid #ccc;
+  padding:8px;
+}
+th{background:#f0f0f0}
+.right{text-align:right}
+
+.note{
+  font-size:13px;
+  color:#666;
+}
+
+.nav{
+  display:flex;
+  justify-content:space-between;
+  margin-top:30px;
+}
+button{
+  padding:8px 16px;
+  border:none;
+  border-radius:6px;
+  cursor:pointer;
+  background:#2e7d32;
+  color:#fff;
+}
+
+@media print{
+  button,.nav{display:none}
+  body{background:#fff}
+  a[href]:after{content:""}
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1 id="bpTitle">Business Proposal</h1>
+
+<div class="meta">
+  <span id="fpStatus"></span> |
+  Version <span id="fpVersion"></span><br>
+  Created: <span id="fpCreated"></span> |
+  Last Updated: <span id="fpEdited"></span>
+</div>
+
+<!-- ===== EXECUTIVE SUMMARY ===== -->
+<div class="section">
+<h2>1. Executive Summary</h2>
+<p id="execSummary"></p>
+</div>
+
+<!-- ===== BUSINESS DETAILS (BY TOPIC) ===== -->
+<div class="section">
+<h2>2. Business Details</h2>
+<div id="detailBox"></div>
+</div>
+
+<!-- ===== EXPENSE ===== -->
+<div class="section">
+<h2>3. Annual Expense Statement</h2>
+<table>
+<thead>
+<tr>
+  <th>Category</th>
+  <th>Description</th>
+  <th class="right">Qty</th>
+  <th class="right">Rate</th>
+  <th class="right">Amount</th>
+</tr>
+</thead>
+<tbody id="expenseBody"></tbody>
+<tfoot>
+<tr>
+  <th colspan="4" class="right">Total Expense</th>
+  <th class="right" id="expenseTotal"></th>
+</tr>
+</tfoot>
+</table>
+</div>
+
+<!-- ===== INCOME ===== -->
+<div class="section">
+<h2>4. Annual Income Statement</h2>
+<table>
+<thead>
+<tr>
+  <th>Category</th>
+  <th>Description</th>
+  <th class="right">Qty</th>
+  <th class="right">Rate</th>
+  <th class="right">Amount</th>
+</tr>
+</thead>
+<tbody id="incomeBody"></tbody>
+<tfoot>
+<tr>
+  <th colspan="4" class="right">Total Income</th>
+  <th class="right" id="incomeTotal"></th>
+</tr>
+</tfoot>
+</table>
+</div>
+
+<!-- ===== PROFIT / LOSS ===== -->
+<div class="section">
+<h2>5. Profit / Loss Summary</h2>
+<table>
+<tr><th>Total Income</th><td class="right" id="pl_income"></td></tr>
+<tr><th>Total Expense</th><td class="right" id="pl_expense"></td></tr>
+<tr><th>Net Result</th><td class="right" id="pl_net"></td></tr>
+</table>
+</div>
+
+<!-- ===== ROI ===== -->
+<div class="section">
+<h2>6. Five-Year ROI Overview</h2>
+<table>
+<tr><th>Initial Investment</th><td class="right" id="roi_inv"></td></tr>
+<tr><th>Total Profit (5 Years)</th><td class="right" id="roi_profit"></td></tr>
+<tr><th>ROI (%)</th><td class="right" id="roi_percent"></td></tr>
+<tr><th>Payback Period</th><td id="roi_payback"></td></tr>
+</table>
+</div>
+
+<div class="nav">
+  <button onclick="location.href='index.html'">⬅ Home</button>
+  <button onclick="window.print()">🖨 Print</button>
+</div>
+
+</div>
+
+<script>
+/* ===== LOAD PROJECT ===== */
+let key = localStorage.getItem("activeProject");
+if(!key){
+  alert("No active project found");
+  location.href="index.html";
+}
+let p = JSON.parse(localStorage.getItem(key) || "{}");
+
+/* ===== HELPERS ===== */
+function money(n){
+  return "NPR " + Number(n||0).toLocaleString("en-US");
+}
+
+/* ===== META ===== */
+fpStatus.innerText = p.status==="final" ? "Final Proposal" : "Draft Proposal";
+fpVersion.innerText = p.version || "1.0";
+fpCreated.innerText = p.createdAt || "";
+fpEdited.innerText = p.lastEdited || "";
+
+/* ===== TITLE ===== */
+bpTitle.innerText = (p.shortInfo && p.shortInfo.bp_name) || "Business Proposal";
+
+/* ===== EXECUTIVE SUMMARY ===== */
+execSummary.innerText =
+(p.shortInfo && p.shortInfo.bp_summary) ||
+"This proposal outlines the business plan, financial projection, and expected outcomes of the project.";
+
+/* ===== BUSINESS DETAIL (TOPIC-WISE) ===== */
+let dbox = document.getElementById("detailBox");
+(p.businessDetail||[]).forEach((d,i)=>{
+  dbox.innerHTML += `
+    <h3>${i+1}. ${d.topic}</h3>
+    <p>${(d.content||"").replace(/\n/g,"<br>")}</p>`;
+});
+if(!dbox.innerHTML) dbox.innerHTML="<i>No business details provided.</i>";
+
+/* ===== EXPENSE ===== */
+let eTotal=0;
+(p.expenseData||[]).forEach(e=>{
+  eTotal += Number(e.amount||0);
+  expenseBody.innerHTML += `
+  <tr>
+    <td>${e.category||""}</td>
+    <td>${e.title||""}</td>
+    <td class="right">${e.qty||""}</td>
+    <td class="right">${e.rate||""}</td>
+    <td class="right">${money(e.amount)}</td>
+  </tr>`;
+});
+expenseTotal.innerText = money(eTotal);
+
+/* ===== INCOME ===== */
+let iTotal=0;
+(p.incomeData||[]).forEach(i=>{
+  iTotal += Number(i.amount||0);
+  incomeBody.innerHTML += `
+  <tr>
+    <td>${i.category||""}</td>
+    <td>${i.title||""}</td>
+    <td class="right">${i.qty||""}</td>
+    <td class="right">${i.rate||""}</td>
+    <td class="right">${money(i.amount)}</td>
+  </tr>`;
+});
+incomeTotal.innerText = money(iTotal);
+
+/* ===== PROFIT ===== */
+pl_income.innerText = money(iTotal);
+pl_expense.innerText = money(eTotal);
+pl_net.innerText = money(iTotal - eTotal);
+
+/* ===== ROI ===== */
+let r = p.fiveYearROI || {};
+roi_inv.innerText = money(r.investment);
+roi_profit.innerText = money(r.totalProfit);
+roi_percent.innerText = r.roi || "";
+roi_payback.innerText = r.payback || "";
+</script>
+
+</body>
+</html>
