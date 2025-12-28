@@ -2,60 +2,125 @@
 <html lang="ne">
 <head>
 <meta charset="UTF-8">
-<title>नाफा / नोक्सान – BPMS</title>
+<title>Profit / Loss | BPMS</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
 body{
-  font-family:"Noto Sans Devanagari","Kalimati",system-ui;
-  background:#f4f7f6;margin:0
+  font-family:"Noto Sans Devanagari","Kalimati","Mangal","Nirmala UI",system-ui,Arial;
+  background:#f4f7f6;margin:0;
 }
-.wrap{max-width:1000px;margin:auto;padding:20px}
+.wrap{max-width:1100px;margin:auto;padding:20px}
 
-h2{color:#2e7d32;margin-top:0}
+/* NAV */
+.nav{
+  display:flex;gap:8px;flex-wrap:wrap;
+  background:#e9f5ea;padding:12px;border-radius:12px
+}
+.nav a{
+  padding:8px 14px;border-radius:20px;
+  text-decoration:none;color:#000;background:#dff0e1
+}
+.nav a.active{background:#2e7d32;color:#fff}
 
-.card{
-  background:#fff;border-radius:14px;
-  padding:20px;margin-top:20px
-}
+/* CARD */
+.card{background:#fff;border-radius:14px;padding:20px;margin-top:20px}
+table{width:100%;border-collapse:collapse}
+td,th{padding:10px;border-bottom:1px solid #ddd}
+th{text-align:left;background:#f1f5f1}
+.right{text-align:right}
 
-table{
-  width:100%;border-collapse:collapse
-}
-th,td{
-  padding:10px;border-bottom:1px solid #ddd
-}
-th{background:#f1f5f1;text-align:left}
+input[type=number],input[type=text]{width:80px;padding:6px}
 
 .total{font-weight:bold}
 .green{color:#2e7d32}
 .red{color:#c62828}
 
-@media print{
-  body{background:#fff}
+/* ACTION */
+.actions{
+  display:flex;justify-content:space-between;
+  margin-top:25px
 }
+button{
+  padding:8px 18px;
+  border:none;border-radius:6px;
+  background:#2e7d32;color:#fff;
+  cursor:pointer;
+}
+.small{font-size:13px;color:#555}
 </style>
 </head>
 
 <body>
-
 <div class="wrap">
 
+<!-- ===== MENU ===== -->
+<div class="nav">
+  <a href="short-info.html">Short Info</a>
+  <a href="business-detail.html">Detail</a>
+  <a href="expense-demo.html">Expense</a>
+  <a href="income-demo.html">Income</a>
+  <a class="active">Profit / Loss</a>
+  <a href="five-year-roi.html">5-Year ROI</a>
+  <a href="full-proposal.html">Proposal</a>
+</div>
+
+<!-- ================= PROFIT LOSS ================= -->
 <div class="card">
 <h2>📊 नाफा / नोक्सान (वार्षिक)</h2>
 
 <table>
-<tr><th>शीर्षक</th><th>रकम (रु.)</th></tr>
-
-<tr><td>कुल आम्दानी</td><td id="inc">0</td></tr>
-<tr><td>चालु खर्च</td><td id="cash">0</td></tr>
-<tr><td>ह्रासकट्टी (१५%)</td><td id="depr">0</td></tr>
-<tr><td>बैंक ब्याज</td><td id="int">0</td></tr>
+<tr><th>शीर्षक</th><th class="right">रकम (रु.)</th></tr>
+<tr><td>कुल आम्दानी</td><td class="right" id="inc">0</td></tr>
+<tr><td>चालु खर्च</td><td class="right" id="cash">0</td></tr>
+<tr><td>ह्रासकट्टी (१५%)</td><td class="right" id="depr">0</td></tr>
+<tr><td>बैंक ब्याज</td><td class="right" id="interest">0</td></tr>
 
 <tr class="total">
-  <td>नाफा / नोक्सान</td>
-  <td id="profit">0</td>
+  <td>कर अघिको नाफा (PBT)</td>
+  <td class="right" id="pbt">0</td>
+</tr>
+<tr>
+  <td>कर (२५%)</td>
+  <td class="right" id="tax">0</td>
+</tr>
+<tr class="total">
+  <td>खुद नाफा (PAT)</td>
+  <td class="right" id="net">0</td>
 </tr>
 </table>
+</div>
+
+<!-- ================= DIVIDEND ================= -->
+<div class="card">
+<h3>💰 लाभांश वितरण (खुद नाफा आधारमा)</h3>
+
+<table>
+<thead>
+<tr>
+  <th>विधा</th>
+  <th class="right">%</th>
+  <th class="right">रकम</th>
+</tr>
+</thead>
+<tbody id="divBody"></tbody>
+<tfoot>
+<tr class="total">
+  <td>कुल</td>
+  <td class="right" id="divPct">0%</td>
+  <td></td>
+</tr>
+</tfoot>
+</table>
+
+<button onclick="addDividend()">➕ Add Option</button>
+<p class="small">✔️ % परिवर्तन गर्दा रकम स्वतः बदलिन्छ</p>
+</div>
+
+<!-- ================= ACTION ================= -->
+<div class="actions">
+  <button onclick="goPrev()">⬅ Expense / Income</button>
+  <button onclick="goNext()">ROI ➡</button>
 </div>
 
 </div>
@@ -65,48 +130,39 @@ th{background:#f1f5f1;text-align:left}
 let key = localStorage.getItem("activeProject");
 let p = JSON.parse(localStorage.getItem(key) || "{}");
 
-/* ===== ELEMENTS ===== */
-let incEl = document.getElementById("inc");
-let cashEl = document.getElementById("cash");
-let deprEl = document.getElementById("depr");
-let intEl  = document.getElementById("int");
-let profitEl = document.getElementById("profit");
+/* ===== CALC BASE ===== */
+let income=0, cash=0, depr=0, interest=0;
 
-/* ===== TOTAL INCOME ===== */
-let income = 0;
-(p.incomeData || []).forEach(i=>{
-  income += Number(i.amount || 0);
+/* INCOME */
+(p.incomeData||[]).forEach(i=>{
+  income += Number(i.amount||0);
 });
 
-/* ===== EXPENSE BREAKDOWN ===== */
-let cash = 0;
-let depr = 0;
-let interest = 0;
-
-(p.expenseData || []).forEach(e=>{
-  let amt = Number(e.amount || 0);
-  let cat = (e.category || "").toLowerCase();
-  let title = (e.title || "").toLowerCase();
-  let source = (e.source || "").toLowerCase();
+/* EXPENSE (KEYWORD BASED FINAL) */
+(p.expenseData||[]).forEach(e=>{
+  let amt = Number(e.amount||0);
+  let cat = (e.category||"").toLowerCase();
+  let title = (e.title||"").toLowerCase();
+  let source = (e.source||"").toLowerCase();
 
   /* BANK INTEREST */
   if(
     cat.includes("ब्याज") ||
     title.includes("ब्याज") ||
-    source.includes("ब्याज") ||
     title.includes("interest") ||
+    title.includes("loan") ||
     source.includes("loan") ||
-    source.includes("bank")
+    source.includes("bank") ||
+    source.includes("coop")
   ){
     interest += amt;
   }
 
-  /* DEPRECIATION (CAPITAL ITEMS) */
+  /* DEPRECIATION */
   else if(
     cat.includes("मेसिन") ||
     cat.includes("मेशीन") ||
     cat.includes("machine") ||
-    cat.includes("प्रविधि") ||
     cat.includes("पूर्वाधार") ||
     cat.includes("भवन") ||
     cat.includes("केज") ||
@@ -121,16 +177,74 @@ let interest = 0;
   }
 });
 
-/* ===== PROFIT ===== */
-let profit = income - cash - depr - interest;
+/* ===== PROFIT CALC ===== */
+let pbt = income - cash - depr - interest;
+let tax = pbt > 0 ? pbt * 0.25 : 0;
+let net = pbt - tax;
 
 /* ===== DISPLAY ===== */
-incEl.innerText = income;
-cashEl.innerText = Math.round(cash);
-deprEl.innerText = Math.round(depr);
-intEl.innerText = Math.round(interest);
-profitEl.innerText = Math.round(profit);
-profitEl.className = profit >= 0 ? "green" : "red";
+inc.innerText = Math.round(income);
+cash.innerText = Math.round(cash);
+depr.innerText = Math.round(depr);
+interest.innerText = Math.round(interest);
+
+pbtEl = document.getElementById("pbt");
+taxEl = document.getElementById("tax");
+netEl = document.getElementById("net");
+
+pbtEl.innerText = Math.round(pbt);
+taxEl.innerText = Math.round(tax);
+netEl.innerText = Math.round(net);
+netEl.className = net>=0 ? "green" : "red";
+
+/* ===== DIVIDEND ===== */
+let dividends = p.dividends || [
+  {title:"स्वामी / साझेदार", pct:60},
+  {title:"पुनः लगानी", pct:40}
+];
+
+function renderDividend(){
+  divBody.innerHTML="";
+  let total=0;
+
+  dividends.forEach((d,i)=>{
+    total+=Number(d.pct||0);
+    let amt = net>0 ? Math.round(net*d.pct/100) : 0;
+
+    divBody.innerHTML+=`
+      <tr>
+        <td><input type="text" value="${d.title}"
+          onchange="dividends[${i}].title=this.value"></td>
+        <td class="right">
+          <input type="number" value="${d.pct}"
+            onchange="updatePct(${i},this.value)">
+        </td>
+        <td class="right">${amt}</td>
+      </tr>`;
+  });
+
+  divPct.innerText=total+"%";
+  divPct.style.color = total===100 ? "#2e7d32" : "#c62828";
+
+  /* SAVE FOR PROPOSAL */
+  p.dividends = dividends;
+  p.netProfit = net;
+  localStorage.setItem(key,JSON.stringify(p));
+}
+
+function updatePct(i,val){
+  dividends[i].pct = Number(val||0);
+  renderDividend();
+}
+function addDividend(){
+  dividends.push({title:"नयाँ विधा",pct:0});
+  renderDividend();
+}
+renderDividend();
+
+/* ===== NAV ===== */
+function goPrev(){ location.href="expense-demo.html"; }
+function goNext(){ location.href="five-year-roi.html"; }
 </script>
 
 </body>
