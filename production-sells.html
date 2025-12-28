@@ -2,7 +2,7 @@
 <html lang="ne">
 <head>
 <meta charset="UTF-8">
-<title>उत्पादन तथा बिक्री योजना (Year-wise Save)</title>
+<title>उत्पादन तथा बिक्री योजना</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
@@ -18,8 +18,7 @@ body{
   padding:30px;
   border-radius:8px;
 }
-h1,h2{color:#2e7d32}
-h1{text-align:center;margin-top:0}
+h1{color:#2e7d32;text-align:center;margin-top:0}
 
 table{
   width:100%;
@@ -52,7 +51,6 @@ button{
   input,button{display:none}
   body{background:#fff}
   table{page-break-inside:avoid}
-  tr{page-break-inside:avoid}
 }
 </style>
 </head>
@@ -60,145 +58,111 @@ button{
 <body>
 
 <div class="container">
-
 <h1>उत्पादन तथा बिक्री योजना</h1>
 
-<!-- ===== BASE INPUT ===== -->
-<h2>आधारभूत विवरण</h2>
+<h3>आधारभूत विवरण</h3>
 <table>
-<tr><th>प्रारम्भिक बयस्क संख्या</th><td><input id="startAdult" value="300"></td></tr>
-<tr><th>प्रति बयस्क वार्षिक औसत बच्चा</th><td><input id="kidsPerAdult" value="20"></td></tr>
-<tr><th>भाले प्रतिशत (%)</th><td><input id="maleRatio" value="50"></td></tr>
+<tr><th>प्रारम्भिक बयस्क संख्या</th><td><input id="adultStart" value="300"></td></tr>
+<tr><th>ब्याउने दर (%)</th><td><input id="breedRate" value="90"></td></tr>
+<tr><th>प्रति बयस्क वार्षिक बच्चा</th><td><input id="kidsPerAdult" value="20"></td></tr>
+<tr><th>बच्चा मृत्युदर (%)</th><td><input id="deathRate" value="10"></td></tr>
+<tr><th>भाले अनुपात (%)</th><td><input id="maleRatio" value="50"></td></tr>
+<tr><th>राखिने भाले (%)</th><td><input id="keepMale" value="0"></td></tr>
+<tr><th>राखिने पोथी (%)</th><td><input id="keepFemale" value="40"></td></tr>
+<tr><th>प्रतिस्थापन (बयस्क बिक्री %) </th><td><input id="replaceRate" value="10"></td></tr>
 </table>
 
-<!-- ===== YEAR-WISE INPUT ===== -->
-<h2>वर्षगत मापदण्ड (Year-wise)</h2>
-<table>
-<thead>
-<tr>
-  <th>वर्ष</th>
-  <th>ब्याउने दर %</th>
-  <th>मृत्युदर %</th>
-  <th>बच्चा बिक्री %</th>
-  <th>प्रतिस्थापन %</th>
-</tr>
-</thead>
-<tbody id="yearInput"></tbody>
-</table>
-
-<!-- ===== RESULT ===== -->
-<h2>५ वर्षे परिणाम (स्वतः गणना)</h2>
+<h3>५ वर्षे परिणाम</h3>
 <table>
 <thead>
 <tr>
   <th>वर्ष</th>
   <th class="right">बयस्क</th>
-  <th class="right">जन्मिएका बच्चा</th>
-  <th class="right">खेर गएको</th>
-  <th class="right">बिक्री (बच्चा)</th>
+  <th class="right">जन्मिएका</th>
+  <th class="right">मरेका</th>
+  <th class="right">भाले बिक्री</th>
+  <th class="right">पोथी बिक्री</th>
   <th class="right">बयस्क बिक्री</th>
-  <th class="right">अर्को वर्षका बयस्क</th>
+  <th class="right">अर्को वर्ष बयस्क</th>
 </tr>
 </thead>
 <tbody id="resultBody"></tbody>
 </table>
 
 <button onclick="calculate()">💾 Save & Calculate</button>
-
 </div>
 
 <script>
-/* ===== LOAD PROJECT ===== */
 let key = localStorage.getItem("activeProject");
-if(!key){
-  alert("Project भेटिएन");
-  location.href="index.html";
-}
 let project = JSON.parse(localStorage.getItem(key)||"{}");
 
-/* ===== INIT YEAR INPUT ===== */
-let yearInput = document.getElementById("yearInput");
-for(let y=1;y<=5;y++){
-  yearInput.innerHTML += `
-  <tr>
-    <td>${y}</td>
-    <td><input value="${90+y}"></td>
-    <td><input value="${10-(y-1)}"></td>
-    <td><input value="${60+y*2}"></td>
-    <td><input value="10"></td>
-  </tr>`;
-}
-
-/* ===== CALCULATE & SAVE (YEAR-WISE LOGIC) ===== */
 function calculate(){
 
-  let adult = +startAdult.value;
+  let adult = +adultStart.value;
+  let breedRate = +breedRate.value/100;
   let kidsPerAdult = +kidsPerAdult.value;
+  let deathRate = +deathRate.value/100;
   let maleRatio = +maleRatio.value/100;
+  let keepMale = +keepMale.value/100;
+  let keepFemale = +keepFemale.value/100;
+  let replaceRate = +replaceRate.value/100;
 
-  let rows = yearInput.querySelectorAll("tr");
-  let results = [];
   resultBody.innerHTML="";
+  let results=[];
 
-  rows.forEach((r,i)=>{
-    let cells = r.querySelectorAll("input");
+  for(let year=1; year<=5; year++){
 
-    let birthRate = cells[0].value/100;
-    let deathRate = cells[1].value/100;
-    let sellRate  = cells[2].value/100;
-    let replaceRate = cells[3].value/100;
-
-    let breeders = adult * birthRate;
+    let breeders = adult * breedRate;
     let born = breeders * kidsPerAdult;
 
     let died = born * deathRate;
     let survived = born - died;
 
-    let childSold = survived * sellRate;
+    let male = survived * maleRatio;
+    let female = survived - male;
+
+    let maleKept = male * keepMale;
+    let maleSold = male - maleKept;
+
+    let femaleKept = female * keepFemale;
+    let femaleSold = female - femaleKept;
+
     let adultSold = adult * replaceRate;
 
-    let kept = survived - childSold;
-    let nextAdult = adult - adultSold + kept;
+    let nextAdult =
+      (adult - adultSold) +
+      maleKept +
+      femaleKept;
 
     results.push({
-      year:i+1,
-      adult:Math.round(adult),
-      born:Math.round(born),
-      death:Math.round(died),
-      childSold:Math.round(childSold),
-      adultSold:Math.round(adultSold),
-      nextAdult:Math.round(nextAdult)
+      year,adult,born,died,
+      maleSold,femaleSold,adultSold,nextAdult
     });
 
     resultBody.innerHTML += `
     <tr>
-      <td>${i+1}</td>
+      <td>${year}</td>
       <td class="right">${Math.round(adult)}</td>
       <td class="right">${Math.round(born)}</td>
       <td class="right">${Math.round(died)}</td>
-      <td class="right">${Math.round(childSold)}</td>
+      <td class="right">${Math.round(maleSold)}</td>
+      <td class="right">${Math.round(femaleSold)}</td>
       <td class="right">${Math.round(adultSold)}</td>
       <td class="right">${Math.round(nextAdult)}</td>
     </tr>`;
 
     adult = nextAdult;
-  });
+  }
 
-  /* ===== SAVE ===== */
   project.productionSales = {
-    base:{
-      startAdult,
-      kidsPerAdult,
-      maleRatio
-    },
-    yearWise: results
+    logic:"Male/Female separate keep + adult carry-forward",
+    result:results
   };
 
   project.lastEdited = new Date().toLocaleString("ne-NP");
-  localStorage.setItem(key, JSON.stringify(project));
+  localStorage.setItem(key,JSON.stringify(project));
 }
 
-/* Auto calculate on load */
 window.onload = calculate;
 </script>
 
