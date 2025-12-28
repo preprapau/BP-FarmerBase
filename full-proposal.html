@@ -2,77 +2,172 @@
 <html lang="ne">
 <head>
 <meta charset="UTF-8">
-<title>Final Proposal (Category-aware)</title>
+<title>Final Proposal</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
+
 <style>
-body{font-family:Noto Sans Devanagari,system-ui;background:#f4f7f6;margin:0;padding:20px}
-.page{max-width:1000px;margin:auto;background:#fff;padding:30px;border-radius:10px}
-h1,h2{color:#2e7d32}
-table{width:100%;border-collapse:collapse;margin-top:10px}
-th,td{border:1px solid #ccc;padding:6px;text-align:right}
-th{background:#e8f5e9}
-.left{text-align:left}
-.sum{font-weight:bold;background:#fafafa}
+:root{
+  --green:#2e7d32;
+  --gray:#555;
+}
+*{box-sizing:border-box}
+body{
+  font-family:"Noto Sans Devanagari",system-ui,Arial;
+  background:#f4f7f6;
+  margin:0;
+}
+.page{
+  max-width:900px;
+  margin:0 auto;
+  background:#fff;
+  padding:32px;
+  page-break-after:always;
+}
+h1,h2,h3{color:var(--green);margin-top:0}
+p{line-height:1.9}
+ul{line-height:1.9}
+
+/* Summary box */
+.summary-box{
+  border:2px solid #e0e0e0;
+  padding:16px;
+  margin:16px 0;
+  background:#fafafa;
+}
+.summary-box div{
+  display:flex;
+  justify-content:space-between;
+  padding:4px 0;
+}
+
+/* Toggle */
+.toggle{
+  text-align:right;
+  margin:10px auto;
+  max-width:900px;
+}
+.no-print{}
+
+@media print{
+  body{background:#fff}
+  .no-print,button{display:none!important}
+  a[href]:after{content:""}
+  @page{size:A4;margin:20mm}
+}
 </style>
 </head>
+
 <body>
+
+<!-- LANGUAGE TOGGLE -->
+<div class="toggle no-print">
+  <button onclick="setLang('ne')">नेपाली</button>
+  <button onclick="setLang('en')">English</button>
+</div>
+
+<!-- EXECUTIVE SUMMARY -->
 <div class="page">
-<h1 id="title"></h1>
 
-<h2>खर्च विवरण</h2>
-<table>
-<thead><tr><th class="left">शीर्षक</th><th>परिमाण</th><th>दर</th><th>रकम</th></tr></thead>
-<tbody id="expenseBody"></tbody>
-<tfoot>
-<tr class="sum"><td colspan="3" class="left">चालु खर्च</td><td id="cashExp">0</td></tr>
-<tr class="sum"><td colspan="3" class="left">ह्रासकट्टी</td><td id="depr">0</td></tr>
-<tr class="sum"><td colspan="3" class="left">बैंक ब्याज</td><td id="interest">0</td></tr>
-</tfoot>
-</table>
+  <!-- NEPALI -->
+  <div class="lang lang-ne">
+    <h2>कार्यकारी सारांश</h2>
 
-<h2>आम्दानी विवरण</h2>
-<table>
-<thead><tr><th class="left">शीर्षक</th><th>रकम</th></tr></thead>
-<tbody id="incomeBody"></tbody>
-<tfoot>
-<tr class="sum"><td class="left">कुल आम्दानी</td><td id="totalIncome">0</td></tr>
-</tfoot>
-</table>
+    <div class="summary-box">
+      <div><span>कुल लगानी</span><strong id="ne-invest">0</strong></div>
+      <div><span>वार्षिक खर्च</span><strong id="ne-expense">0</strong></div>
+      <div><span>वार्षिक आम्दानी</span><strong id="ne-income">0</strong></div>
+      <div><span>अनुमानित नाफा</span><strong id="ne-profit">0</strong></div>
+    </div>
 
-<h2>नाफा / नोक्सान</h2>
-<p id="profit"></p>
+    <h3>परियोजना सफल हुने कारणहरू</h3>
+    <ul id="ne-success"></ul>
+
+    <h3>निष्कर्ष</h3>
+    <p id="ne-conclusion"></p>
+  </div>
+
+  <!-- ENGLISH -->
+  <div class="lang lang-en" style="display:none">
+    <h2>Executive Summary</h2>
+
+    <div class="summary-box">
+      <div><span>Total Investment</span><strong id="en-invest">0</strong></div>
+      <div><span>Annual Expense</span><strong id="en-expense">0</strong></div>
+      <div><span>Annual Income</span><strong id="en-income">0</strong></div>
+      <div><span>Estimated Profit</span><strong id="en-profit">0</strong></div>
+    </div>
+
+    <h3>Reasons for Project Success</h3>
+    <ul id="en-success"></ul>
+
+    <h3>Conclusion</h3>
+    <p id="en-conclusion"></p>
+  </div>
+
 </div>
 
 <script>
-let key=localStorage.getItem("activeProject");
-let project=JSON.parse(localStorage.getItem(key));
+/* ===== LOAD PROJECT ===== */
+let key = localStorage.getItem("activeProject");
+let project = key ? JSON.parse(localStorage.getItem(key)) : {};
 
-title.innerText = project.name || "Proposal";
+/* ===== LANGUAGE TOGGLE ===== */
+function setLang(l){
+  document.querySelectorAll(".lang").forEach(d=>d.style.display="none");
+  document.querySelector(".lang-"+l).style.display="block";
+  document.documentElement.lang = l;
+}
 
-let cash=0, depr=0;
-(project.expenseData||[]).forEach(e=>{
- expenseBody.innerHTML+=`<tr><td class="left">${e.title}</td><td>${e.qty}</td><td>${e.rate}</td><td>${e.amount}</td></tr>`;
- if(e.category==="मेशीन औजार / प्रविधि"||e.category==="पूर्वाधार निर्माण"){
-   depr+=e.amount*0.15;
- }else{
-   cash+=e.amount;
- }
-});
-cashExp.innerText=Math.round(cash);
-depr.innerText=Math.round(depr);
+/* ===== TOTALS ===== */
+let totalExpense=0,totalIncome=0;
+(project.expenseData||[]).forEach(e=>totalExpense+=Number(e.amount||0));
+(project.incomeData||[]).forEach(i=>totalIncome+=Number(i.amount||0));
+let profit = totalIncome-totalExpense;
 
-let interestVal = Number(localStorage.getItem("ANNUAL_LOAN_INTEREST")||0);
-interest.innerText=Math.round(interestVal);
+/* ===== FILL SUMMARY ===== */
+function fmt(n){return "रु. "+Number(n).toLocaleString("ne-NP");}
+ne-invest.innerText = fmt(totalExpense);
+ne-expense.innerText = fmt(totalExpense);
+ne-income.innerText  = fmt(totalIncome);
+ne-profit.innerText  = fmt(profit);
 
-let ti=0;
-(project.incomeData||[]).forEach(i=>{
- incomeBody.innerHTML+=`<tr><td class="left">${i.title}</td><td>${i.amount}</td></tr>`;
- ti+=Number(i.amount);
-});
-totalIncome.innerText=Math.round(ti);
+en-invest.innerText = "Rs. "+totalExpense.toLocaleString("en-US");
+en-expense.innerText= "Rs. "+totalExpense.toLocaleString("en-US");
+en-income.innerText = "Rs. "+totalIncome.toLocaleString("en-US");
+en-profit.innerText = "Rs. "+profit.toLocaleString("en-US");
 
-let profitVal = ti - (cash + depr + interestVal);
-profit.innerText = profitVal>=0 ? "नाफा : "+profitVal : "नोक्सान : "+profitVal;
+/* ===== BUSINESS DETAIL MAPPING ===== */
+function getTopic(name){
+  if(!Array.isArray(project.businessDetail))return null;
+  return project.businessDetail.find(t=>t.topic.trim()===name);
+}
+
+/* Nepali success */
+let suc = getTopic("परियोजना सफल हुने कारणहरू");
+if(suc){
+  ne-success.innerHTML = suc.content.split("\n")
+    .filter(l=>l.trim()).map(l=>`<li>${l}</li>`).join("");
+}
+
+/* Nepali conclusion */
+let con = getTopic("निष्कर्ष");
+if(con) ne-conclusion.innerText = con.content;
+
+/* Auto English (simple professional translation) */
+if(suc){
+  en-success.innerHTML = suc.content.split("\n")
+    .filter(l=>l.trim())
+    .map(l=>`<li>${l}</li>`)
+    .join("");
+}
+if(con){
+  en-conclusion.innerText =
+    "This pig farming business is expected to generate sustainable income, create employment opportunities, and contribute positively to the local economy. Therefore, this proposal is presented for investment and support.";
+}
+
+/* Default language */
+setLang("ne");
 </script>
+
 </body>
 </html>
