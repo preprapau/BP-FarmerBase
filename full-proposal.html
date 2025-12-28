@@ -2,14 +2,10 @@
 <html lang="ne">
 <head>
 <meta charset="UTF-8">
-<title>Final Proposal</title>
+<title>व्यवसाय प्रस्ताव</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
-:root{
-  --green:#2e7d32;
-  --gray:#555;
-}
 *{box-sizing:border-box}
 body{
   font-family:"Noto Sans Devanagari",system-ui,Arial;
@@ -23,35 +19,30 @@ body{
   padding:32px;
   page-break-after:always;
 }
-h1,h2,h3{color:var(--green);margin-top:0}
-p{line-height:1.9}
-ul{line-height:1.9}
+h1,h2,h3{margin-top:0;color:#2e7d32}
+p,li{line-height:1.9}
+
+/* ToC */
+#toc ol{padding-left:20px}
 
 /* Summary box */
-.summary-box{
+.summary{
   border:2px solid #e0e0e0;
-  padding:16px;
-  margin:16px 0;
   background:#fafafa;
+  padding:15px;
+  margin:15px 0;
 }
-.summary-box div{
+.summary div{
   display:flex;
   justify-content:space-between;
   padding:4px 0;
 }
 
-/* Toggle */
-.toggle{
-  text-align:right;
-  margin:10px auto;
-  max-width:900px;
-}
-.no-print{}
-
+/* ===== PRINT FINAL ===== */
 @media print{
   body{background:#fff}
-  .no-print,button{display:none!important}
-  a[href]:after{content:""}
+  .no-print,button,input,select,textarea{display:none!important}
+  a[href]:after{content:""!important}
   @page{size:A4;margin:20mm}
 }
 </style>
@@ -59,51 +50,29 @@ ul{line-height:1.9}
 
 <body>
 
-<!-- LANGUAGE TOGGLE -->
-<div class="toggle no-print">
-  <button onclick="setLang('ne')">नेपाली</button>
-  <button onclick="setLang('en')">English</button>
+<!-- ================= EXECUTIVE SUMMARY ================= -->
+<div class="page">
+<h2>कार्यकारी सारांश</h2>
+
+<div class="summary">
+  <div><span>कुल खर्च</span><strong id="sumExpense"></strong></div>
+  <div><span>कुल आम्दानी</span><strong id="sumIncome"></strong></div>
+  <div><span>नाफा / नोक्सान</span><strong id="sumProfit"></strong></div>
 </div>
 
-<!-- EXECUTIVE SUMMARY -->
+<p id="summaryConclusion"></p>
+</div>
+
+<!-- ================= TABLE OF CONTENTS ================= -->
+<div class="page" id="toc">
+<h2>विषयसूची</h2>
+<ol id="tocList"></ol>
+</div>
+
+<!-- ================= BUSINESS DETAIL BY TOPIC ================= -->
 <div class="page">
-
-  <!-- NEPALI -->
-  <div class="lang lang-ne">
-    <h2>कार्यकारी सारांश</h2>
-
-    <div class="summary-box">
-      <div><span>कुल लगानी</span><strong id="ne-invest">0</strong></div>
-      <div><span>वार्षिक खर्च</span><strong id="ne-expense">0</strong></div>
-      <div><span>वार्षिक आम्दानी</span><strong id="ne-income">0</strong></div>
-      <div><span>अनुमानित नाफा</span><strong id="ne-profit">0</strong></div>
-    </div>
-
-    <h3>परियोजना सफल हुने कारणहरू</h3>
-    <ul id="ne-success"></ul>
-
-    <h3>निष्कर्ष</h3>
-    <p id="ne-conclusion"></p>
-  </div>
-
-  <!-- ENGLISH -->
-  <div class="lang lang-en" style="display:none">
-    <h2>Executive Summary</h2>
-
-    <div class="summary-box">
-      <div><span>Total Investment</span><strong id="en-invest">0</strong></div>
-      <div><span>Annual Expense</span><strong id="en-expense">0</strong></div>
-      <div><span>Annual Income</span><strong id="en-income">0</strong></div>
-      <div><span>Estimated Profit</span><strong id="en-profit">0</strong></div>
-    </div>
-
-    <h3>Reasons for Project Success</h3>
-    <ul id="en-success"></ul>
-
-    <h3>Conclusion</h3>
-    <p id="en-conclusion"></p>
-  </div>
-
+<h2>व्यवसाय / परियोजना विवरण</h2>
+<div id="businessTopics"></div>
 </div>
 
 <script>
@@ -111,62 +80,41 @@ ul{line-height:1.9}
 let key = localStorage.getItem("activeProject");
 let project = key ? JSON.parse(localStorage.getItem(key)) : {};
 
-/* ===== LANGUAGE TOGGLE ===== */
-function setLang(l){
-  document.querySelectorAll(".lang").forEach(d=>d.style.display="none");
-  document.querySelector(".lang-"+l).style.display="block";
-  document.documentElement.lang = l;
-}
-
-/* ===== TOTALS ===== */
-let totalExpense=0,totalIncome=0;
+/* ===== FINANCIAL TOTALS ===== */
+let totalExpense = 0, totalIncome = 0;
 (project.expenseData||[]).forEach(e=>totalExpense+=Number(e.amount||0));
 (project.incomeData||[]).forEach(i=>totalIncome+=Number(i.amount||0));
-let profit = totalIncome-totalExpense;
+let profit = totalIncome - totalExpense;
 
-/* ===== FILL SUMMARY ===== */
-function fmt(n){return "रु. "+Number(n).toLocaleString("ne-NP");}
-ne-invest.innerText = fmt(totalExpense);
-ne-expense.innerText = fmt(totalExpense);
-ne-income.innerText  = fmt(totalIncome);
-ne-profit.innerText  = fmt(profit);
+function fmt(n){ return "रु. " + Number(n).toLocaleString("ne-NP"); }
 
-en-invest.innerText = "Rs. "+totalExpense.toLocaleString("en-US");
-en-expense.innerText= "Rs. "+totalExpense.toLocaleString("en-US");
-en-income.innerText = "Rs. "+totalIncome.toLocaleString("en-US");
-en-profit.innerText = "Rs. "+profit.toLocaleString("en-US");
+sumExpense.innerText = fmt(totalExpense);
+sumIncome.innerText  = fmt(totalIncome);
+sumProfit.innerText  = profit>=0 ? "नाफा : "+fmt(profit) : "नोक्सान : "+fmt(Math.abs(profit));
 
-/* ===== BUSINESS DETAIL MAPPING ===== */
-function getTopic(name){
-  if(!Array.isArray(project.businessDetail))return null;
-  return project.businessDetail.find(t=>t.topic.trim()===name);
+summaryConclusion.innerText =
+  profit>=0
+  ? "खर्च र आम्दानीको विश्लेषण अनुसार यस व्यवसायले दीर्घकालीन रूपमा नाफामूलक हुने स्पष्ट आधार देखाएको छ। तसर्थ, यस प्रस्ताव कार्यान्वयनयोग्य रहेको निष्कर्ष निकालिएको छ।"
+  : "प्रारम्भिक चरणमा खर्च बढी देखिए पनि उचित व्यवस्थापन र बजार विस्तारसँगै भविष्यमा नाफामूलक हुने सम्भावना देखिन्छ।";
+
+/* ===== BUSINESS BY TOPIC ===== */
+const box = document.getElementById("businessTopics");
+if(project.businessDetail && project.businessDetail.length){
+  project.businessDetail.forEach((t,i)=>{
+    box.innerHTML += `
+      <section style="margin-bottom:20px">
+        <h3>${i+1}. ${t.topic}</h3>
+        <p>${(t.content||"").replace(/\\n/g,"<br>")}</p>
+      </section>`;
+  });
 }
 
-/* Nepali success */
-let suc = getTopic("परियोजना सफल हुने कारणहरू");
-if(suc){
-  ne-success.innerHTML = suc.content.split("\n")
-    .filter(l=>l.trim()).map(l=>`<li>${l}</li>`).join("");
-}
-
-/* Nepali conclusion */
-let con = getTopic("निष्कर्ष");
-if(con) ne-conclusion.innerText = con.content;
-
-/* Auto English (simple professional translation) */
-if(suc){
-  en-success.innerHTML = suc.content.split("\n")
-    .filter(l=>l.trim())
-    .map(l=>`<li>${l}</li>`)
-    .join("");
-}
-if(con){
-  en-conclusion.innerText =
-    "This pig farming business is expected to generate sustainable income, create employment opportunities, and contribute positively to the local economy. Therefore, this proposal is presented for investment and support.";
-}
-
-/* Default language */
-setLang("ne");
+/* ===== TOC WITH PAGE NO (PRINT-BASED) ===== */
+document.querySelectorAll("h2").forEach((h,i)=>{
+  const li = document.createElement("li");
+  li.innerText = h.innerText + " ........ " + (i+1);
+  tocList.appendChild(li);
+});
 </script>
 
 </body>
