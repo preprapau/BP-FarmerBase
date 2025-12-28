@@ -2,10 +2,11 @@
 <html lang="ne">
 <head>
 <meta charset="UTF-8">
-<title>Letterhead</title>
+<title>Letterhead – निवेदन</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
+*{box-sizing:border-box}
 body{
   font-family:"Noto Sans Devanagari",system-ui,Arial;
   background:#f4f7f6;
@@ -17,51 +18,46 @@ body{
   background:#fff;
   padding:40px 50px;
   min-height:100vh;
-}
-.header{
-  text-align:center;
-}
-.header h1{
-  margin:0;
-  font-size:24px;
-}
-.header p{
-  margin:4px 0;
-  font-size:14px;
-}
-.hr{
-  margin:12px 0 20px;
-  border-bottom:2px solid #000;
-}
-.meta{
-  display:flex;
-  justify-content:space-between;
-  font-size:14px;
-  margin-bottom:20px;
-}
-.body{
-  font-size:15px;
-  line-height:1.9;
-}
-.to{
-  margin-bottom:16px;
-}
-.signature{
-  margin-top:40px;
-  text-align:right;
-}
-.footer{
-  position:absolute;
-  bottom:30px;
-  left:0;
-  right:0;
-  text-align:center;
-  font-size:13px;
-  color:#444;
+  position:relative;
 }
 
+/* Header */
+.header{text-align:center}
+.header h1{margin:0;font-size:24px}
+.header p{margin:4px 0;font-size:14px}
+.hr{margin:12px 0 20px;border-bottom:2px solid #000}
+
+/* Meta */
+.meta{
+  display:flex;justify-content:space-between;gap:20px;
+  font-size:14px;margin-bottom:18px
+}
+.to{max-width:60%}
+
+/* Body */
+.body{font-size:15px;line-height:1.9}
+.body p{margin:8px 0}
+
+/* Attachments */
+h4{margin:22px 0 8px}
+ol{line-height:1.8}
+
+/* Signature */
+.signature{margin-top:34px;text-align:right}
+.signature img{max-height:80px;display:none}
+
+/* Footer */
+.footer{
+  position:absolute;left:0;right:0;bottom:24px;
+  text-align:center;font-size:13px;color:#444
+}
+
+/* Print */
+.no-print{ }
 @media print{
   body{background:#fff}
+  a[href]:after{content:""}
+  .no-print{display:none!important}
 }
 </style>
 </head>
@@ -72,29 +68,28 @@ body{
 
   <!-- HEADER -->
   <div class="header">
-    <h1>संस्थाको नाम</h1>
-    <p>ठेगाना</p>
-    <p>दर्ता नं: XXXX | पान नं: XXXXX</p>
+    <h1 id="orgName">संस्थाको नाम</h1>
+    <p id="orgAddress">ठेगाना</p>
+    <p>दर्ता नं: <span id="regNo">XXXX</span> | पान नं: <span id="panNo">XXXXX</span></p>
   </div>
 
   <div class="hr"></div>
 
-  <!-- DATE & RECEIVER -->
+  <!-- META -->
   <div class="meta">
     <div class="to">
       <strong>श्री ..................................</strong><br>
-      Self Office / कार्यालयको नाम<br>
-      ठेगाना
+      <span id="receiverOffice">Self Office / कार्यालयको नाम</span><br>
+      <span id="receiverAddress">ठेगाना</span>
     </div>
     <div>
-      मिति: २०८१/०९/…
+      मिति: <span id="nepDate"></span>
     </div>
   </div>
 
   <!-- BODY -->
   <div class="body">
     <p><strong>विषय:</strong> व्यवसाय प्रस्ताव सम्बन्धमा ।</p>
-
     <p>महोदय,</p>
 
     <p>
@@ -108,13 +103,39 @@ body{
       तसर्थ, यस व्यवसाय प्रस्तावलाई स्वीकृति प्रदान गरी आवश्यक
       प्रक्रिया अगाडि बढाइदिनुहुन अनुरोध गर्दछु।
     </p>
+
+    <!-- PROPOSAL LINK -->
+    <p class="no-print">
+      📄 <a id="proposalLink" href="#" target="_blank">
+        पूर्ण व्यवसाय प्रस्ताव हेर्नुहोस्
+      </a>
+    </p>
+
+    <!-- ATTACHMENTS -->
+    <hr>
+    <h4>निवेदनका साथ संलग्न कागजपत्रहरू:</h4>
+    <ol id="attachmentList"></ol>
+
+    <div class="no-print" style="margin-top:10px">
+      <input type="text" id="attachInput"
+             placeholder="कागजपत्रको नाम लेख्नुहोस्"
+             style="width:70%;padding:6px">
+      <button onclick="addAttachment()">Add</button>
+    </div>
   </div>
 
   <!-- SIGNATURE -->
   <div class="signature">
+    <p>भवदीय,</p>
+
+    <img id="signImg"><br>
+
+    <input type="file" accept="image/*"
+           class="no-print"
+           onchange="loadSignature(event)">
+
     <p>
-      भवदीय,<br><br>
-      .........................<br>
+      .................................<br>
       निवेदक<br>
       पद:<br>
       संस्थाको नाम
@@ -123,9 +144,68 @@ body{
 
   <!-- FOOTER -->
   <div class="footer">
-    सम्पर्क नं: 98XXXXXXXX | ईमेल: example@email.com
+    सम्पर्क नं: <span id="contact">98XXXXXXXX</span> |
+    ईमेल: <span id="email">example@email.com</span>
   </div>
 
 </div>
+
+<script>
+/* ===== PROJECT LOAD ===== */
+let key = localStorage.getItem("activeProject");
+let project = key ? JSON.parse(localStorage.getItem(key)) : {};
+
+/* ===== AUTO PROPOSAL LINK ===== */
+document.getElementById("proposalLink").href =
+  location.href.replace("letterhead.html","proposal.html");
+
+/* ===== NEPALI DATE (Simple) ===== */
+function getNepaliDate(){
+  const d=new Date();
+  let y=d.getFullYear()+56, m=d.getMonth()+9, day=d.getDate();
+  if(m>12){m-=12;y+=1}
+  return `${y}/${String(m).padStart(2,"0")}/${String(day).padStart(2,"0")}`;
+}
+document.getElementById("nepDate").innerText = getNepaliDate();
+
+/* ===== SIGNATURE UPLOAD ===== */
+function loadSignature(e){
+  const file=e.target.files[0]; if(!file) return;
+  const r=new FileReader();
+  r.onload=()=>{ signImg.src=r.result; signImg.style.display="block";
+    localStorage.setItem("LETTER_SIGNATURE", r.result); };
+  r.readAsDataURL(file);
+}
+const savedSign=localStorage.getItem("LETTER_SIGNATURE");
+if(savedSign){ signImg.src=savedSign; signImg.style.display="block"; }
+
+/* ===== ATTACHMENTS ===== */
+if(!project.attachments) project.attachments=[];
+function renderAttachments(){
+  const list=document.getElementById("attachmentList");
+  list.innerHTML="";
+  project.attachments.forEach((a,i)=>{
+    const li=document.createElement("li");
+    li.innerHTML = `${a}
+      <span class="no-print" style="color:red;cursor:pointer;margin-left:8px"
+            onclick="removeAttachment(${i})">✖</span>`;
+    list.appendChild(li);
+  });
+}
+function addAttachment(){
+  const inp=document.getElementById("attachInput");
+  const val=inp.value.trim(); if(!val) return;
+  project.attachments.push(val);
+  localStorage.setItem(key, JSON.stringify(project));
+  inp.value=""; renderAttachments();
+}
+function removeAttachment(i){
+  project.attachments.splice(i,1);
+  localStorage.setItem(key, JSON.stringify(project));
+  renderAttachments();
+}
+renderAttachments();
+</script>
+
 </body>
 </html>
