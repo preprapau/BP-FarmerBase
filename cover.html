@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+<meta charset="UTF-8">
+<title>कभर पेज – व्यवसाय प्रस्ताव</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:"Noto Sans Devanagari",system-ui,Arial;
+  background:#f4f7f6;
+}
+.cover{
+  min-height:100vh;
+  background:#ffffff;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  text-align:center;
+  padding:40px 30px;
+}
+.biz-name{
+  font-size:38px;
+  font-weight:700;
+  color:#2e7d32;
+  margin-bottom:6px;
+}
+.sub{
+  font-size:18px;
+  margin-bottom:28px;
+}
+.highlight{
+  max-width:700px;
+  font-size:20px;
+  line-height:1.7;
+  margin-bottom:22px;
+}
+.slogan{
+  font-size:22px;
+  font-style:italic;
+  color:#1b5e20;
+  margin-bottom:30px;
+}
+.qr-box{
+  margin:20px 0;
+}
+.qr-box small{
+  display:block;
+  margin-top:8px;
+  color:#555;
+}
+.footer{
+  position:absolute;
+  bottom:30px;
+  text-align:center;
+  font-size:14px;
+  color:#444;
+}
+
+.no-print{}
+@media print{
+  .no-print{display:none}
+  body{background:#fff}
+  @page{size:A4;margin:20mm}
+}
+</style>
+</head>
+
+<body>
+
+<div class="cover">
+
+  <!-- BUSINESS NAME -->
+  <div class="biz-name">बङ्गुर पालन व्यवसाय</div>
+  <div class="sub">व्यवसाय प्रस्ताव</div>
+
+  <!-- SELF HIGHLIGHT -->
+  <div class="highlight">
+    स्थानीय स्रोत साधनको उपयोग गर्दै<br>
+    आधुनिक प्रविधिमार्फत व्यवस्थित र दिगो<br>
+    <strong>नाफामूलक बङ्गुर पालन व्यवसाय</strong>
+  </div>
+
+  <!-- SLOGAN -->
+  <div class="slogan">
+    “सतत कृषि, आत्मनिर्भर आम्दानी”
+  </div>
+
+  <!-- QR -->
+  <div class="qr-box">
+    <div id="qr"></div>
+    <small>डिजिटल प्रस्ताव हेर्न स्क्यान गर्नुहोस्</small>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    © बङ्गुर पालन व्यवसाय<br>
+    कालिका गाउँपालिका–५, रसुवा
+  </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/qrious@4.0.2/dist/qrious.min.js"></script>
+<script>
+/* QR → Full Proposal */
+new QRious({
+  element: document.getElementById("qr"),
+  value: location.href.replace("cover.html","proposal.html"),
+  size: 140
+});
+</script>
+
+</body>
+</html>
