@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+<meta charset="UTF-8">
+<title>Final Proposal (Category-aware)</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+body{font-family:Noto Sans Devanagari,system-ui;background:#f4f7f6;margin:0;padding:20px}
+.page{max-width:1000px;margin:auto;background:#fff;padding:30px;border-radius:10px}
+h1,h2{color:#2e7d32}
+table{width:100%;border-collapse:collapse;margin-top:10px}
+th,td{border:1px solid #ccc;padding:6px;text-align:right}
+th{background:#e8f5e9}
+.left{text-align:left}
+.sum{font-weight:bold;background:#fafafa}
+</style>
+</head>
+<body>
+<div class="page">
+<h1 id="title"></h1>
+
+<h2>खर्च विवरण</h2>
+<table>
+<thead><tr><th class="left">शीर्षक</th><th>परिमाण</th><th>दर</th><th>रकम</th></tr></thead>
+<tbody id="expenseBody"></tbody>
+<tfoot>
+<tr class="sum"><td colspan="3" class="left">चालु खर्च</td><td id="cashExp">0</td></tr>
+<tr class="sum"><td colspan="3" class="left">ह्रासकट्टी</td><td id="depr">0</td></tr>
+<tr class="sum"><td colspan="3" class="left">बैंक ब्याज</td><td id="interest">0</td></tr>
+</tfoot>
+</table>
+
+<h2>आम्दानी विवरण</h2>
+<table>
+<thead><tr><th class="left">शीर्षक</th><th>रकम</th></tr></thead>
+<tbody id="incomeBody"></tbody>
+<tfoot>
+<tr class="sum"><td class="left">कुल आम्दानी</td><td id="totalIncome">0</td></tr>
+</tfoot>
+</table>
+
+<h2>नाफा / नोक्सान</h2>
+<p id="profit"></p>
+</div>
+
+<script>
+let key=localStorage.getItem("activeProject");
+let project=JSON.parse(localStorage.getItem(key));
+
+title.innerText = project.name || "Proposal";
+
+let cash=0, depr=0;
+(project.expenseData||[]).forEach(e=>{
+ expenseBody.innerHTML+=`<tr><td class="left">${e.title}</td><td>${e.qty}</td><td>${e.rate}</td><td>${e.amount}</td></tr>`;
+ if(e.category==="मेशीन औजार / प्रविधि"||e.category==="पूर्वाधार निर्माण"){
+   depr+=e.amount*0.15;
+ }else{
+   cash+=e.amount;
+ }
+});
+cashExp.innerText=Math.round(cash);
+depr.innerText=Math.round(depr);
+
+let interestVal = Number(localStorage.getItem("ANNUAL_LOAN_INTEREST")||0);
+interest.innerText=Math.round(interestVal);
+
+let ti=0;
+(project.incomeData||[]).forEach(i=>{
+ incomeBody.innerHTML+=`<tr><td class="left">${i.title}</td><td>${i.amount}</td></tr>`;
+ ti+=Number(i.amount);
+});
+totalIncome.innerText=Math.round(ti);
+
+let profitVal = ti - (cash + depr + interestVal);
+profit.innerText = profitVal>=0 ? "नाफा : "+profitVal : "नोक्सान : "+profitVal;
+</script>
+</body>
+</html>
