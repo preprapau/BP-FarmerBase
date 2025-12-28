@@ -2,7 +2,7 @@
 <html lang="ne">
 <head>
 <meta charset="UTF-8">
-<title>उत्पादन तथा बिक्री योजना (Save)</title>
+<title>उत्पादन तथा बिक्री योजना (Year-wise Save)</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
@@ -12,7 +12,7 @@ body{
   margin:0;
 }
 .container{
-  max-width:950px;
+  max-width:980px;
   margin:25px auto;
   background:#fff;
   padding:30px;
@@ -24,7 +24,7 @@ h1{text-align:center;margin-top:0}
 table{
   width:100%;
   border-collapse:collapse;
-  margin-top:10px;
+  margin-top:12px;
 }
 th,td{
   border:1px solid #ccc;
@@ -36,13 +36,6 @@ th{background:#f0f0f0}
 input{
   width:100%;
   padding:4px;
-  box-sizing:border-box;
-}
-
-.note{
-  font-size:13px;
-  color:#555;
-  margin-top:10px;
 }
 
 button{
@@ -70,18 +63,27 @@ button{
 
 <h1>उत्पादन तथा बिक्री योजना</h1>
 
-Reminder: यो पेजमा Save गरेपछि मात्र Proposal मा देखिन्छ।
-
 <!-- ===== BASE INPUT ===== -->
 <h2>आधारभूत विवरण</h2>
 <table>
 <tr><th>प्रारम्भिक बयस्क संख्या</th><td><input id="startAdult" value="300"></td></tr>
-<tr><th>ब्याउने दर (%)</th><td><input id="birthRate" value="90"></td></tr>
-<tr><th>प्रति बयस्क वार्षिक बच्चा</th><td><input id="kidsPerAdult" value="20"></td></tr>
-<tr><th>भाले : पोथी अनुपात (%)</th><td><input id="sexRatio" value="50"></td></tr>
-<tr><th>मृत्युदर (%)</th><td><input id="deathRate" value="10"></td></tr>
-<tr><th>राखिने (%)</th><td><input id="keepRate" value="50"></td></tr>
-<tr><th>प्रतिस्थापन (%)</th><td><input id="replaceRate" value="10"></td></tr>
+<tr><th>प्रति बयस्क वार्षिक औसत बच्चा</th><td><input id="kidsPerAdult" value="20"></td></tr>
+<tr><th>भाले प्रतिशत (%)</th><td><input id="maleRatio" value="50"></td></tr>
+</table>
+
+<!-- ===== YEAR-WISE INPUT ===== -->
+<h2>वर्षगत मापदण्ड (Year-wise)</h2>
+<table>
+<thead>
+<tr>
+  <th>वर्ष</th>
+  <th>ब्याउने दर %</th>
+  <th>मृत्युदर %</th>
+  <th>बच्चा बिक्री %</th>
+  <th>प्रतिस्थापन %</th>
+</tr>
+</thead>
+<tbody id="yearInput"></tbody>
 </table>
 
 <!-- ===== RESULT ===== -->
@@ -91,21 +93,17 @@ Reminder: यो पेजमा Save गरेपछि मात्र Proposa
 <tr>
   <th>वर्ष</th>
   <th class="right">बयस्क</th>
-  <th class="right">बच्चा</th>
-  <th class="right">मरेका</th>
-  <th class="right">बिक्री</th>
-  <th class="right">राखिने</th>
-  <th class="right">प्रतिस्थापन बिक्री</th>
+  <th class="right">जन्मिएका बच्चा</th>
+  <th class="right">खेर गएको</th>
+  <th class="right">बिक्री (बच्चा)</th>
+  <th class="right">बयस्क बिक्री</th>
+  <th class="right">अर्को वर्षका बयस्क</th>
 </tr>
 </thead>
 <tbody id="resultBody"></tbody>
 </table>
 
 <button onclick="calculate()">💾 Save & Calculate</button>
-
-<div class="note">
-📌 नोट: मृत्युदर कटाएपछि मात्र बिक्री, राखिने तथा प्रतिस्थापन गणना गरिन्छ।
-</div>
 
 </div>
 
@@ -116,82 +114,89 @@ if(!key){
   alert("Project भेटिएन");
   location.href="index.html";
 }
-let project = JSON.parse(localStorage.getItem(key) || "{}");
+let project = JSON.parse(localStorage.getItem(key)||"{}");
 
-/* ===== CALCULATE & SAVE ===== */
+/* ===== INIT YEAR INPUT ===== */
+let yearInput = document.getElementById("yearInput");
+for(let y=1;y<=5;y++){
+  yearInput.innerHTML += `
+  <tr>
+    <td>${y}</td>
+    <td><input value="${90+y}"></td>
+    <td><input value="${10-(y-1)}"></td>
+    <td><input value="${60+y*2}"></td>
+    <td><input value="10"></td>
+  </tr>`;
+}
+
+/* ===== CALCULATE & SAVE (YEAR-WISE LOGIC) ===== */
 function calculate(){
 
-  let startAdult = +startAdultInput.value;
-  let birthRate = +birthRateInput.value/100;
-  let kidsPerAdult = +kidsPerAdultInput.value;
-  let sexRatio = +sexRatioInput.value/100;
-  let deathRate = +deathRateInput.value/100;
-  let keepRate = +keepRateInput.value/100;
-  let replaceRate = +replaceRateInput.value/100;
+  let adult = +startAdult.value;
+  let kidsPerAdult = +kidsPerAdult.value;
+  let maleRatio = +maleRatio.value/100;
 
-  let adult = startAdult;
+  let rows = yearInput.querySelectorAll("tr");
   let results = [];
-
   resultBody.innerHTML="";
 
-  for(let y=1;y<=5;y++){
+  rows.forEach((r,i)=>{
+    let cells = r.querySelectorAll("input");
+
+    let birthRate = cells[0].value/100;
+    let deathRate = cells[1].value/100;
+    let sellRate  = cells[2].value/100;
+    let replaceRate = cells[3].value/100;
 
     let breeders = adult * birthRate;
-    let kids = breeders * kidsPerAdult;
+    let born = breeders * kidsPerAdult;
 
-    let died = Math.round(kids * deathRate);
-    let survived = kids - died;
+    let died = born * deathRate;
+    let survived = born - died;
 
-    let sell = Math.round(survived * (1-keepRate));
-    let keep = survived - sell;
+    let childSold = survived * sellRate;
+    let adultSold = adult * replaceRate;
 
-    let replace = Math.round(adult * replaceRate);
+    let kept = survived - childSold;
+    let nextAdult = adult - adultSold + kept;
 
     results.push({
-      year:y,
-      adult:adult,
-      kids:kids,
-      death:died,
-      sell:sell,
-      keep:keep,
-      replace:replace
+      year:i+1,
+      adult:Math.round(adult),
+      born:Math.round(born),
+      death:Math.round(died),
+      childSold:Math.round(childSold),
+      adultSold:Math.round(adultSold),
+      nextAdult:Math.round(nextAdult)
     });
 
     resultBody.innerHTML += `
-      <tr>
-        <td>${y}</td>
-        <td class="right">${adult}</td>
-        <td class="right">${kids}</td>
-        <td class="right">${died}</td>
-        <td class="right">${sell}</td>
-        <td class="right">${keep}</td>
-        <td class="right">${replace}</td>
-      </tr>
-    `;
+    <tr>
+      <td>${i+1}</td>
+      <td class="right">${Math.round(adult)}</td>
+      <td class="right">${Math.round(born)}</td>
+      <td class="right">${Math.round(died)}</td>
+      <td class="right">${Math.round(childSold)}</td>
+      <td class="right">${Math.round(adultSold)}</td>
+      <td class="right">${Math.round(nextAdult)}</td>
+    </tr>`;
 
-    adult = keep; // next year adult
-  }
+    adult = nextAdult;
+  });
 
   /* ===== SAVE ===== */
   project.productionSales = {
     base:{
-      startAdult,birthRate,kidsPerAdult,sexRatio,deathRate,keepRate,replaceRate
+      startAdult,
+      kidsPerAdult,
+      maleRatio
     },
-    result:results
+    yearWise: results
   };
 
   project.lastEdited = new Date().toLocaleString("ne-NP");
   localStorage.setItem(key, JSON.stringify(project));
 }
-
-/* ===== INPUT SHORTCUT ===== */
-const startAdultInput = document.getElementById("startAdult");
-const birthRateInput = document.getElementById("birthRate");
-const kidsPerAdultInput = document.getElementById("kidsPerAdult");
-const sexRatioInput = document.getElementById("sexRatio");
-const deathRateInput = document.getElementById("deathRate");
-const keepRateInput = document.getElementById("keepRate");
-const replaceRateInput = document.getElementById("replaceRate");
 
 /* Auto calculate on load */
 window.onload = calculate;
