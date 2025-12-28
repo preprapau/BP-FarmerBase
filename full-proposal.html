@@ -119,6 +119,34 @@ document.querySelectorAll("h2").forEach((h,i)=>{
   li.innerText = h.innerText + " ........ " + (i+1);
   tocList.appendChild(li);
 });
+  /* ===== BUSINESS DETAIL FROM ENTRY ===== */
+
+const box = document.getElementById("businessTopics");
+
+/*
+ Entry page मा Business कुन नामले save छ
+ त्यही auto-detect गर्ने
+*/
+const biz =
+  project.businessDetail ||
+  project.business ||
+  project.details ||
+  project.topics ||
+  [];
+
+if(Array.isArray(biz) && biz.length){
+  biz.forEach((t,i)=>{
+    box.innerHTML += `
+      <div style="margin-top:20px">
+        <h3>${i+1}. ${t.topic || t.title || "विषय"}</h3>
+        <p>${(t.content || t.text || "").replace(/\\n/g,"<br>")}</p>
+      </div>
+    `;
+  });
+} else {
+  box.innerHTML =
+    "<p style='color:#777;font-style:italic'>व्यवसाय विवरण Entry बाट आएको छैन ।</p>";
+}
 </script>
 
 </body>
