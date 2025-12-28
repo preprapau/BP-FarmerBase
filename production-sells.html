@@ -2,211 +2,199 @@
 <html lang="ne">
 <head>
 <meta charset="UTF-8">
-<title>उत्पादन तथा बिक्री योजना – पशु व्यवसाय</title>
+<title>उत्पादन तथा बिक्री योजना (Save)</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
 body{
-  font-family:"Noto Sans Devanagari","Kalimati","Mangal",system-ui,Arial;
-  background:#f4f6f8;
+  font-family:"Noto Sans Devanagari","Kalimati",system-ui;
+  background:#f4f7f6;
   margin:0;
 }
-.wrap{
-  max-width:980px;
-  margin:20px auto;
+.container{
+  max-width:950px;
+  margin:25px auto;
   background:#fff;
-  padding:20px;
-  border-radius:10px;
+  padding:30px;
+  border-radius:8px;
 }
-h1,h3{color:#2e7d32;margin-top:0}
+h1,h2{color:#2e7d32}
+h1{text-align:center;margin-top:0}
 
 table{
   width:100%;
   border-collapse:collapse;
-  margin-top:12px;
+  margin-top:10px;
 }
 th,td{
   border:1px solid #ccc;
   padding:6px;
-  text-align:right;
 }
-th{
-  background:#f0f0f0;
-  text-align:center;
-}
-.left{text-align:left}
-input,select{
+th{background:#f0f0f0}
+.right{text-align:right}
+
+input{
   width:100%;
-  padding:5px;
+  padding:4px;
+  box-sizing:border-box;
 }
+
+.note{
+  font-size:13px;
+  color:#555;
+  margin-top:10px;
+}
+
 button{
-  padding:8px 16px;
+  padding:8px 18px;
   border:none;
   border-radius:6px;
   cursor:pointer;
   background:#2e7d32;
   color:#fff;
+  margin-top:15px;
 }
-.small{font-size:13px;color:#555}
 
-/* ===== PRINT FIX (ONE PAGE) ===== */
 @media print{
+  input,button{display:none}
   body{background:#fff}
-  button,input,select{display:none !important}
-
-  table{
-    page-break-inside: avoid;
-    font-size:12px;
-  }
-  thead{display:table-header-group}
+  table{page-break-inside:avoid}
   tr{page-break-inside:avoid}
-
-}
-@page{
-  margin:15mm;
 }
 </style>
 </head>
 
 <body>
 
-<div class="wrap">
+<div class="container">
+
 <h1>उत्पादन तथा बिक्री योजना</h1>
 
-<h3>आधारभूत विवरण</h3>
+Reminder: यो पेजमा Save गरेपछि मात्र Proposal मा देखिन्छ।
+
+<!-- ===== BASE INPUT ===== -->
+<h2>आधारभूत विवरण</h2>
 <table>
-<tr>
-  <td class="left">जनावरको प्रकार</td>
-  <td colspan="2">
-    <select id="animal">
-      <option value="pig">बङ्गुर</option>
-      <option value="goat">बाख्रा</option>
-    </select>
-  </td>
-</tr>
-<tr>
-  <td class="left">प्रारम्भिक बयस्क जनावर संख्या</td>
-  <td colspan="2"><input id="initialAdults" type="number" value="300"></td>
-</tr>
-<tr>
-  <td class="left">प्रति बयस्क वार्षिक औसत बच्चा संख्या</td>
-  <td colspan="2"><input id="avgOffspring" type="number" value="20"></td>
-</tr>
-<tr>
-  <td class="left">भाले प्रतिशत (%)</td>
-  <td colspan="2"><input id="maleRatio" type="number" value="50"></td>
-</tr>
+<tr><th>प्रारम्भिक बयस्क संख्या</th><td><input id="startAdult" value="300"></td></tr>
+<tr><th>ब्याउने दर (%)</th><td><input id="birthRate" value="90"></td></tr>
+<tr><th>प्रति बयस्क वार्षिक बच्चा</th><td><input id="kidsPerAdult" value="20"></td></tr>
+<tr><th>भाले : पोथी अनुपात (%)</th><td><input id="sexRatio" value="50"></td></tr>
+<tr><th>मृत्युदर (%)</th><td><input id="deathRate" value="10"></td></tr>
+<tr><th>राखिने (%)</th><td><input id="keepRate" value="50"></td></tr>
+<tr><th>प्रतिस्थापन (%)</th><td><input id="replaceRate" value="10"></td></tr>
 </table>
 
-<p class="small">नोट: पोथी प्रतिशत = १०० − भाले प्रतिशत</p>
-
-<h3>वर्षगत मापदण्ड</h3>
+<!-- ===== RESULT ===== -->
+<h2>५ वर्षे परिणाम (स्वतः गणना)</h2>
 <table>
 <thead>
 <tr>
   <th>वर्ष</th>
-  <th>ब्याउने दर (%)</th>
-  <th>बच्चाबच्ची मृत्युदर (%)</th>
-  <th>भाले बिक्री (%)</th>
-  <th>पोथी बिक्री (%)</th>
-  <th>प्रतिस्थापन (%)</th>
+  <th class="right">बयस्क</th>
+  <th class="right">बच्चा</th>
+  <th class="right">मरेका</th>
+  <th class="right">बिक्री</th>
+  <th class="right">राखिने</th>
+  <th class="right">प्रतिस्थापन बिक्री</th>
 </tr>
 </thead>
-<tbody id="yearInputs"></tbody>
+<tbody id="resultBody"></tbody>
 </table>
 
-<br>
-<button onclick="calculate()">योजना गणना गर्नुहोस्</button>
+<button onclick="calculate()">💾 Save & Calculate</button>
 
-<h3>परिणाम (स्वतः गणना)</h3>
-<table>
-<thead>
-<tr>
-  <th>वर्ष</th>
-  <th>बयस्क संख्या</th>
-  <th>जन्मिएका बच्चा</th>
-  <th>खेर गएको</th>
-  <th>बाँचेकाहरू</th>
-  <th>बिक्री (बच्चा)</th>
-  <th>बयस्क बिक्री</th>
-  <th>कुल बिक्री</th>
-  <th>अर्को वर्षका बयस्क</th>
-</tr>
-</thead>
-<tbody id="result"></tbody>
-</table>
+<div class="note">
+📌 नोट: मृत्युदर कटाएपछि मात्र बिक्री, राखिने तथा प्रतिस्थापन गणना गरिन्छ।
+</div>
 
 </div>
 
 <script>
-/* ===== YEAR INPUT INIT ===== */
-let years = 5;
-let tbody = document.getElementById("yearInputs");
-
-for(let y=1;y<=years;y++){
-  tbody.innerHTML += `
-  <tr>
-    <td>${y}</td>
-    <td><input type="number" value="${90+y}"></td>
-    <td><input type="number" value="${11-y}"></td>
-    <td><input type="number" value="${70+y*2}"></td>
-    <td><input type="number" value="${50+y*2}"></td>
-    <td><input type="number" value="10"></td>
-  </tr>`;
+/* ===== LOAD PROJECT ===== */
+let key = localStorage.getItem("activeProject");
+if(!key){
+  alert("Project भेटिएन");
+  location.href="index.html";
 }
+let project = JSON.parse(localStorage.getItem(key) || "{}");
 
-/* ===== FINAL CALCULATION LOGIC ===== */
+/* ===== CALCULATE & SAVE ===== */
 function calculate(){
 
-  let adults = +initialAdults.value;
-  let avgOff = +avgOffspring.value;
-  let maleR  = +maleRatio.value;
+  let startAdult = +startAdultInput.value;
+  let birthRate = +birthRateInput.value/100;
+  let kidsPerAdult = +kidsPerAdultInput.value;
+  let sexRatio = +sexRatioInput.value/100;
+  let deathRate = +deathRateInput.value/100;
+  let keepRate = +keepRateInput.value/100;
+  let replaceRate = +replaceRateInput.value/100;
 
-  let rows = tbody.querySelectorAll("tr");
-  let out  = document.getElementById("result");
-  out.innerHTML = "";
+  let adult = startAdult;
+  let results = [];
 
-  rows.forEach((r,i)=>{
-    let cells = r.querySelectorAll("input");
+  resultBody.innerHTML="";
 
-    let breedingAdults = adults * (cells[0].value/100);
-    let born = breedingAdults * avgOff;
+  for(let y=1;y<=5;y++){
 
-    let survived = born * (1 - cells[1].value/100);
-    let mortality = born - survived;
+    let breeders = adult * birthRate;
+    let kids = breeders * kidsPerAdult;
 
-    let male   = survived * (maleR/100);
-    let female = survived * (100-maleR)/100;
+    let died = Math.round(kids * deathRate);
+    let survived = kids - died;
 
-    let childSold =
-      male*(cells[2].value/100) +
-      female*(cells[3].value/100);
+    let sell = Math.round(survived * (1-keepRate));
+    let keep = survived - sell;
 
-    let kept =
-      (male - male*(cells[2].value/100)) +
-      (female - female*(cells[3].value/100));
+    let replace = Math.round(adult * replaceRate);
 
-    let adultSold = adults * (cells[4].value/100);
-    let totalSold = childSold + adultSold;
+    results.push({
+      year:y,
+      adult:adult,
+      kids:kids,
+      death:died,
+      sell:sell,
+      keep:keep,
+      replace:replace
+    });
 
-    let nextAdults = adults - adultSold + kept;
+    resultBody.innerHTML += `
+      <tr>
+        <td>${y}</td>
+        <td class="right">${adult}</td>
+        <td class="right">${kids}</td>
+        <td class="right">${died}</td>
+        <td class="right">${sell}</td>
+        <td class="right">${keep}</td>
+        <td class="right">${replace}</td>
+      </tr>
+    `;
 
-    out.innerHTML += `
-    <tr>
-      <td>${i+1}</td>
-      <td>${Math.round(adults)}</td>
-      <td>${Math.round(born)}</td>
-      <td>${Math.round(mortality)}</td>
-      <td>${Math.round(survived)}</td>
-      <td>${Math.round(childSold)}</td>
-      <td>${Math.round(adultSold)}</td>
-      <td>${Math.round(totalSold)}</td>
-      <td>${Math.round(nextAdults)}</td>
-    </tr>`;
+    adult = keep; // next year adult
+  }
 
-    adults = nextAdults;
-  });
+  /* ===== SAVE ===== */
+  project.productionSales = {
+    base:{
+      startAdult,birthRate,kidsPerAdult,sexRatio,deathRate,keepRate,replaceRate
+    },
+    result:results
+  };
+
+  project.lastEdited = new Date().toLocaleString("ne-NP");
+  localStorage.setItem(key, JSON.stringify(project));
 }
+
+/* ===== INPUT SHORTCUT ===== */
+const startAdultInput = document.getElementById("startAdult");
+const birthRateInput = document.getElementById("birthRate");
+const kidsPerAdultInput = document.getElementById("kidsPerAdult");
+const sexRatioInput = document.getElementById("sexRatio");
+const deathRateInput = document.getElementById("deathRate");
+const keepRateInput = document.getElementById("keepRate");
+const replaceRateInput = document.getElementById("replaceRate");
+
+/* Auto calculate on load */
+window.onload = calculate;
 </script>
 
 </body>
