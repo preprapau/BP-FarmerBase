@@ -13,20 +13,21 @@ body{
 }
 .wrap{
   max-width:980px;
-  margin:30px auto;
+  margin:20px auto;
   background:#fff;
-  padding:25px;
+  padding:20px;
   border-radius:10px;
 }
 h1,h3{color:#2e7d32;margin-top:0}
+
 table{
   width:100%;
   border-collapse:collapse;
-  margin-top:15px;
+  margin-top:12px;
 }
 th,td{
   border:1px solid #ccc;
-  padding:8px;
+  padding:6px;
   text-align:right;
 }
 th{
@@ -36,7 +37,7 @@ th{
 .left{text-align:left}
 input,select{
   width:100%;
-  padding:6px;
+  padding:5px;
 }
 button{
   padding:8px 16px;
@@ -47,6 +48,23 @@ button{
   color:#fff;
 }
 .small{font-size:13px;color:#555}
+
+/* ===== PRINT FIX (ONE PAGE) ===== */
+@media print{
+  body{background:#fff}
+  button,input,select{display:none !important}
+
+  table{
+    page-break-inside: avoid;
+    font-size:12px;
+  }
+  thead{display:table-header-group}
+  tr{page-break-inside:avoid}
+
+}
+@page{
+  margin:15mm;
+}
 </style>
 </head>
 
@@ -68,29 +86,21 @@ button{
 </tr>
 <tr>
   <td class="left">प्रारम्भिक बयस्क जनावर संख्या</td>
-  <td colspan="2">
-    <input id="initialAdults" type="number" value="300">
-  </td>
+  <td colspan="2"><input id="initialAdults" type="number" value="300"></td>
 </tr>
 <tr>
   <td class="left">प्रति बयस्क वार्षिक औसत बच्चा संख्या</td>
-  <td colspan="2">
-    <input id="avgOffspring" type="number" value="20">
-  </td>
+  <td colspan="2"><input id="avgOffspring" type="number" value="20"></td>
 </tr>
 <tr>
   <td class="left">भाले प्रतिशत (%)</td>
-  <td colspan="2">
-    <input id="maleRatio" type="number" value="50">
-  </td>
+  <td colspan="2"><input id="maleRatio" type="number" value="50"></td>
 </tr>
 </table>
 
-<p class="small">
-नोट: पोथी प्रतिशत = १०० − भाले प्रतिशत
-</p>
+<p class="small">नोट: पोथी प्रतिशत = १०० − भाले प्रतिशत</p>
 
-<h3>वर्षगत मापदण्ड (प्रत्येक वर्ष फरक हुन सक्छ)</h3>
+<h3>वर्षगत मापदण्ड</h3>
 <table>
 <thead>
 <tr>
@@ -115,10 +125,10 @@ button{
   <th>वर्ष</th>
   <th>बयस्क संख्या</th>
   <th>जन्मिएका बच्चा</th>
-  <th>खेर गएको (मृत्युदर)</th>
+  <th>खेर गएको</th>
   <th>बाँचेकाहरू</th>
   <th>बिक्री (बच्चा)</th>
-  <th>बयस्क बिक्री (प्रतिस्थापन)</th>
+  <th>बयस्क बिक्री</th>
   <th>कुल बिक्री</th>
   <th>अर्को वर्षका बयस्क</th>
 </tr>
@@ -133,7 +143,7 @@ button{
 let years = 5;
 let tbody = document.getElementById("yearInputs");
 
-for(let y=1; y<=years; y++){
+for(let y=1;y<=years;y++){
   tbody.innerHTML += `
   <tr>
     <td>${y}</td>
@@ -145,7 +155,7 @@ for(let y=1; y<=years; y++){
   </tr>`;
 }
 
-/* ===== CALCULATION LOGIC (FINAL LOCK) ===== */
+/* ===== FINAL CALCULATION LOGIC ===== */
 function calculate(){
 
   let adults = +initialAdults.value;
@@ -157,38 +167,28 @@ function calculate(){
   out.innerHTML = "";
 
   rows.forEach((r,i)=>{
-
     let cells = r.querySelectorAll("input");
 
-    // 1. Breeding & Birth
-    let breedingAdults = adults * (cells[0].value / 100);
+    let breedingAdults = adults * (cells[0].value/100);
     let born = breedingAdults * avgOff;
 
-    // 2. Mortality
-    let survived = born * (1 - cells[1].value / 100);
+    let survived = born * (1 - cells[1].value/100);
     let mortality = born - survived;
 
-    // 3. Sex ratio (after mortality)
-    let male   = survived * (maleR / 100);
-    let female = survived * (100 - maleR) / 100;
+    let male   = survived * (maleR/100);
+    let female = survived * (100-maleR)/100;
 
-    // 4. Child sales
     let childSold =
-      male   * (cells[2].value / 100) +
-      female * (cells[3].value / 100);
+      male*(cells[2].value/100) +
+      female*(cells[3].value/100);
 
-    // 5. Kept (auto)
     let kept =
-      (male - male * (cells[2].value / 100)) +
-      (female - female * (cells[3].value / 100));
+      (male - male*(cells[2].value/100)) +
+      (female - female*(cells[3].value/100));
 
-    // 6. Adult sale (replacement)
-    let adultSold = adults * (cells[4].value / 100);
-
-    // 7. Total sale
+    let adultSold = adults * (cells[4].value/100);
     let totalSold = childSold + adultSold;
 
-    // 8. Next year adults
     let nextAdults = adults - adultSold + kept;
 
     out.innerHTML += `
