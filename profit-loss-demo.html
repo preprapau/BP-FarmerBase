@@ -1,203 +1,69 @@
-<!DOCTYPE html>
-<html lang="ne">
-<head>
-<meta charset="UTF-8">
-<title>Profit / Loss – FarmerBase BPMS</title>
-
-<style>
-body{font-family:system-ui;background:#f4f7f6;margin:0}
-.wrap{max-width:1100px;margin:auto;padding:20px}
-
-/* MENU */
-.nav{
-  display:flex;gap:8px;flex-wrap:wrap;
-  background:#e9f5ea;padding:12px;border-radius:12px
-}
-.nav a{
-  padding:8px 14px;border-radius:20px;
-  text-decoration:none;color:#000;background:#dff0e1
-}
-.nav a.active{background:#2e7d32;color:#fff}
-
-/* PROGRESS */
-.progress-box{
-  background:#e9f5ea;border-radius:12px;padding:14px;margin:18px 0
-}
-.progress-bar{
-  height:10px;background:#ddd;border-radius:10px;overflow:hidden
-}
-.progress-bar span{
-  display:block;height:100%;width:71%;
-  background:#2e7d32
-}
-
-/* CARD */
-.card{background:#fff;border-radius:14px;padding:20px;margin-top:20px}
-table{width:100%;border-collapse:collapse}
-td,th{padding:10px;border-bottom:1px solid #ddd}
-th{text-align:left;background:#f1f5f1}
-
-input[type=number], input[type=text]{padding:6px;width:90px}
-
-/* COLORS */
-.total{font-weight:bold}
-.green{color:#2e7d32}
-.red{color:#c62828}
-
-button{
-  padding:6px 12px;
-  border:none;
-  border-radius:6px;
-  cursor:pointer;
-  background:#2e7d32;
-  color:#fff;
-}
-button.del{background:#c62828}
-.note{font-size:13px;color:#555;margin-top:8px}
-</style>
-</head>
-
-<body>
-<div class="wrap">
-
-<!-- MENU -->
-<div class="nav">
-  <a href="short-info.html">Short Info</a>
-  <a href="business-detail.html">Detail</a>
-  <a href="expense-demo.html">Expense</a>
-  <a href="income-demo.html">Income</a>
-  <a class="active">Profit / Loss</a>
-  <a href="five-year-roi.html">5-Year ROI</a>
-  <a href="full-proposal.html">Proposal</a>
-</div>
-
-<!-- PROGRESS -->
-<div class="progress-box">
-  <b>चरण ५ / ७ (७१%)</b>
-  <div class="progress-bar"><span></span></div>
-</div>
-
-<!-- PROFIT LOSS -->
-<div class="card">
-<h2>📊 नाफा / नोक्सान (वार्षिक)</h2>
-
-<table>
-<tr><th>शीर्षक</th><th>रकम (रु.)</th></tr>
-<tr><td>कुल आम्दानी</td><td id="inc">0</td></tr>
-<tr><td>चालु खर्च</td><td id="cash">0</td></tr>
-<tr><td>ह्रासकट्टी (15%)</td><td id="depr">0</td></tr>
-<tr><td>बैंक ब्याज</td><td id="interest">0</td></tr>
-<tr class="total">
-  <td>नाफा / नोक्सान</td>
-  <td id="profit">0</td>
-</tr>
-</table>
-</div>
-
-<!-- DIVIDEND -->
-<div class="card">
-<h3>💰 लाभांश वितरण</h3>
-
-<table>
-<thead>
-<tr>
-  <th>विधा</th>
-  <th>%</th>
-  <th>रकम</th>
-  <th></th>
-</tr>
-</thead>
-<tbody id="divBody"></tbody>
-<tfoot>
-<tr class="total">
-  <td>कुल</td>
-  <td id="divTotal">0%</td>
-  <td></td>
-  <td></td>
-</tr>
-</tfoot>
-</table>
-
-<button onclick="addDividend()">➕ थप्नुहोस्</button>
-
-<p class="note">
-📌 कुल % = 100 हुनुपर्छ। नोक्सान भए लाभांश वितरण हुँदैन।
-</p>
-</div>
-
-</div>
-
 <script>
 /* ===== LOAD PROJECT ===== */
 let key = localStorage.getItem("activeProject");
 let p = JSON.parse(localStorage.getItem(key)||"{}");
 
-/* ===== PROFIT / LOSS ===== */
+/* ===== CALCULATE INCOME ===== */
 let income = 0;
-(p.incomeData||[]).forEach(i=>income+=Number(i.amount||0));
+(p.incomeData||[]).forEach(i=>{
+  income += Number(i.amount||0);
+});
 
-let cash=0, depr=0;
+/* ===== CALCULATE EXPENSE (KEYWORD BASED) ===== */
+let cash = 0;
+let depr = 0;
+let interest = 0;
+
 (p.expenseData||[]).forEach(e=>{
-  if(e.category==="मेशीन औजार / प्रविधि" || e.category==="पूर्वाधार निर्माण"){
-    depr += Number(e.amount||0) * 0.15;
-  }else{
-    cash += Number(e.amount||0);
+  let amt = Number(e.amount||0);
+  let cat = (e.category || "").toLowerCase();
+  let title = (e.title || "").toLowerCase();
+  let source = (e.source || "").toLowerCase(); // लगानीको स्रोत
+
+  /* --- BANK INTEREST --- */
+  if(
+    cat.includes("ब्याज") ||
+    title.includes("ब्याज") ||
+    source.includes("ब्याज") ||
+    title.includes("interest") ||
+    title.includes("loan") ||
+    source.includes("bank") ||
+    source.includes("loan")
+  ){
+    interest += amt;
+  }
+
+  /* --- DEPRECIATION (15%) --- */
+  else if(
+    cat.includes("मेसिन") ||
+    cat.includes("मेशीन") ||
+    cat.includes("machine") ||
+    cat.includes("प्रविधि") ||
+    cat.includes("पूर्वाधार") ||
+    cat.includes("भवन") ||
+    cat.includes("केज") ||
+    cat.includes("shed")
+  ){
+    depr += amt * 0.15;
+  }
+
+  /* --- CASH EXPENSE --- */
+  else{
+    cash += amt;
   }
 });
 
-let interest = Number(p.loanInterest||0);
+/* ===== PROFIT ===== */
 let profit = income - cash - depr - interest;
 
+/* ===== DISPLAY ===== */
 inc.innerText = income;
-cash.innerText = cash;
+cash.innerText = Math.round(cash);
 depr.innerText = Math.round(depr);
-interest.innerText = interest;
+interestEl = document.getElementById("interest");
+interestEl.innerText = Math.round(interest);
 
 let profitEl = document.getElementById("profit");
 profitEl.innerText = Math.round(profit);
 profitEl.className = profit>=0 ? "green" : "red";
-
-/* ===== DIVIDEND SYSTEM ===== */
-let dividends = [
-  {title:"स्वामी / साझेदार", pct:60},
-  {title:"पुनः लगानी", pct:40}
-];
-
-function renderDividend(){
-  divBody.innerHTML="";
-  let totalPct = 0;
-
-  dividends.forEach((d,i)=>{
-    totalPct += d.pct;
-    let amt = profit>0 ? Math.round(profit*d.pct/100) : "—";
-
-    divBody.innerHTML += `
-    <tr>
-      <td><input type="text" value="${d.title}"
-          onchange="dividends[${i}].title=this.value"></td>
-      <td><input type="number" value="${d.pct}"
-          onchange="dividends[${i}].pct=Number(this.value);renderDividend()"></td>
-      <td>${amt}</td>
-      <td><button class="del" onclick="removeDividend(${i})">✖</button></td>
-    </tr>`;
-  });
-
-  divTotal.innerText = totalPct + "%";
-  divTotal.style.color = (totalPct===100) ? "#2e7d32" : "#c62828";
-}
-
-function addDividend(){
-  dividends.push({title:"नयाँ विधा", pct:0});
-  renderDividend();
-}
-
-function removeDividend(i){
-  dividends.splice(i,1);
-  renderDividend();
-}
-
-renderDividend();
 </script>
-
-</body>
-</html>
