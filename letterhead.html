@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+<meta charset="UTF-8">
+<title>Letterhead</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+body{
+  font-family:"Noto Sans Devanagari",system-ui,Arial;
+  background:#f4f7f6;
+  margin:0;
+}
+.page{
+  max-width:900px;
+  margin:0 auto;
+  background:#fff;
+  padding:40px 50px;
+  min-height:100vh;
+}
+.header{
+  text-align:center;
+}
+.header h1{
+  margin:0;
+  font-size:24px;
+}
+.header p{
+  margin:4px 0;
+  font-size:14px;
+}
+.hr{
+  margin:12px 0 20px;
+  border-bottom:2px solid #000;
+}
+.meta{
+  display:flex;
+  justify-content:space-between;
+  font-size:14px;
+  margin-bottom:20px;
+}
+.body{
+  font-size:15px;
+  line-height:1.9;
+}
+.to{
+  margin-bottom:16px;
+}
+.signature{
+  margin-top:40px;
+  text-align:right;
+}
+.footer{
+  position:absolute;
+  bottom:30px;
+  left:0;
+  right:0;
+  text-align:center;
+  font-size:13px;
+  color:#444;
+}
+
+@media print{
+  body{background:#fff}
+}
+</style>
+</head>
+
+<body>
+
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="header">
+    <h1>संस्थाको नाम</h1>
+    <p>ठेगाना</p>
+    <p>दर्ता नं: XXXX | पान नं: XXXXX</p>
+  </div>
+
+  <div class="hr"></div>
+
+  <!-- DATE & RECEIVER -->
+  <div class="meta">
+    <div class="to">
+      <strong>श्री ..................................</strong><br>
+      Self Office / कार्यालयको नाम<br>
+      ठेगाना
+    </div>
+    <div>
+      मिति: २०८१/०९/…
+    </div>
+  </div>
+
+  <!-- BODY -->
+  <div class="body">
+    <p><strong>विषय:</strong> व्यवसाय प्रस्ताव सम्बन्धमा ।</p>
+
+    <p>महोदय,</p>
+
+    <p>
+      यस संस्थामार्फत प्रस्तुत गरिएको बङ्गुर पालन व्यवसाय सम्बन्धी
+      प्रस्तावलाई अध्ययन गरी आवश्यक सहयोग / सहजीकरण गरिदिनुहुन
+      विनम्र अनुरोध गर्दछु। यस प्रस्तावमा परियोजनाको उद्देश्य,
+      आर्थिक अवस्था, सम्भाव्यता तथा कार्ययोजना समावेश गरिएको छ।
+    </p>
+
+    <p>
+      तसर्थ, यस व्यवसाय प्रस्तावलाई स्वीकृति प्रदान गरी आवश्यक
+      प्रक्रिया अगाडि बढाइदिनुहुन अनुरोध गर्दछु।
+    </p>
+  </div>
+
+  <!-- SIGNATURE -->
+  <div class="signature">
+    <p>
+      भवदीय,<br><br>
+      .........................<br>
+      निवेदक<br>
+      पद:<br>
+      संस्थाको नाम
+    </p>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    सम्पर्क नं: 98XXXXXXXX | ईमेल: example@email.com
+  </div>
+
+</div>
+
+</body>
+</html>
