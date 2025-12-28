@@ -84,18 +84,31 @@ summaryConclusion.innerText =
   ? "खर्च र आम्दानीको विश्लेषण अनुसार यस व्यवसायले दीर्घकालीन रूपमा नाफामूलक हुने स्पष्ट आधार देखाएको छ। तसर्थ, यस प्रस्ताव कार्यान्वयनयोग्य रहेको निष्कर्ष निकालिएको छ।"
   : "प्रारम्भिक चरणमा खर्च बढी देखिए पनि उचित व्यवस्थापन र बजार विस्तारसँगै भविष्यमा नाफामूलक हुने सम्भावना देखिन्छ।";
 
-/* ===== BUSINESS BY TOPIC ===== */
+/* ===== BUSINESS BY TOPIC (AUTO-DETECT ENTRY KEY) ===== */
+
 const box = document.getElementById("businessTopics");
-if(project.businessDetail && project.businessDetail.length){
-  project.businessDetail.forEach((t,i)=>{
+
+// possible keys used by entry pages
+const biz =
+  project.businessDetail ||
+  project.business ||
+  project.details ||
+  project.topics ||
+  [];
+
+if(Array.isArray(biz) && biz.length){
+  biz.forEach((t,i)=>{
     box.innerHTML += `
       <section style="margin-bottom:20px">
-        <h3>${i+1}. ${t.topic}</h3>
-        <p>${(t.content||"").replace(/\\n/g,"<br>")}</p>
-      </section>`;
+        <h3>${i+1}. ${t.topic || t.title || "विषय"}</h3>
+        <p>${(t.content || t.text || "").replace(/\\n/g,"<br>")}</p>
+      </section>
+    `;
   });
+} else {
+  box.innerHTML =
+    "<p style='color:#777;font-style:italic'>व्यवसाय विवरण Entry बाट आएको छैन ।</p>";
 }
-
 /* ===== TOC WITH PAGE NO (PRINT-BASED) ===== */
 document.querySelectorAll("h2").forEach((h,i)=>{
   const li = document.createElement("li");
