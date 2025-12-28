@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Production & Sales Plan – Animal Business</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+body{
+  font-family:system-ui,Arial;
+  background:#f4f6f8;
+  margin:0;
+}
+.wrap{
+  max-width:900px;
+  margin:30px auto;
+  background:#fff;
+  padding:25px;
+  border-radius:10px;
+}
+h1{margin-top:0;color:#2e7d32}
+table{
+  width:100%;
+  border-collapse:collapse;
+  margin-top:15px;
+}
+th,td{
+  border:1px solid #ccc;
+  padding:8px;
+  text-align:right;
+}
+th{text-align:center;background:#f0f0f0}
+.left{text-align:left}
+input,select{
+  padding:6px;
+  width:100%;
+}
+.small{font-size:13px;color:#555}
+</style>
+</head>
+
+<body>
+
+<div class="wrap">
+<h1>Production & Sales Plan</h1>
+
+<h3>Base Inputs</h3>
+<table>
+<tr><td class="left">Animal Type</td>
+<td colspan="2">
+<select id="animal">
+  <option value="pig">Pig</option>
+  <option value="goat">Goat</option>
+</select>
+</td></tr>
+
+<tr><td class="left">Initial Adults</td>
+<td colspan="2"><input id="initialAdults" type="number" value="300"></td></tr>
+
+<tr><td class="left">Avg Offspring / Adult / Year</td>
+<td colspan="2"><input id="avgOffspring" type="number" value="20"></td></tr>
+
+<tr><td class="left">Male Ratio (%)</td>
+<td colspan="2"><input id="maleRatio" type="number" value="50"></td></tr>
+</table>
+
+<p class="small">Note: Female ratio = 100 − Male ratio</p>
+
+<h3>Year-wise Parameters</h3>
+<table>
+<thead>
+<tr>
+<th>Year</th>
+<th>Breeding %</th>
+<th>Mortality %</th>
+<th>Sell Male %</th>
+<th>Sell Female %</th>
+<th>Replacement %</th>
+</tr>
+</thead>
+<tbody id="yearInputs"></tbody>
+</table>
+
+<br>
+<button onclick="calculate()">Calculate Plan</button>
+
+<h3>Result (Auto Generated)</h3>
+<table>
+<thead>
+<tr>
+<th>Year</th>
+<th>Adults</th>
+<th>Births</th>
+<th>Survived</th>
+<th>Sold</th>
+<th>Next Adults</th>
+</tr>
+</thead>
+<tbody id="result"></tbody>
+</table>
+</div>
+
+<script>
+/* ===== INIT YEAR INPUTS ===== */
+let years = 5;
+let tbody = document.getElementById("yearInputs");
+
+for(let y=1;y<=years;y++){
+  tbody.innerHTML += `
+  <tr>
+    <td>${y}</td>
+    <td><input type="number" value="${90+y}"></td>
+    <td><input type="number" value="${11-y}"></td>
+    <td><input type="number" value="${70+y*2}"></td>
+    <td><input type="number" value="${50+y*2}"></td>
+    <td><input type="number" value="10"></td>
+  </tr>`;
+}
+
+/* ===== CALCULATION ===== */
+function calculate(){
+  let adults = +initialAdults.value;
+  let avgOff = +avgOffspring.value;
+  let maleR = +maleRatio.value;
+
+  let rows = tbody.querySelectorAll("tr");
+  let out = document.getElementById("result");
+  out.innerHTML = "";
+
+  rows.forEach((r,i)=>{
+    let cells = r.querySelectorAll("input");
+    let breeding = adults * (cells[0].value/100);
+    let born = breeding * avgOff;
+    let survived = born * (1 - cells[1].value/100);
+
+    let male = survived * (maleR/100);
+    let female = survived * (100-maleR)/100;
+
+    let sold =
+      male*(cells[2].value/100) +
+      female*(cells[3].value/100);
+
+    let kept =
+      (male - male*(cells[2].value/100)) +
+      (female - female*(cells[3].value/100));
+
+    let replaced = adults * (cells[4].value/100);
+    let nextAdults = adults - replaced + kept;
+
+    out.innerHTML += `
+    <tr>
+      <td>${i+1}</td>
+      <td>${Math.round(adults)}</td>
+      <td>${Math.round(born)}</td>
+      <td>${Math.round(survived)}</td>
+      <td>${Math.round(sold)}</td>
+      <td>${Math.round(nextAdults)}</td>
+    </tr>`;
+
+    adults = nextAdults;
+  });
+}
+</script>
+
+</body>
+</html>
