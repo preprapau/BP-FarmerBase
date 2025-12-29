@@ -65,21 +65,23 @@ th{background:#eef5ee}
   <li>नाफा / नोक्सान</li>
 </ol>
 </div>
-
-<!-- ================= SHORT INFO ================= -->
 <div class="section">
-<h2>१. संक्षिप्त परिचय</h2>
+<h2>संस्थागत परिचय</h2>
 <table>
-<tr><th>व्यवसाय नाम</th><td id="si_name"></td></tr>
-<tr><th>सञ्चालन स्थान</th><td id="si_location"></td></tr>
-<tr><th>संस्था</th><td id="si_org"></td></tr>
-<tr><th>प्रोप्राइटर</th><td id="si_owner"></td></tr>
-<tr><th>सम्पर्क व्यक्ति</th><td id="si_contact"></td></tr>
-<tr><th>सम्पर्क नम्बर</th><td id="si_phone"></td></tr>
-<tr><th>व्यवसायिक प्रकृति</th><td id="si_products"></td></tr>
-<tr><th>मुख्य बजार</th><td id="si_market"></td></tr>
-<tr><th>कुल पूँजी</th><td id="si_capital"></td></tr>
-<tr><th>संक्षिप्त विवरण</th><td id="si_summary"></td></tr>
+<tr><th>दर्ता मिति</th><td id="reg_date"></td></tr>
+<tr><th>दर्ता निकाय</th><td id="reg_authority"></td></tr>
+<tr><th>दर्ता नं</th><td id="reg_no"></td></tr>
+<tr><th>PAN नं</th><td id="pan_no"></td></tr>
+</table>
+</div>
+
+<div class="section">
+<h2>लाभान्वित समूह विवरण</h2>
+<table>
+<tr><th>समूह प्रकार</th><td id="benef_group_type"></td></tr>
+<tr><th>महिला संख्या</th><td id="female_count"></td></tr>
+<tr><th>पुरुष संख्या</th><td id="male_count"></td></tr>
+<tr><th>जम्मा संख्या</th><td id="total_count"></td></tr>
 </table>
 </div>
 
@@ -165,19 +167,18 @@ th{background:#eef5ee}
 let key = localStorage.getItem("activeProject");
 let p = key ? JSON.parse(localStorage.getItem(key)) : {};
 
-/* ===== SHORT INFO (FULL) ===== */
-let s = p.shortInfo || {};
-title.innerText = s.bp_name || "व्यवसाय प्रस्ताव";
-si_name.innerText = s.bp_name || "";
-si_location.innerText = s.bp_location || "";
-si_org.innerText = s.bp_org || "";
-si_owner.innerText = s.bp_owner || "";
-si_contact.innerText = s.bp_contact_person || "";
-si_phone.innerText = s.bp_phone || "";
-si_products.innerText = s.bp_products || "";
-si_market.innerText = s.bp_market || "";
-si_capital.innerText = s.bp_capital || "";
-si_summary.innerText = s.bp_summary || "";
+// ===== INSTITUTIONAL PROFILE =====
+document.getElementById("reg_date").innerText = s.reg_date || "";
+document.getElementById("reg_authority").innerText = s.reg_authority || "";
+document.getElementById("reg_no").innerText = s.reg_no || "";
+document.getElementById("pan_no").innerText = s.pan_no || "";
+
+// ===== BENEFICIARY GROUP =====
+document.getElementById("benef_group_type").innerText = s.benef_group_type || "";
+document.getElementById("female_count").innerText = s.female_count || "";
+document.getElementById("male_count").innerText = s.male_count || "";
+document.getElementById("total_count").innerText = s.total_count || "";
+
 
 /* ===== BUSINESS DETAIL (ALL TOPICS) ===== */
 let dBox = document.getElementById("detailBox");
