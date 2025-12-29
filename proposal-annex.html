@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+<meta charset="UTF-8">
+<title>Annex | Supporting Documents</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+body{
+  font-family:"Noto Sans Devanagari","Kalimati","Mangal",system-ui;
+  background:#f4f7f6;margin:0;
+}
+.wrap{
+  max-width:1000px;margin:25px auto;
+  background:#fff;padding:30px;border-radius:12px;
+}
+h1{
+  color:#2e7d32;
+  text-align:center;
+  margin-top:0;
+}
+
+/* FORM */
+input,textarea{
+  width:100%;
+  padding:8px;
+  font-family:inherit;
+  margin-top:6px;
+}
+textarea{min-height:90px}
+
+button{
+  padding:6px 12px;
+  border:none;
+  border-radius:6px;
+  background:#2e7d32;
+  color:#fff;
+  cursor:pointer;
+  margin-right:6px;
+}
+
+.form{
+  border:1px dashed #c8e6c9;
+  padding:15px;
+  border-radius:8px;
+  margin-bottom:20px;
+}
+
+/* ANNEX ITEM */
+.annex{
+  border:1px solid #ddd;
+  border-radius:8px;
+  padding:15px;
+  margin-top:18px;
+  page-break-inside:avoid;
+}
+.annex h3{margin-top:0}
+
+img.preview{
+  max-width:100%;
+  margin-top:10px;
+  border:1px solid #ccc;
+}
+
+/* ACTIONS */
+.actions{
+  margin-top:8px;
+}
+.actions .move{background:#6a1b9a}
+.actions .edit{background:#0277bd}
+.actions .del{background:#c62828}
+
+/* PREVIEW MODE */
+.preview .form,
+.preview .actions{
+  display:none;
+}
+.preview-note{
+  background:#fff3cd;
+  padding:6px 10px;
+  border-radius:6px;
+  font-size:13px;
+  margin-bottom:10px;
+}
+
+/* PRINT */
+@media print{
+  button,.preview-note{display:none}
+  a[href]:after{content:""}
+  body{background:#fff}
+}
+</style>
+</head>
+
+<body>
+<div class="wrap">
+
+<h1>📎 Annex / Supporting Documents</h1>
+
+<div id="previewNote" class="preview-note" style="display:none">
+👁 Preview Mode (Print / View Only)
+</div>
+
+<button onclick="togglePreview()">👁 Preview / ✏️ Edit</button>
+<button onclick="window.print()">📄 Export Annex PDF</button>
+
+<!-- ================= ADD / EDIT FORM ================= -->
+<div class="form">
+  <label>विषय / Topic</label>
+  <input id="topic">
+
+  <label>विवरण / Description</label>
+  <textarea id="content"></textarea>
+
+  <label>फोटो / प्रमाणपत्र (Optional)</label>
+  <input type="file" id="photo" accept="image/*">
+
+  <button style="margin-top:10px" onclick="saveItem()">💾 Save</button>
+</div>
+
+<!-- ================= ANNEX LIST ================= -->
+<div id="list"></div>
+
+</div>
+
+<script>
+/* ===== PROJECT LOAD ===== */
+let key = localStorage.getItem("activeProject");
+if(!key){
+  alert("Project भेटिएन");
+  location.href="index.html";
+}
+let project = JSON.parse(localStorage.getItem(key));
+project.annex = project.annex || [];
+
+let editIndex = null;
+let preview = false;
+
+/* ===== SAVE / UPDATE ===== */
+function saveItem(){
+  if(!topic.value || !content.value){
+    alert("Topic र Content आवश्यक छ");
+    return;
+  }
+
+  let file = photo.files[0];
+  let reader = new FileReader();
+
+  reader.onload = function(){
+    let obj = {
+      topic: topic.value,
+      content: content.value,
+      image: file ? reader.result : ""
+    };
+
+    if(editIndex !== null){
+      project.annex[editIndex] = obj;
+      editIndex = null;
+    }else{
+      project.annex.push(obj);
+    }
+
+    topic.value="";
+    content.value="";
+    photo.value="";
+    persist();
+  };
+
+  if(file) reader.readAsDataURL(file);
+  else reader.onload();
+}
+
+/* ===== EDIT ===== */
+function editItem(i){
+  let a = project.annex[i];
+  topic.value = a.topic;
+  content.value = a.content;
+  editIndex = i;
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+
+/* ===== DELETE ===== */
+function deleteItem(i){
+  if(confirm("Delete गर्ने हो ?")){
+    project.annex.splice(i,1);
+    persist();
+  }
+}
+
+/* ===== MOVE ORDER ===== */
+function moveUp(i){
+  if(i===0) return;
+  [project.annex[i-1], project.annex[i]] =
+  [project.annex[i], project.annex[i-1]];
+  persist();
+}
+function moveDown(i){
+  if(i===project.annex.length-1) return;
+  [project.annex[i+1], project.annex[i]] =
+  [project.annex[i], project.annex[i+1]];
+  persist();
+}
+
+/* ===== SAVE & RENDER ===== */
+function persist(){
+  localStorage.setItem(key, JSON.stringify(project));
+  render();
+}
+
+function render(){
+  list.innerHTML="";
+  if(project.annex.length===0){
+    list.innerHTML="<i>कुनै Annex थपिएको छैन</i>";
+    return;
+  }
+
+  project.annex.forEach((a,i)=>{
+    list.innerHTML+=`
+      <div class="annex">
+        <h3>${i+1}. ${a.topic}</h3>
+        <p>${a.content.replace(/\\n/g,"<br>")}</p>
+        ${a.image?`<img class="preview" src="${a.image}">`:""}
+        <div class="actions">
+          <button class="move" onclick="moveUp(${i})">⬆ Up</button>
+          <button class="move" onclick="moveDown(${i})">⬇ Down</button>
+          <button class="edit" onclick="editItem(${i})">✏️ Edit</button>
+          <button class="del" onclick="deleteItem(${i})">🗑 Delete</button>
+        </div>
+      </div>
+    `;
+  });
+}
+
+/* ===== PREVIEW MODE ===== */
+function togglePreview(){
+  preview=!preview;
+  document.body.classList.toggle("preview",preview);
+  previewNote.style.display = preview ? "block" : "none";
+}
+
+render();
+</script>
+
+</body>
+</html>
