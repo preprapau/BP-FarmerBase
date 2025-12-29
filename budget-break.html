@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+<meta charset="UTF-8">
+<title>बजेट सारांश | BPMS</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+body{
+  font-family:"Noto Sans Devanagari","Kalimati","Nirmala UI",system-ui;
+  background:#f4f7f6;
+  margin:0;
+}
+.page{
+  max-width:1100px;
+  margin:30px auto;
+  background:#fff;
+  padding:30px;
+}
+h1,h2{color:#2e7d32;margin-top:0}
+
+.meta{
+  font-size:13px;
+  color:#555;
+  margin-bottom:18px;
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  margin-top:12px;
+}
+th,td{
+  border:1px solid #ccc;
+  padding:8px;
+  text-align:right;
+}
+th{background:#eef5ee}
+.left{text-align:left}
+.cat{background:#e8f5e9;font-weight:700}
+.total{background:#f1f8f3;font-weight:700}
+
+.section{margin-top:35px}
+
+@media print{
+  body{background:#fff}
+  a[href]:after{content:""}
+}
+</style>
+</head>
+
+<body>
+<div class="page">
+
+<h1>📊 बजेट सारांश (वार्षिक)</h1>
+
+<div class="meta">
+  Project : <span id="pname"></span><br>
+  Generated : <span id="genDate"></span>
+</div>
+
+<!-- ================= EXPENSE ================= -->
+<div class="section">
+<h2>१. खर्च विवरण (विधागत)</h2>
+
+<table>
+<thead>
+<tr>
+  <th class="left">शीर्षक</th>
+  <th>परिमाण</th>
+  <th>दर</th>
+  <th>रकम (रु.)</th>
+</tr>
+</thead>
+<tbody id="expBody"></tbody>
+<tfoot>
+<tr class="total">
+  <td colspan="3" class="left">कुल चालु खर्च</td>
+  <td id="cashTotal">0</td>
+</tr>
+<tr class="total">
+  <td colspan="3" class="left">ह्रासकट्टी (वार्षिक)</td>
+  <td id="deprTotal">0</td>
+</tr>
+<tr class="total">
+  <td colspan="3" class="left">कुल खर्च</td>
+  <td id="expGrand">0</td>
+</tr>
+</tfoot>
+</table>
+</div>
+
+<!-- ================= INCOME ================= -->
+<div class="section">
+<h2>२. आम्दानी विवरण (विधागत)</h2>
+
+<table>
+<thead>
+<tr>
+  <th class="left">शीर्षक</th>
+  <th>परिमाण</th>
+  <th>दर</th>
+  <th>रकम (रु.)</th>
+</tr>
+</thead>
+<tbody id="incBody"></tbody>
+<tfoot>
+<tr class="total">
+  <td colspan="3" class="left">कुल आम्दानी</td>
+  <td id="incTotal">0</td>
+</tr>
+</tfoot>
+</table>
+</div>
+
+<!-- ================= SUMMARY ================= -->
+<div class="section">
+<h2>३. बजेट निष्कर्ष</h2>
+
+<table>
+<tr>
+  <th class="left">विवरण</th>
+  <th>रकम (रु.)</th>
+</tr>
+<tr>
+  <td class="left">कुल आम्दानी</td>
+  <td id="sumInc">0</td>
+</tr>
+<tr>
+  <td class="left">कुल खर्च</td>
+  <td id="sumExp">0</td>
+</tr>
+<tr class="total">
+  <td class="left">नाफा / घाटा</td>
+  <td id="sumProfit">0</td>
+</tr>
+</table>
+</div>
+
+</div>
+
+<script>
+/* ================= LOAD PROJECT ================= */
+let key = localStorage.getItem("activeProject");
+if(!key){ alert("Project भेटिएन"); }
+let project = JSON.parse(localStorage.getItem(key)||"{}");
+
+document.getElementById("pname").innerText =
+  (project.shortInfo && project.shortInfo.bp_name) || "—";
+document.getElementById("genDate").innerText =
+  new Date().toLocaleDateString("ne-NP");
+
+/* ================= EXPENSE ================= */
+let expenses = project.expenseData || [];
+let expBody=document.getElementById("expBody");
+
+let expGroups={}, cash=0, depr=0;
+expenses.forEach(e=>{
+  if(!expGroups[e.category]) expGroups[e.category]=[];
+  expGroups[e.category].push(e);
+});
+
+for(let c in expGroups){
+  expBody.innerHTML += `
+    <tr class="cat"><td colspan="4" class="left">🔹 ${c}</td></tr>
+  `;
+  expGroups[c].forEach(e=>{
+    let amt=Number(e.amount||0);
+    if(c==="मेशीन औजार / प्रविधि" || c==="पूर्वाधार निर्माण")
+      depr += amt*0.15;
+    else
+      cash += amt;
+
+    expBody.innerHTML += `
+      <tr>
+        <td class="left">${e.title}</td>
+        <td>${e.qty}</td>
+        <td>${e.rate}</td>
+        <td>${Math.round(amt)}</td>
+      </tr>
+    `;
+  });
+}
+
+cashTotal.innerText=Math.round(cash);
+deprTotal.innerText=Math.round(depr);
+expGrand.innerText=Math.round(cash+depr);
+
+/* ================= INCOME ================= */
+let income = project.incomeData || [];
+let incBody=document.getElementById("incBody");
+let incTotal=0;
+
+let incGroups={};
+income.forEach(i=>{
+  if(!incGroups[i.category]) incGroups[i.category]=[];
+  incGroups[i.category].push(i);
+});
+
+for(let c in incGroups){
+  incBody.innerHTML += `
+    <tr class="cat"><td colspan="4" class="left">🔹 ${c}</td></tr>
+  `;
+  incGroups[c].forEach(i=>{
+    let amt=Number(i.amount||0);
+    incTotal+=amt;
+    incBody.innerHTML += `
+      <tr>
+        <td class="left">${i.title}</td>
+        <td>${i.qty}</td>
+        <td>${i.rate}</td>
+        <td>${Math.round(amt)}</td>
+      </tr>
+    `;
+  });
+}
+
+incTotalEl=document.getElementById("incTotal");
+incTotalEl.innerText=Math.round(incTotal);
+
+/* ================= SUMMARY ================= */
+sumInc.innerText=Math.round(incTotal);
+sumExp.innerText=Math.round(cash+depr);
+let profit=incTotal-(cash+depr);
+sumProfit.innerText=Math.round(profit);
+sumProfit.style.color = profit>=0 ? "#2e7d32" : "#c62828";
+</script>
+
+</body>
+</html>
