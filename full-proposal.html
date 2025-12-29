@@ -7,18 +7,16 @@
 
 <style>
 body{
-  font-family:"Noto Sans Devanagari","Kalimati","Mangal","Nirmala UI",system-ui,Arial;
+  font-family:"Noto Sans Devanagari","Kalimati","Mangal","Nirmala UI",system-ui;
   background:#f4f7f6;margin:0;
 }
 .wrap{
-  max-width:1000px;
-  margin:25px auto;
-  background:#fff;
-  padding:30px;
-  border-radius:12px;
+  max-width:1000px;margin:25px auto;
+  background:#fff;padding:30px;border-radius:12px;
 }
 h1,h2,h3{color:#2e7d32;margin-top:0}
 h1{text-align:center}
+
 .section{margin-top:30px}
 
 table{
@@ -31,18 +29,15 @@ th,td{
   padding:8px;
 }
 th{background:#eef5ee}
-.right{text-align:right}
 .left{text-align:left}
+.right{text-align:right}
+.cat{background:#e8f5e9;font-weight:700}
+.sum{background:#f1f8f1;font-weight:700}
 
-.note{
-  font-size:13px;
-  color:#555;
-  margin-top:6px;
-}
+.note{font-size:13px;color:#555}
 
 @media print{
   a[href]:after{content:""}
-  button{display:none}
 }
 </style>
 </head>
@@ -50,7 +45,7 @@ th{background:#eef5ee}
 <body>
 <div class="wrap">
 
-<h1 id="bpTitle">व्यवसाय प्रस्ताव</h1>
+<h1 id="title">व्यवसाय प्रस्ताव</h1>
 
 <!-- ================= SHORT INFO ================= -->
 <div class="section">
@@ -74,12 +69,30 @@ th{background:#eef5ee}
 <!-- ================= PRODUCTION SALES ================= -->
 <div class="section">
 <h2>३. उत्पादन तथा बिक्री योजना</h2>
-<div id="prodBox"><i>उत्पादन योजना उपलब्ध छैन</i></div>
+
+<table>
+<thead>
+<tr>
+  <th>वर्ष</th>
+  <th>बयस्क संख्या</th>
+  <th>बाँचेक बच्चा</th>
+  <th>बच्चा बिक्री</th>
+  <th>बयस्क बिक्री<br>(प्रतिस्थापन)</th>
+  <th>अर्को वर्षका बयस्क</th>
+</tr>
+</thead>
+<tbody id="prodBody"></tbody>
+</table>
+
+<p class="note">
+प्रारम्भिक बयस्क, ब्याउने दर, मृत्युदर, राखिने % अनुसार गणना
+</p>
 </div>
 
 <!-- ================= EXPENSE ================= -->
 <div class="section">
 <h2>४. खर्च विवरण</h2>
+
 <table>
 <thead>
 <tr>
@@ -90,57 +103,15 @@ th{background:#eef5ee}
 </thead>
 <tbody id="expBody"></tbody>
 <tfoot>
-<tr>
-  <th colspan="2" class="right">कुल चालु खर्च</th>
-  <th class="right" id="cashTotal"></th>
+<tr class="sum">
+  <td colspan="2" class="right">कुल चालु खर्च</td>
+  <td class="right" id="cashTotal"></td>
 </tr>
-<tr>
-  <th colspan="2" class="right">ह्रासकट्टी</th>
-  <th class="right" id="deprTotal"></th>
+<tr class="sum">
+  <td colspan="2" class="right">ह्रासकट्टी</td>
+  <td class="right" id="deprTotal"></td>
 </tr>
 </tfoot>
-</table>
-</div>
-
-<!-- ================= FINANCING ================= -->
-<div class="section">
-<h2>५. लगानीको स्रोत</h2>
-<table>
-<tr><th class="left">स्रोत</th><th class="right">रकम</th></tr>
-<tr><td class="left">स्व–लगानी</td><td class="right" id="ownAmt"></td></tr>
-<tr><td class="left">अनुदान</td><td class="right" id="grantAmt"></td></tr>
-<tr><td class="left">ऋण</td><td class="right" id="loanAmt"></td></tr>
-<tr class="sum"><th class="left">जम्मा</th><th class="right" id="capTotal"></th></tr>
-</table>
-</div>
-
-<!-- ================= ROI ================= -->
-<div class="section">
-<h2>६. ५ वर्षे ROI विश्लेषण</h2>
-<table>
-<thead>
-<tr>
-  <th>वर्ष</th>
-  <th>आम्दानी</th>
-  <th>खर्च</th>
-  <th>ब्याज</th>
-  <th>कर अघिको नाफा</th>
-  <th>कर (२५%)</th>
-  <th>खुद नाफा</th>
-</tr>
-</thead>
-<tbody id="roiBody"></tbody>
-</table>
-<p class="note">Payback Period: <b id="payback"></b></p>
-</div>
-
-<!-- ================= DIVIDEND ================= -->
-<div class="section">
-<h2>७. लाभांश वितरण</h2>
-<table>
-<tr><th class="left">विवरण</th><th>%</th><th class="right">रकम</th></tr>
-<tr><td class="left">स्वामी</td><td>60%</td><td class="right" id="divOwner"></td></tr>
-<tr><td class="left">पुनः लगानी</td><td>40%</td><td class="right" id="divRe"></td></tr>
 </table>
 </div>
 
@@ -152,7 +123,7 @@ let p=key?JSON.parse(localStorage.getItem(key)):{};
 
 /* ---------- SHORT INFO ---------- */
 let s=p.shortInfo||{};
-bpTitle.innerText=s.bp_name||"व्यवसाय प्रस्ताव";
+title.innerText=s.bp_name||"व्यवसाय प्रस्ताव";
 si_name.innerText=s.bp_name||"";
 si_location.innerText=s.bp_location||"";
 si_org.innerText=s.bp_org||"";
@@ -161,80 +132,66 @@ si_phone.innerText=s.bp_phone||"";
 si_products.innerText=s.bp_products||"";
 
 /* ---------- BUSINESS DETAIL ---------- */
-let dbox=document.getElementById("detailBox");
+let box=document.getElementById("detailBox");
 (p.businessDetail||[]).forEach(d=>{
-  dbox.innerHTML+=`<h3>${d.topic}</h3><p>${d.content}</p>`;
+  box.innerHTML+=`<h3>${d.topic}</h3><p>${d.content}</p>`;
 });
-if(!dbox.innerHTML) dbox.innerHTML="<i>विवरण उपलब्ध छैन</i>";
+if(!box.innerHTML) box.innerHTML="<i>व्यवसाय विवरण उपलब्ध छैन</i>";
 
-/* ---------- PRODUCTION ---------- */
-let prod=localStorage.getItem("productionSalesPlan");
-if(prod){
-  let d=JSON.parse(prod);
-  prodBox.innerHTML=`
-    प्रारम्भिक बयस्क: ${d.adult},
-    ब्याउने दर: ${d.breedRate}%,
-    मृत्युदर: ${d.death}%
-  `;
+/* ---------- PRODUCTION TABLE ---------- */
+let ps=localStorage.getItem("productionSalesPlan");
+if(ps){
+  let d=JSON.parse(ps);
+  let adult=d.adult;
+  for(let y=1;y<=5;y++){
+    let breeding=adult*d.breedRate/100;
+    let born=breeding*d.kids;
+    let alive=born*(100-d.death)/100;
+    let male=alive*d.maleRate/100;
+    let female=alive-male;
+    let keepF=female*d.keepFemale/100;
+    let sellKids=alive-(male*d.keepMale/100+keepF);
+    let replace=adult*d.replacement/100;
+
+    prodBody.innerHTML+=`
+    <tr>
+      <td>वर्ष ${y}</td>
+      <td>${Math.round(adult)}</td>
+      <td>${Math.round(alive)}</td>
+      <td>${Math.round(sellKids)}</td>
+      <td>${Math.round(replace)}</td>
+      <td>${Math.round(adult+keepF)}</td>
+    </tr>`;
+    adult=adult+keepF;
+  }
+}else{
+  prodBody.innerHTML="<tr><td colspan='6'>उत्पादन योजना उपलब्ध छैन</td></tr>";
 }
 
-/* ---------- EXPENSE ---------- */
-let cash=0,depr=0,cap=0;
+/* ---------- EXPENSE CATEGORY-WISE ---------- */
+let groups={},cash=0,depr=0;
 (p.expenseData||[]).forEach(e=>{
-  expBody.innerHTML+=`
+  if(!groups[e.category]) groups[e.category]=[];
+  groups[e.category].push(e);
+});
+
+for(let c in groups){
+  expBody.innerHTML+=`<tr class="cat"><td colspan="3">${c}</td></tr>`;
+  groups[c].forEach(e=>{
+    expBody.innerHTML+=`
     <tr>
-      <td class="left">${e.category}</td>
+      <td></td>
       <td class="left">${e.title}</td>
       <td class="right">${e.amount}</td>
     </tr>`;
-  if(e.category==="मेशीन औजार / प्रविधि"||e.category==="पूर्वाधार निर्माण"){
-    depr+=e.amount*0.15;
-    cap+=e.amount;
-  }else{
-    cash+=e.amount;
-    if(e.category==="प्रारम्भिक लगानी") cap+=e.amount;
-  }
-});
+    if(c==="मेशीन औजार / प्रविधि"||c==="पूर्वाधार निर्माण")
+      depr+=e.amount*0.15;
+    else
+      cash+=e.amount;
+  });
+}
 cashTotal.innerText=Math.round(cash);
 deprTotal.innerText=Math.round(depr);
-
-/* ---------- FINANCING ---------- */
-let op=p.ownPct||40,gp=p.grantPct||30,lp=p.loanPct||30;
-ownAmt.innerText=Math.round(cap*op/100);
-grantAmt.innerText=Math.round(cap*gp/100);
-loanAmt.innerText=Math.round(cap*lp/100);
-capTotal.innerText=Math.round(cap);
-
-/* ---------- ROI ---------- */
-let income=0;
-(p.incomeData||[]).forEach(i=>income+=Number(i.amount||0));
-let interest=Number(p.loanInterest||0);
-
-let cum=0;
-for(let y=1;y<=5;y++){
-  let inc=income*Math.pow(1.1,y-1);
-  let exp=cash*Math.pow(1.06,y-1);
-  let pbt=inc-exp-depr-interest;
-  let tax=pbt>0?pbt*0.25:0;
-  let net=pbt-tax;
-  cum+=net;
-  roiBody.innerHTML+=`
-    <tr>
-      <td>वर्ष ${y}</td>
-      <td>${Math.round(inc)}</td>
-      <td>${Math.round(exp)}</td>
-      <td>${Math.round(interest)}</td>
-      <td>${Math.round(pbt)}</td>
-      <td>${Math.round(tax)}</td>
-      <td>${Math.round(net)}</td>
-    </tr>`;
-}
-payback.innerText=cum>0?(cap/(cum/5)).toFixed(2)+" वर्ष":"N/A";
-
-/* ---------- DIVIDEND ---------- */
-let annualNet=(income-cash-depr-interest)*0.75;
-divOwner.innerText=Math.round(annualNet*0.6);
-divRe.innerText=Math.round(annualNet*0.4);
 </script>
 
 </body>
