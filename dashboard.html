@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+<meta charset="UTF-8">
+<title>📊 BPMS Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+body{
+  font-family:"Noto Sans Devanagari","Kalimati",system-ui;
+  background:#f4f7f6;margin:0
+}
+.wrap{
+  max-width:1100px;margin:25px auto;
+  background:#fff;padding:25px;border-radius:12px
+}
+h2{color:#2e7d32;margin-top:0}
+.grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:20px;
+}
+.card{
+  background:#fafafa;
+  padding:15px;
+  border-radius:10px;
+}
+canvas{max-height:320px}
+
+@media(max-width:900px){
+  .grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+
+<body>
+<div class="wrap">
+
+<h2>📊 व्यवसायिक ड्यासबोर्ड (Summary View)</h2>
+
+<div class="grid">
+
+  <!-- Expense Pie -->
+  <div class="card">
+    <h3>🔹 खर्च विधागत वितरण</h3>
+    <canvas id="expensePie"></canvas>
+  </div>
+
+  <!-- Income vs Expense -->
+  <div class="card">
+    <h3>🔹 आम्दानी बनाम खर्च</h3>
+    <canvas id="barIE"></canvas>
+  </div>
+
+  <!-- ROI Trend -->
+  <div class="card" style="grid-column:1/-1">
+    <h3>🔹 ५ वर्षे नगद प्रवाह / नाफा ट्रेन्ड</h3>
+    <canvas id="roiLine"></canvas>
+  </div>
+
+</div>
+
+</div>
+
+<script>
+/* ================= LOAD PROJECT ================= */
+let key = localStorage.getItem("activeProject");
+let p = key ? JSON.parse(localStorage.getItem(key)) : {};
+
+/* ================= EXPENSE GROUP ================= */
+let expCat = {};
+(p.expenseData||[]).forEach(e=>{
+  expCat[e.category] = (expCat[e.category]||0) + Number(e.amount||0);
+});
+
+/* ================= INCOME / EXPENSE TOTAL ================= */
+let income = 0, expense = 0;
+(p.incomeData||[]).forEach(i=>income+=Number(i.amount||0));
+(p.expenseData||[]).forEach(e=>expense+=Number(e.amount||0));
+
+/* ================= ROI (5 Years – Simple Trend) ================= */
+let baseProfit = income - expense;
+let roiYears = [];
+let roiValues = [];
+let cumulative = 0;
+
+for(let y=1;y<=5;y++){
+  cumulative += baseProfit;
+  roiYears.push("वर्ष "+y);
+  roiValues.push(Math.round(cumulative));
+}
+
+/* ================= CHART 1: EXPENSE PIE ================= */
+new Chart(document.getElementById("expensePie"),{
+  type:"pie",
+  data:{
+    labels:Object.keys(expCat),
+    datasets:[{
+      data:Object.values(expCat),
+      backgroundColor:[
+        "#66bb6a","#42a5f5","#ffa726",
+        "#ab47bc","#ef5350","#26c6da"
+      ]
+    }]
+  }
+});
+
+/* ================= CHART 2: BAR ================= */
+new Chart(document.getElementById("barIE"),{
+  type:"bar",
+  data:{
+    labels:["आम्दानी","खर्च"],
+    datasets:[{
+      label:"रकम (रु.)",
+      data:[income,expense],
+      backgroundColor:["#2e7d32","#c62828"]
+    }]
+  },
+  options:{responsive:true}
+});
+
+/* ================= CHART 3: ROI LINE ================= */
+new Chart(document.getElementById("roiLine"),{
+  type:"line",
+  data:{
+    labels:roiYears,
+    datasets:[{
+      label:"संचित नगद प्रवाह",
+      data:roiValues,
+      borderColor:"#2e7d32",
+      backgroundColor:"rgba(46,125,50,0.15)",
+      fill:true,
+      tension:0.3
+    }]
+  }
+});
+</script>
+
+</body>
+</html>
