@@ -64,13 +64,6 @@ const bankInterest = Number(localStorage.getItem("ANNUAL_LOAN_INTEREST")||0);
 <h2>२. व्यवसाय विवरण</h2>
 <div id="businessDetail"></div>
 
-<!-- ================= PRODUCTION PLAN ================= -->
-<h2>३. उत्पादन तथा बिक्री योजना</h2>
-<table>
-<tr><th>वर्ष</th><th>बयस्क</th><th>जन्मिएका</th><th>बिक्री (बच्चा)</th><th>प्रतिस्थापन</th><th>अर्को वर्ष</th></tr>
-<tbody id="prodTable"></tbody>
-</table>
-
 <!-- ================= EXPENSE ================= -->
 <h2>४. खर्च विवरण (विधागत)</h2>
 <table id="expenseTable">
@@ -129,21 +122,6 @@ businessDetail.innerHTML = bd.length
  ? bd.map(d=>`<h4>${d.topic}</h4><p>${d.content}</p>`).join("")
  : "<i>विवरण उपलब्ध छैन</i>";
 
-/* ===== Production Plan ===== */
-let adult = prod.adult||0;
-for(let y=1;y<=5;y++){
- let born=adult*(prod.breedRate||0)/100*(prod.kids||0);
- let alive=born*(100-(prod.death||0))/100;
- let keepF=alive*(prod.keepFemale||0)/100;
- let replace=adult*(prod.replacement||0)/100;
- prodTable.innerHTML+=`
- <tr><td>${y}</td><td>${Math.round(adult)}</td>
- <td>${Math.round(alive)}</td>
- <td>${Math.round(alive-keepF)}</td>
- <td>${Math.round(replace)}</td>
- <td>${Math.round(adult+keepF)}</td></tr>`;
- adult+=keepF;
-}
 
 /* ===== Expense ===== */
 let eg={},operating=0,depr=0,capital=0;
