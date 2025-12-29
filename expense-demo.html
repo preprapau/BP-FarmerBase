@@ -8,38 +8,38 @@
 <style>
 body{
   font-family:"Noto Sans Devanagari","Kalimati",system-ui;
-  background:#f4f7f6;margin:0;
+  background:#f4f7f6;margin:0
 }
 .wrap{
-  max-width:1100px;margin:25px auto;background:#fff;
-  padding:25px;border-radius:12px;
+  max-width:1100px;margin:25px auto;
+  background:#fff;padding:25px;border-radius:12px
 }
 h2{color:#2e7d32;margin-top:0}
 
-/* form */
+/* FORM */
 .form{
   display:grid;
   grid-template-columns:2fr 3fr 1fr 1fr auto;
-  gap:8px;margin-bottom:10px
+  gap:8px;margin-bottom:12px
 }
 input,select{padding:8px;font-family:inherit}
-.add{background:#2e7d32;color:#fff;border:none;border-radius:6px;padding:8px 14px}
+button.add{
+  background:#2e7d32;color:#fff;border:none;
+  border-radius:6px;padding:8px 14px;cursor:pointer
+}
+button.add.editing{background:#ef6c00}
 
-/* table */
+/* TABLE */
 table{width:100%;border-collapse:collapse;margin-top:10px}
 th,td{border:1px solid #ccc;padding:6px;text-align:right}
 th{background:#eef5ee}
 .left{text-align:left}
 .cat{background:#e8f5e9;font-weight:700}
-.sum{font-weight:700;background:#fafafa}
+.sum{background:#fafafa;font-weight:700}
+.ed{background:#1976d2;color:#fff;border:none;padding:4px 8px;border-radius:4px}
 .del{background:#c62828;color:#fff;border:none;padding:4px 8px;border-radius:4px}
 
-/* nav */
-.nav{display:flex;justify-content:space-between;margin-top:25px}
-button.navbtn{
-  padding:8px 16px;border:none;border-radius:6px;
-  background:#2e7d32;color:#fff
-}
+/* FINANCE */
 .note{font-size:13px;color:#555;margin-top:8px}
 .warn{color:#c62828;font-size:13px}
 </style>
@@ -50,7 +50,7 @@ button.navbtn{
 
 <h2>💰 खर्च विवरण (वार्षिक)</h2>
 
-<!-- ===== ADD FORM ===== -->
+<!-- ===== ENTRY FORM ===== -->
 <div class="form">
   <select id="category">
     <option>प्रारम्भिक लगानी</option>
@@ -62,7 +62,7 @@ button.navbtn{
   <input id="title" placeholder="खर्च शीर्षक">
   <input id="qty" type="number" placeholder="परिमाण">
   <input id="rate" type="number" placeholder="दर">
-  <button class="add" onclick="addExpense()">+ Add</button>
+  <button id="addBtn" class="add" onclick="addOrUpdate()">+ Add</button>
 </div>
 
 <!-- ===== EXPENSE TABLE ===== -->
@@ -93,22 +93,31 @@ button.navbtn{
 
 <!-- ===== FINANCING ===== -->
 <h3>🏦 लगानीको स्रोत</h3>
+
 <table>
 <tr>
-  <th class="left">स्रोत</th><th>%</th><th>रकम</th><th>ब्याज %</th><th>वार्षिक ब्याज</th>
+  <th class="left">स्रोत</th>
+  <th>%</th>
+  <th>रकम</th>
+  <th>ब्याज %</th>
+  <th>वार्षिक ब्याज</th>
 </tr>
 <tr>
-  <td class="left">स्व–लगानी</td>
+  <td class="left">स्वलगानी</td>
   <td><input id="ownPct" value="40"></td>
-  <td id="ownAmt">0</td><td>—</td><td>—</td>
+  <td id="ownAmt">0</td>
+  <td>—</td>
+  <td>—</td>
 </tr>
 <tr>
   <td class="left">अनुदान / प्रस्ताव</td>
   <td><input id="grantPct" value="30"></td>
-  <td id="grantAmt">0</td><td>—</td><td>—</td>
+  <td id="grantAmt">0</td>
+  <td>—</td>
+  <td>—</td>
 </tr>
 <tr>
-  <td class="left">सहकारी / बैंक ऋण</td>
+  <td class="left">बैंक / सहकारी ऋण</td>
   <td><input id="loanPct" value="30"></td>
   <td id="loanAmt">0</td>
   <td><input id="loanRate" value="12"></td>
@@ -123,60 +132,87 @@ button.navbtn{
 </tr>
 </table>
 
-<div id="pctWarn" class="warn"></div>
-
-<div class="note">
-✔️ बैंक ब्याज Profit–Loss र ROI मा स्वतः घटाइन्छ  
-✔️ मूलधन (Principal) ROI / Payback मा प्रयोग हुन्छ
-</div>
-
-<div class="nav">
-  <button class="navbtn" onclick="location.href='business-detail.html'">⬅ Previous</button>
-  <button class="navbtn" onclick="location.href='income-demo.html'">Next ➡</button>
-</div>
+<p class="note">
+✔️ ब्याज Profit-Loss र ROI मा स्वतः तानिन्छ<br>
+✔️ Edit/Delete गर्दा data सुरक्षित रहन्छ
+</p>
 
 </div>
 
 <script>
-/* ===== LOAD PROJECT ===== */
+/* ================= LOAD PROJECT ================= */
 let key = localStorage.getItem("activeProject");
-if(!key){ alert("पहिले Project खोल्नुहोस्"); location.href="index.html"; }
+if(!key){
+  alert("पहिले Project खोल्नुहोस्");
+  location.href="index.html";
+}
 let project = JSON.parse(localStorage.getItem(key));
 project.expenseData = project.expenseData || [];
 project.financing = project.financing || {};
-
 let expenses = project.expenseData;
 
-/* ===== ADD ===== */
-function addExpense(){
+let editId = null;
+
+/* ================= ADD / UPDATE ================= */
+function addOrUpdate(){
   if(!title.value) return;
-  let amt = (Number(qty.value)||0) * (Number(rate.value)||0);
-  expenses.push({
-    id: Date.now(),   // UNIQUE ID (bug fix)
-    category: category.value,
-    title: title.value,
-    qty: qty.value||0,
-    rate: rate.value||0,
-    amount: amt
-  });
+  let amount = (Number(qty.value)||0) * (Number(rate.value)||0);
+
+  if(editId){
+    let e = expenses.find(x=>x.id===editId);
+    if(e){
+      e.category = category.value;
+      e.title = title.value;
+      e.qty = qty.value;
+      e.rate = rate.value;
+      e.amount = amount;
+    }
+    editId=null;
+    addBtn.innerText="+ Add";
+    addBtn.classList.remove("editing");
+  }else{
+    expenses.push({
+      id:Date.now(),
+      category:category.value,
+      title:title.value,
+      qty:qty.value,
+      rate:rate.value,
+      amount:amount
+    });
+  }
   title.value=""; qty.value=""; rate.value="";
   save();
 }
 
-/* ===== DELETE ===== */
-function del(id){
+/* ================= EDIT ================= */
+function editRow(id){
+  let e = expenses.find(x=>x.id===id);
+  if(!e) return;
+  category.value=e.category;
+  title.value=e.title;
+  qty.value=e.qty;
+  rate.value=e.rate;
+  editId=id;
+  addBtn.innerText="💾 Update";
+  addBtn.classList.add("editing");
+}
+
+/* ================= DELETE ================= */
+function delRow(id){
+  if(!confirm("यो खर्च हटाउने ?")) return;
   expenses = expenses.filter(e=>e.id!==id);
+  project.expenseData = expenses;
   save();
 }
 
-/* ===== SAVE ===== */
+/* ================= SAVE ================= */
 function save(){
   project.expenseData = expenses;
-  localStorage.setItem(key, JSON.stringify(project));
+  localStorage.setItem(key,JSON.stringify(project));
   render();
 }
 
-/* ===== RENDER ===== */
+/* ================= RENDER ================= */
 function render(){
   body.innerHTML="";
   let groups={}, cash=0, depr=0, capital=0;
@@ -202,13 +238,16 @@ function render(){
         <td>${e.qty}</td>
         <td>${e.rate}</td>
         <td>${Math.round(e.amount)}</td>
-        <td><button class="del" onclick="del(${e.id})">✖</button></td>
+        <td>
+          <button class="ed" onclick="editRow(${e.id})">✏️</button>
+          <button class="del" onclick="delRow(${e.id})">❌</button>
+        </td>
       </tr>`;
     });
   }
 
-  cashTotal.innerText = Math.round(cash);
-  deprTotal.innerText = Math.round(depr);
+  cashTotal.innerText=Math.round(cash);
+  deprTotal.innerText=Math.round(depr);
 
   /* ===== FINANCING ===== */
   let op=Number(ownPct.value||0),
@@ -217,9 +256,9 @@ function render(){
       lr=Number(loanRate.value||0);
 
   if(op+gp+lp!==100){
-    pctWarn.innerText="⚠️ जम्मा प्रतिशत 100% हुनुपर्छ";
+    totPct.innerText="⚠️ 100% हुनुपर्छ";
     return;
-  }else pctWarn.innerText="";
+  }
 
   let oa=capital*op/100,
       ga=capital*gp/100,
@@ -230,20 +269,19 @@ function render(){
   grantAmt.innerText=Math.round(ga);
   loanAmt.innerText=Math.round(la);
   loanInterest.innerText=Math.round(li);
+
   totPct.innerText="100%";
   totAmt.innerText=Math.round(capital);
   totInt.innerText=Math.round(li);
 
-  /* SAVE FINANCING SAFELY */
-  project.financing = {
-    capital, ownPct:op, grantPct:gp, loanPct:lp,
-    loanRate:lr, ownAmt:oa, grantAmt:ga,
-    loanAmt:la, loanInterest:li
+  project.financing={
+    capital, ownPct:op, grantPct:gp, loanPct:lp, loanRate:lr,
+    ownAmt:oa, grantAmt:ga, loanAmt:la, loanInterest:li
   };
-  localStorage.setItem(key, JSON.stringify(project));
+  localStorage.setItem(key,JSON.stringify(project));
 }
 
-/* EVENTS */
+/* INIT */
 [ownPct,grantPct,loanPct,loanRate].forEach(i=>i.oninput=render);
 render();
 </script>
