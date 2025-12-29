@@ -16,7 +16,7 @@ body{
 }
 h2{color:#2e7d32;margin-top:0}
 
-/* progress */
+/* ===== PROGRESS ===== */
 .progress{
   background:#e8f5e9;border:1px solid #c8e6c9;
   padding:12px;border-radius:8px;margin-bottom:15px
@@ -29,7 +29,7 @@ h2{color:#2e7d32;margin-top:0}
 .bar{height:8px;background:#ddd;border-radius:6px;overflow:hidden;margin-top:8px}
 .bar span{display:block;height:100%;width:43%;background:#2e7d32}
 
-/* form */
+/* ===== FORM ===== */
 .form{
   display:grid;grid-template-columns:2fr 3fr 1fr 1fr auto;
   gap:8px;margin-bottom:10px
@@ -37,7 +37,7 @@ h2{color:#2e7d32;margin-top:0}
 input,select{padding:8px;font-family:inherit}
 .add{background:#2e7d32;color:#fff;border:none;border-radius:6px;padding:8px 14px;cursor:pointer}
 
-/* table */
+/* ===== TABLE ===== */
 table{width:100%;border-collapse:collapse;margin-top:8px}
 th,td{border:1px solid #ccc;padding:6px;text-align:right}
 th{background:#f0f0f0}
@@ -45,14 +45,31 @@ th{background:#f0f0f0}
 .cat{background:#e8f5e9;font-weight:700}
 .sum{font-weight:700;background:#fafafa}
 .del{background:#c62828;color:#fff;border:none;padding:4px 8px;border-radius:4px}
+.edit{background:#0277bd;color:#fff;border:none;padding:4px 8px;border-radius:4px;margin-right:4px}
 
-/* nav */
+/* ===== NAV ===== */
 .nav{display:flex;justify-content:space-between;margin-top:25px}
 button.navbtn{
   padding:8px 16px;border:none;border-radius:6px;
   background:#2e7d32;color:#fff;cursor:pointer
 }
 .note{font-size:13px;color:#555;margin-top:8px}
+
+/* ===== PREVIEW MODE ===== */
+.preview .form,
+.preview .edit,
+.preview .del,
+.preview .add,
+.preview input,
+.preview select{
+  display:none !important;
+}
+.preview table{opacity:.95}
+.preview-label{
+  background:#ffecb3;color:#333;
+  padding:6px 10px;border-radius:6px;
+  font-size:13px;margin-bottom:10px
+}
 </style>
 </head>
 
@@ -75,6 +92,12 @@ button.navbtn{
 
 <h2>💰 खर्च विवरण (वार्षिक)</h2>
 
+<div id="previewLabel" class="preview-label" style="display:none">
+👁️ Preview Mode (Read-only)
+</div>
+
+<button class="navbtn" onclick="togglePreview()">👁 Preview / ✏️ Edit</button>
+
 <div class="form">
   <select id="category">
     <option>प्रारम्भिक लगानी</option>
@@ -86,7 +109,7 @@ button.navbtn{
   <input id="title" placeholder="खर्च शीर्षक">
   <input id="qty" type="number" placeholder="परिमाण">
   <input id="rate" type="number" placeholder="दर">
-  <button class="add" onclick="addExpense()">+ Add</button>
+  <button class="add" onclick="saveExpense()">💾 Save</button>
 </div>
 
 <table>
@@ -112,44 +135,6 @@ button.navbtn{
 </tfoot>
 </table>
 
-<hr>
-
-<h3>🏦 लगानीको स्रोत</h3>
-<table>
-<tr>
-  <th class="left">स्रोत</th><th>%</th><th>रकम</th><th>ब्याज %</th><th>वार्षिक ब्याज</th>
-</tr>
-<tr>
-  <td class="left">स्वलगानी</td>
-  <td><input id="ownPct" value="40"></td>
-  <td id="ownAmt">0</td><td>—</td><td>—</td>
-</tr>
-<tr>
-  <td class="left">अनुदान / प्रस्ताव</td>
-  <td><input id="grantPct" value="30"></td>
-  <td id="grantAmt">0</td><td>—</td><td>—</td>
-</tr>
-<tr>
-  <td class="left">सहकारी / बैंक ऋण</td>
-  <td><input id="loanPct" value="30"></td>
-  <td id="loanAmt">0</td>
-  <td><input id="loanRate" value="12"></td>
-  <td id="loanInterest">0</td>
-</tr>
-<tr class="sum">
-  <td class="left">जम्मा</td>
-  <td id="totPct">100%</td>
-  <td id="totAmt">0</td>
-  <td></td>
-  <td id="totInt">0</td>
-</tr>
-</table>
-
-<div class="note">
-✔️ ऋण ब्याज Profit–Loss मा खर्चमा घटाइन्छ<br>
-✔️ मूलधन (principal) ROI मा मात्र देखाइन्छ
-</div>
-
 <div class="nav">
   <button class="navbtn" onclick="location.href='business-detail.html'">⬅ Previous</button>
   <button class="navbtn" onclick="location.href='income-demo.html'">Next ➡</button>
@@ -162,78 +147,57 @@ let key=localStorage.getItem("activeProject");
 if(!key){alert("पहिले Project खोल्नुहोस्");location.href="index.html";}
 let project=JSON.parse(localStorage.getItem(key));
 let expenses=project.expenseData||[];
+let editIndex=null;
+let preview=false;
 
-function addExpense(){
+function saveExpense(){
   if(!title.value) return;
   let amt=(qty.value||0)*(rate.value||0);
-  expenses.push({
-    category:category.value,
-    title:title.value,
-    qty:qty.value||0,
-    rate:rate.value||0,
-    amount:amt
-  });
+  let obj={category:category.value,title:title.value,qty:qty.value||0,rate:rate.value||0,amount:amt};
+  if(editIndex!==null){expenses[editIndex]=obj;editIndex=null;}
+  else expenses.push(obj);
   title.value="";qty.value="";rate.value="";
   save();
 }
-function del(i){expenses.splice(i,1);save();}
+function edit(i){
+  let e=expenses[i];
+  category.value=e.category;title.value=e.title;qty.value=e.qty;rate.value=e.rate;
+  editIndex=i;
+}
+function del(i){
+  if(confirm("Delete गर्ने हो ?")){expenses.splice(i,1);save();}
+}
 function save(){
   project.expenseData=expenses;
   localStorage.setItem(key,JSON.stringify(project));
   render();
 }
-
 function render(){
-  body.innerHTML="";
-  let groups={},cash=0,depr=0,capital=0;
-
-  expenses.forEach(e=>{
-    if(!groups[e.category]) groups[e.category]=[];
-    groups[e.category].push(e);
+  body.innerHTML="";let cash=0,depr=0;
+  expenses.forEach((e,i)=>{
+    if(e.category==="मेशीन औजार / प्रविधि"||e.category==="पूर्वाधार निर्माण")
+      depr+=e.amount*0.15;
+    else cash+=e.amount;
+    body.innerHTML+=`
+    <tr>
+      <td class="left">${e.title}</td>
+      <td>${e.qty}</td>
+      <td>${e.rate}</td>
+      <td>${e.amount}</td>
+      <td>
+        <button class="edit" onclick="edit(${i})">✏️</button>
+        <button class="del" onclick="del(${i})">✖</button>
+      </td>
+    </tr>`;
   });
-
-  for(let c in groups){
-    body.innerHTML+=`<tr class="cat"><td colspan="5">🔹 ${c}</td></tr>`;
-    groups[c].forEach((e,i)=>{
-      if(c==="मेशीन औजार / प्रविधि"||c==="पूर्वाधार निर्माण"){
-        depr+=e.amount*0.15;
-        capital+=e.amount;
-      }else{
-        cash+=e.amount;
-        if(c==="प्रारम्भिक लगानी") capital+=e.amount;
-      }
-      body.innerHTML+=`
-      <tr>
-        <td class="left">${e.title}</td>
-        <td>${e.qty}</td>
-        <td>${e.rate}</td>
-        <td>${e.amount}</td>
-        <td><button class="del" onclick="del(${i})">✖</button></td>
-      </tr>`;
-    });
-  }
-
   cashTotal.innerText=Math.round(cash);
   deprTotal.innerText=Math.round(depr);
-
-  /* financing */
-  let op=Number(ownPct.value||0), gp=Number(grantPct.value||0),
-      lp=Number(loanPct.value||0), lr=Number(loanRate.value||0);
-
-  let oa=capital*op/100, ga=capital*gp/100, la=capital*lp/100;
-  let li=la*lr/100;
-
-  ownAmt.innerText=Math.round(oa);
-  grantAmt.innerText=Math.round(ga);
-  loanAmt.innerText=Math.round(la);
-  loanInterest.innerText=Math.round(li);
-  totPct.innerText=(op+gp+lp)+"%";
-  totAmt.innerText=Math.round(capital);
-  totInt.innerText=Math.round(li);
-
-  localStorage.setItem("ANNUAL_LOAN_INTEREST",li);
 }
-[ownPct,grantPct,loanPct,loanRate].forEach(i=>i.oninput=render);
+function togglePreview(){
+  preview=!preview;
+  document.body.classList.toggle("preview",preview);
+  previewLabel.style.display=preview?"block":"none";
+}
 render();
 </script>
 
