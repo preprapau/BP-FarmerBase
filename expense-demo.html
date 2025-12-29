@@ -16,7 +16,7 @@ body{
 }
 h2{color:#2e7d32;margin-top:0}
 
-/* ===== PROGRESS ===== */
+/* progress */
 .progress{
   background:#e8f5e9;border:1px solid #c8e6c9;
   padding:12px;border-radius:8px;margin-bottom:15px
@@ -29,7 +29,7 @@ h2{color:#2e7d32;margin-top:0}
 .bar{height:8px;background:#ddd;border-radius:6px;overflow:hidden;margin-top:8px}
 .bar span{display:block;height:100%;width:43%;background:#2e7d32}
 
-/* ===== FORM ===== */
+/* form */
 .form{
   display:grid;grid-template-columns:2fr 3fr 1fr 1fr auto;
   gap:8px;margin-bottom:10px
@@ -37,17 +37,18 @@ h2{color:#2e7d32;margin-top:0}
 input,select{padding:8px;font-family:inherit}
 .add{background:#2e7d32;color:#fff;border:none;border-radius:6px;padding:8px 14px;cursor:pointer}
 
-/* ===== TABLE ===== */
+/* table */
 table{width:100%;border-collapse:collapse;margin-top:8px}
 th,td{border:1px solid #ccc;padding:6px;text-align:right}
 th{background:#f0f0f0}
 .left{text-align:left}
 .cat{background:#e8f5e9;font-weight:700}
-.sum{font-weight:700;background:#fafafa}
+.sub{background:#fafafa;font-weight:700}
+.sum{font-weight:700;background:#f1f8f1}
 .del{background:#c62828;color:#fff;border:none;padding:4px 8px;border-radius:4px}
 .edit{background:#0277bd;color:#fff;border:none;padding:4px 8px;border-radius:4px;margin-right:4px}
 
-/* ===== NAV ===== */
+/* nav */
 .nav{display:flex;justify-content:space-between;margin-top:25px}
 button.navbtn{
   padding:8px 16px;border:none;border-radius:6px;
@@ -55,7 +56,7 @@ button.navbtn{
 }
 .note{font-size:13px;color:#555;margin-top:8px}
 
-/* ===== PREVIEW MODE ===== */
+/* preview */
 .preview .form,
 .preview .edit,
 .preview .del,
@@ -64,11 +65,10 @@ button.navbtn{
 .preview select{
   display:none !important;
 }
-.preview table{opacity:.95}
 .preview-label{
-  background:#ffecb3;color:#333;
+  background:#fff3cd;
   padding:6px 10px;border-radius:6px;
-  font-size:13px;margin-bottom:10px
+  font-size:13px;margin-bottom:8px
 }
 </style>
 </head>
@@ -93,9 +93,8 @@ button.navbtn{
 <h2>💰 खर्च विवरण (वार्षिक)</h2>
 
 <div id="previewLabel" class="preview-label" style="display:none">
-👁️ Preview Mode (Read-only)
+👁 Preview Mode (Read-only)
 </div>
-
 <button class="navbtn" onclick="togglePreview()">👁 Preview / ✏️ Edit</button>
 
 <div class="form">
@@ -125,7 +124,7 @@ button.navbtn{
 <tbody id="body"></tbody>
 <tfoot>
 <tr class="sum">
-  <td colspan="3" class="left">कुल खर्च (Cash)</td>
+  <td colspan="3" class="left">कुल चालु खर्च (Cash)</td>
   <td id="cashTotal">0</td><td></td>
 </tr>
 <tr class="sum">
@@ -150,54 +149,95 @@ let expenses=project.expenseData||[];
 let editIndex=null;
 let preview=false;
 
+/* SAVE / UPDATE */
 function saveExpense(){
   if(!title.value) return;
   let amt=(qty.value||0)*(rate.value||0);
   let obj={category:category.value,title:title.value,qty:qty.value||0,rate:rate.value||0,amount:amt};
+
   if(editIndex!==null){expenses[editIndex]=obj;editIndex=null;}
   else expenses.push(obj);
+
   title.value="";qty.value="";rate.value="";
   save();
 }
+
+/* EDIT */
 function edit(i){
   let e=expenses[i];
-  category.value=e.category;title.value=e.title;qty.value=e.qty;rate.value=e.rate;
+  category.value=e.category;
+  title.value=e.title;
+  qty.value=e.qty;
+  rate.value=e.rate;
   editIndex=i;
 }
+
+/* DELETE */
 function del(i){
-  if(confirm("Delete गर्ने हो ?")){expenses.splice(i,1);save();}
+  if(confirm("Delete गर्ने हो ?")){
+    expenses.splice(i,1);
+    save();
+  }
 }
+
+/* SAVE & RENDER */
 function save(){
   project.expenseData=expenses;
   localStorage.setItem(key,JSON.stringify(project));
   render();
 }
+
+/* CATEGORY-WISE RENDER */
 function render(){
-  body.innerHTML="";let cash=0,depr=0;
-  expenses.forEach((e,i)=>{
-    if(e.category==="मेशीन औजार / प्रविधि"||e.category==="पूर्वाधार निर्माण")
-      depr+=e.amount*0.15;
-    else cash+=e.amount;
-    body.innerHTML+=`
-    <tr>
-      <td class="left">${e.title}</td>
-      <td>${e.qty}</td>
-      <td>${e.rate}</td>
-      <td>${e.amount}</td>
-      <td>
-        <button class="edit" onclick="edit(${i})">✏️</button>
-        <button class="del" onclick="del(${i})">✖</button>
-      </td>
-    </tr>`;
+  body.innerHTML="";
+  let groups={},cash=0,depr=0;
+
+  expenses.forEach(e=>{
+    if(!groups[e.category]) groups[e.category]=[];
+    groups[e.category].push(e);
   });
+
+  Object.keys(groups).forEach(cat=>{
+    let sub=0;
+    body.innerHTML+=`<tr class="cat"><td colspan="5">🔹 ${cat}</td></tr>`;
+    groups[cat].forEach(e=>{
+      sub+=e.amount;
+      if(cat==="मेशीन औजार / प्रविधि"||cat==="पूर्वाधार निर्माण")
+        depr+=e.amount*0.15;
+      else cash+=e.amount;
+
+      let idx=expenses.indexOf(e);
+      body.innerHTML+=`
+      <tr>
+        <td class="left">${e.title}</td>
+        <td>${e.qty}</td>
+        <td>${e.rate}</td>
+        <td>${e.amount}</td>
+        <td>
+          <button class="edit" onclick="edit(${idx})">✏️</button>
+          <button class="del" onclick="del(${idx})">✖</button>
+        </td>
+      </tr>`;
+    });
+    body.innerHTML+=`
+      <tr class="sub">
+        <td colspan="3" class="left">उप–कुल</td>
+        <td>${sub}</td>
+        <td></td>
+      </tr>`;
+  });
+
   cashTotal.innerText=Math.round(cash);
   deprTotal.innerText=Math.round(depr);
 }
+
+/* PREVIEW TOGGLE */
 function togglePreview(){
   preview=!preview;
   document.body.classList.toggle("preview",preview);
   previewLabel.style.display=preview?"block":"none";
 }
+
 render();
 </script>
 
