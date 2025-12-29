@@ -1,185 +1,82 @@
-<!DOCTYPE html>
-<html lang="ne">
-<head>
-<meta charset="UTF-8">
-<title>ROI Detail Report | BPMS</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-
-<style>
-body{
-  font-family:"Noto Sans Devanagari","Kalimati",system-ui;
-  background:#f4f7f6;margin:0;
-}
-.page{
-  max-width:1100px;
-  margin:25px auto;
-  background:#fff;
-  padding:30px;
-}
-h1,h2{color:#2e7d32;margin-top:0}
-table{
-  width:100%;
-  border-collapse:collapse;
-  margin-top:12px;
-}
-th,td{
-  border:1px solid #ccc;
-  padding:8px;
-}
-th{background:#eef5ee}
-.right{text-align:right}
-.note{
-  margin-top:10px;
-  font-size:13px;
-  color:#555;
-}
-.badge{
-  display:inline-block;
-  background:#2e7d32;
-  color:#fff;
-  padding:4px 12px;
-  border-radius:14px;
-  font-size:13px;
-}
-@media print{
-  a[href]:after{content:""}
-}
-</style>
-</head>
-
-<body>
-<div class="page">
-
-<h1>📈 ROI Detail Report</h1>
-<span class="badge">5-Year Financial Analysis</span>
-
-<!-- ================= SECTION 1 ================= -->
-<h2>१. आधारभूत नाफा तथा नगद प्रवाह</h2>
-<table>
-<tr><th>विवरण</th><th class="right">रकम (रु.)</th></tr>
-<tr><td>कुल आम्दानी</td><td class="right" id="income"></td></tr>
-<tr><td>चालु खर्च</td><td class="right" id="operating"></td></tr>
-<tr><td>ह्रासकट्टी (Depreciation)</td><td class="right" id="depr"></td></tr>
-<tr><td>बैंक ब्याज</td><td class="right" id="interest"></td></tr>
-<tr><td>कर अघिको नाफा (PBT)</td><td class="right" id="pbt"></td></tr>
-<tr><td>कर (२५%)</td><td class="right" id="tax"></td></tr>
-<tr><td><b>खुद नाफा (PAT)</b></td><td class="right" id="pat"></td></tr>
-<tr><td><b>Operating Cash Flow</b></td><td class="right" id="ocf"></td></tr>
-</table>
-
-<!-- ================= SECTION 2 ================= -->
-<h2>२. लगानी प्रतिफल (ROI Indicators)</h2>
-<table>
-<tr><th>सूचक</th><th class="right">परिणाम</th></tr>
-<tr><td>प्रारम्भिक लगानी</td><td class="right" id="investment"></td></tr>
-<tr><td>Payback Period</td><td class="right" id="payback"></td></tr>
-<tr><td>IRR (Approx)</td><td class="right" id="irr"></td></tr>
-<tr><td>NPV @10% (५ वर्ष)</td><td class="right" id="npv"></td></tr>
-</table>
-
-<!-- ================= SECTION 3 ================= -->
-<h2>३. बैंक तथा वित्तीय अनुपात</h2>
-<table>
-<tr><th>अनुपात</th><th class="right">मूल्य</th></tr>
-<tr><td>Debt–Equity Ratio</td><td class="right" id="de"></td></tr>
-<tr><td>Interest Coverage Ratio</td><td class="right" id="icr"></td></tr>
-<tr><td>Cash Flow Adequacy Ratio</td><td class="right" id="cfa"></td></tr>
-<tr><td>Operating Margin</td><td class="right" id="opm"></td></tr>
-<tr><td>Dividend / Profit Distribution</td><td class="right" id="divr"></td></tr>
-</table>
-
-<p class="note">
-✔️ सबै गणना Expense, Income र Financing Entry बाट स्वतः तानिएको हो  
-✔️ यो पेज Proposal बाट QR / Link गर्न मिल्ने, Print-friendly छ
-</p>
-
-</div>
-
 <script>
 /* ================= LOAD PROJECT ================= */
 let key = localStorage.getItem("activeProject");
 let p = key ? JSON.parse(localStorage.getItem(key)) : {};
 
 /* ================= INCOME ================= */
-let totalIncome = 0;
+let income = 0;
 (p.incomeData||[]).forEach(i=>{
-  totalIncome += Number(i.amount||0);
+  income += Number(i.amount||0);
 });
 
 /* ================= EXPENSE ================= */
 let operating = 0;
 let depreciation = 0;
 
+/* operating + depreciation */
 (p.expenseData||[]).forEach(e=>{
   let amt = Number(e.amount||0);
   let cat = (e.category||"").toLowerCase();
 
-  if(cat.includes("मेशीन") || cat.includes("औजार") || cat.includes("पूर्वाधार")){
+  if(cat.includes("मेशिन") || cat.includes("औजार") || cat.includes("पूर्वाधार")){
     depreciation += amt * 0.15;
   }else{
     operating += amt;
   }
 });
 
-/* ================= BANK INTEREST ================= */
-let interest = p.financing?.loanInterest || 0;
-
-/* ================= INVESTMENT ================= */
-let investment = p.financing?.capital || 0;
+/* ================= INTEREST ================= */
+let interest = Number(localStorage.getItem("ANNUAL_LOAN_INTEREST")) || 0;
 
 /* ================= PROFIT ================= */
-let PBT = totalIncome - operating - depreciation - interest;
+let PBT = income - operating - depreciation - interest;
 let tax = PBT > 0 ? PBT * 0.25 : 0;
 let PAT = PBT - tax;
 let OCF = PAT + depreciation;
 
-/* ================= ROI ================= */
-let payback = OCF > 0 ? (investment / OCF).toFixed(2) + " वर्ष" : "N/A";
+/* ================= INITIAL INVESTMENT ================= */
+let investment = 0;
 
-/* NPV (10%) */
-let rate = 0.10;
-let npv = -investment;
-for(let y=1; y<=5; y++){
-  npv += OCF / Math.pow(1+rate, y);
+/* 1️⃣ from Short Info */
+if(p.shortInfo?.bp_capital){
+  investment = Number(
+    p.shortInfo.bp_capital.replace(/[^\d]/g,"")
+  ) || 0;
 }
 
-/* IRR (Approx) */
-let irr = investment > 0 ? ((PAT / investment) * 100).toFixed(1) + " %" : "N/A";
+/* 2️⃣ fallback: expense category = प्रारम्भिक लगानी */
+if(!investment){
+  (p.expenseData||[]).forEach(e=>{
+    if((e.category||"").includes("प्रारम्भिक")){
+      investment += Number(e.amount||0);
+    }
+  });
+}
 
-/* ================= RATIOS ================= */
-let debt = p.financing?.loanAmt || 0;
-let equity = investment - debt;
+/* ================= ROI INDICATORS ================= */
+let payback = OCF>0 ? (investment/OCF).toFixed(2)+" वर्ष" : "N/A";
 
-let DE = equity > 0 ? (debt / equity).toFixed(2) + " : 1" : "N/A";
-let ICR = interest > 0 ? ((PBT + interest) / interest).toFixed(2) : "∞";
-let CFA = (OCF / (interest + investment/5)).toFixed(2);
-let OPM = totalIncome > 0
-  ? (((totalIncome - operating) / totalIncome) * 100).toFixed(1) + " %"
-  : "0 %";
+/* simple IRR approx */
+let irr = investment>0 ? ((PAT/investment)*100).toFixed(1)+" %" : "N/A";
 
-let DIV = "60% Dividend / 40% Reinvestment";
+/* NPV @10% */
+let npv = -investment;
+for(let y=1;y<=5;y++){
+  npv += OCF / Math.pow(1.1,y);
+}
 
 /* ================= RENDER ================= */
-income.innerText = Math.round(totalIncome);
-operating.innerText = Math.round(operating);
-depr.innerText = Math.round(depreciation);
-interest.innerText = Math.round(interest);
+inc.innerText = Math.round(income);
+op.innerText  = Math.round(operating);
+dep.innerText = Math.round(depreciation);
+int.innerText = Math.round(interest);
 pbt.innerText = Math.round(PBT);
 tax.innerText = Math.round(tax);
 pat.innerText = Math.round(PAT);
 ocf.innerText = Math.round(OCF);
 
-investment.innerText = Math.round(investment);
-payback.innerText = payback;
-irr.innerText = irr;
-npv.innerText = Math.round(npv);
-
-de.innerText = DE;
-icr.innerText = ICR;
-cfa.innerText = CFA;
-opm.innerText = OPM;
-divr.innerText = DIV;
+inv.innerText = Math.round(investment);
+paybackEl.innerText = payback;
+irrEl.innerText = irr;
+npvEl.innerText = Math.round(npv);
 </script>
-
-</body>
-</html>
