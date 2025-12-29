@@ -2,108 +2,131 @@
 <html lang="ne">
 <head>
 <meta charset="UTF-8">
-<title>Final Business Proposal</title>
+<title>Final Business Proposal | FarmerBase BPMS</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
 body{
-  font-family:"Noto Sans Devanagari","Kalimati",system-ui;
+  font-family:"Noto Sans Devanagari","Kalimati","Nirmala UI",system-ui;
   background:#f4f7f6;margin:0;
 }
-.page{
+.container{
   max-width:1000px;margin:25px auto;background:#fff;
   padding:30px;border-radius:12px;
 }
-h1,h2,h3{color:#2e7d32;margin-top:0}
+h1,h2,h3{color:#2e7d32;margin-top:30px}
+h1{text-align:center;margin-top:0}
 table{width:100%;border-collapse:collapse;margin-top:10px}
-th,td{border:1px solid #ccc;padding:6px}
+th,td{border:1px solid #ccc;padding:8px}
 th{background:#eef5ee}
 .right{text-align:right}
-.cat{background:#f1f8f2;font-weight:bold}
-tfoot td{font-weight:bold;background:#f7fbf7}
+.cat{background:#e8f5e9;font-weight:700}
+.sum{background:#f1f8f1;font-weight:700}
+.note{font-size:13px;color:#555;margin-top:6px}
+
 @media print{
   a[href]:after{content:""}
+  thead{display:table-header-group}
+  tfoot{display:table-footer-group}
+  tr{page-break-inside:avoid}
 }
 </style>
 </head>
 
 <body>
-<div class="page">
+<div class="container">
 
-<h1 style="text-align:center">व्यवसाय प्रस्ताव</h1>
+<h1 id="title">व्यवसायिक प्रस्ताव</h1>
 
 <!-- ================= SHORT INFO ================= -->
 <h2>१. संक्षिप्त परिचय</h2>
 <table>
-<tr><th>व्यवसायको नाम</th><td id="bp_name"></td></tr>
-<tr><th>स्थान</th><td id="bp_location"></td></tr>
-<tr><th>सञ्चालक संस्था</th><td id="bp_org"></td></tr>
-<tr><th>प्रोप्राइटर</th><td id="bp_owner"></td></tr>
-<tr><th>सम्पर्क नम्बर</th><td id="bp_phone"></td></tr>
-<tr><th>व्यवसायिक प्रकृति</th><td id="bp_products"></td></tr>
+<tr><th>व्यवसाय/प्रस्ताव नाम</th><td id="si_name"></td></tr>
+<tr><th>स्थान</th><td id="si_location"></td></tr>
+<tr><th>संस्था</th><td id="si_org"></td></tr>
+<tr><th>प्रोप्राइटर</th><td id="si_owner"></td></tr>
+<tr><th>सम्पर्क</th><td id="si_phone"></td></tr>
+<tr><th>व्यवसाय प्रकृति</th><td id="si_products"></td></tr>
+<tr><th>कुल पूँजी</th><td id="si_capital"></td></tr>
 </table>
 
 <h3>संस्थागत परिचय</h3>
 <table>
 <tr><th>दर्ता मिति</th><td id="reg_date"></td></tr>
-<tr><th>दर्ता निकाय</th><td id="reg_authority"></td></tr>
+<tr><th>दर्ता निकाय</th><td id="reg_auth"></td></tr>
 <tr><th>दर्ता नं</th><td id="reg_no"></td></tr>
 <tr><th>PAN नं</th><td id="pan_no"></td></tr>
 </table>
 
 <h3>लाभान्वित समूह</h3>
 <table>
-<tr><th>समूह प्रकार</th><td id="benef_group_type"></td></tr>
-<tr><th>महिला</th><td id="female_count"></td></tr>
-<tr><th>पुरुष</th><td id="male_count"></td></tr>
-<tr><th>जम्मा</th><td id="total_count"></td></tr>
+<tr><th>समूह प्रकार</th><td id="bg_type"></td></tr>
+<tr><th>महिला</th><td id="female"></td></tr>
+<tr><th>पुरुष</th><td id="male"></td></tr>
+<tr><th>जम्मा</th><td id="total"></td></tr>
 </table>
 
 <!-- ================= BUSINESS DETAIL ================= -->
-<h2>२. व्यवसायको विस्तृत विवरण</h2>
-<div id="businessDetail"></div>
+<h2>२. व्यवसाय विवरण</h2>
+<div id="detailBox"></div>
 
-<!-- ================= PRODUCTION SALES ================= -->
+<!-- ================= PRODUCTION ================= -->
 <h2>३. उत्पादन तथा बिक्री योजना</h2>
-<table>
-<thead>
-<tr>
-<th>वर्ष</th>
-<th>बयस्क संख्या</th>
-<th>जन्मिएका (बाँचेक)</th>
-<th>बिक्री (बच्चा)</th>
-<th>बयस्क बिक्री</th>
-<th>अर्को वर्षका बयस्क</th>
-</tr>
-</thead>
-<tbody id="prodBody"></tbody>
-</table>
+<div id="prodBox"><i>उत्पादन योजना उपलब्ध छैन</i></div>
 
-<!-- ================= EXPENSE CATEGORY ================= -->
+<!-- ================= EXPENSE ================= -->
 <h2>४. खर्च विवरण (विधागत)</h2>
 <table>
 <thead>
-<tr><th>विधा</th><th>शीर्षक</th><th class="right">रकम</th></tr>
+<tr><th>शीर्षक</th><th>परिमाण</th><th class="right">रकम</th></tr>
 </thead>
-<tbody id="expenseBody"></tbody>
+<tbody id="expBody"></tbody>
 <tfoot>
-<tr><td colspan="2" class="right">कुल खर्च</td><td class="right" id="expTotal"></td></tr>
+<tr class="sum"><td colspan="2">कुल चालु खर्च</td><td class="right" id="cashTotal"></td></tr>
+<tr class="sum"><td colspan="2">ह्रासकट्टी (वार्षिक)</td><td class="right" id="depTotal"></td></tr>
+<tr class="sum"><td colspan="2">बैंक ब्याज</td><td class="right" id="intTotal"></td></tr>
 </tfoot>
 </table>
 
 <!-- ================= INCOME ================= -->
-<h2>५. आम्दानी विवरण</h2>
+<h2>५. आम्दानी विवरण (विधागत)</h2>
 <table>
-<tr><th>कुल आम्दानी</th><td class="right" id="incTotal"></td></tr>
+<thead>
+<tr><th>शीर्षक</th><th>परिमाण</th><th class="right">रकम</th></tr>
+</thead>
+<tbody id="incBody"></tbody>
+<tfoot>
+<tr class="sum"><td colspan="2">कुल आम्दानी</td><td class="right" id="incTotal"></td></tr>
+</tfoot>
 </table>
 
-<!-- ================= PROFIT ================= -->
-<h2>६. नाफा / नोक्सान</h2>
+<!-- ================= PROFIT LOSS ================= -->
+<h2>६. नाफा / नोक्सान विवरण</h2>
 <table>
-<tr><th>कुल आम्दानी</th><td class="right" id="pl_inc"></td></tr>
-<tr><th>कुल खर्च</th><td class="right" id="pl_exp"></td></tr>
-<tr><th>खुद नाफा</th><td class="right" id="pl_net"></td></tr>
+<tr><th>कुल आम्दानी</th><td class="right" id="p_inc"></td></tr>
+<tr><th>चालु खर्च</th><td class="right" id="p_cash"></td></tr>
+<tr><th>ह्रासकट्टी</th><td class="right" id="p_dep"></td></tr>
+<tr><th>ब्याज</th><td class="right" id="p_int"></td></tr>
+<tr><th>कर अघिको नाफा (PBT)</th><td class="right" id="p_pbt"></td></tr>
+<tr><th>कर (२५%)</th><td class="right" id="p_tax"></td></tr>
+<tr class="sum"><th>खुद नाफा (PAT)</th><td class="right" id="p_pat"></td></tr>
 </table>
+
+<!-- ================= ROI ================= -->
+<h2>७. ५ वर्षे ROI विश्लेषण</h2>
+<table>
+<tr><th>सूचक</th><th class="right">परिणाम</th></tr>
+<tr><td>प्रारम्भिक लगानी</td><td class="right" id="roi_inv"></td></tr>
+<tr><td>Payback Period</td><td class="right" id="roi_pay"></td></tr>
+<tr><td>IRR (अनुमानित)</td><td class="right" id="roi_irr"></td></tr>
+<tr><td>NPV (10%)</td><td class="right" id="roi_npv"></td></tr>
+</table>
+
+<p class="note">
+✔️ Expense / Income Entry बाट स्वचालित  
+✔️ Bank / Grant proposal ready  
+✔️ Print friendly (URL hidden)
+</p>
 
 </div>
 
@@ -111,78 +134,102 @@ tfoot td{font-weight:bold;background:#f7fbf7}
 let key=localStorage.getItem("activeProject");
 let p=key?JSON.parse(localStorage.getItem(key)):{};
 
-/* SHORT INFO */
+/* ---------- SHORT INFO ---------- */
 let s=p.shortInfo||{};
-["bp_name","bp_location","bp_org","bp_owner","bp_phone","bp_products",
- "reg_date","reg_authority","reg_no","pan_no",
- "benef_group_type","female_count","male_count","total_count"
-].forEach(id=>{
-  if(document.getElementById(id))
-    document.getElementById(id).innerText=s[id]||"";
-});
+si_name.innerText=s.bp_name||"";
+si_location.innerText=s.bp_location||"";
+si_org.innerText=s.bp_org||"";
+si_owner.innerText=s.bp_owner||"";
+si_phone.innerText=s.bp_phone||"";
+si_products.innerText=s.bp_products||"";
+si_capital.innerText=s.bp_capital||"";
+reg_date.innerText=s.reg_date||"";
+reg_auth.innerText=s.reg_authority||"";
+reg_no.innerText=s.reg_no||"";
+pan_no.innerText=s.pan_no||"";
+bg_type.innerText=s.benef_group_type||"";
+female.innerText=s.female_count||"";
+male.innerText=s.male_count||"";
+total.innerText=s.total_count||"";
 
-/* BUSINESS DETAIL */
-let bd=document.getElementById("businessDetail");
+/* ---------- BUSINESS DETAIL ---------- */
 (p.businessDetail||[]).forEach(d=>{
-  bd.innerHTML+=`<h3>${d.topic}</h3><p>${d.content}</p>`;
+  detailBox.innerHTML+=`<h3>${d.topic}</h3><p>${d.content}</p>`;
 });
 
-/* PRODUCTION */
-let ps=JSON.parse(localStorage.getItem("productionSalesPlan")||"null");
-if(ps){
-  let adult=ps.adult;
-  for(let y=1;y<=5;y++){
-    let born=adult*ps.breedRate/100*ps.kids;
-    let alive=born*(100-ps.death)/100;
-    let male=alive*ps.maleRate/100;
-    let female=alive-male;
-    let keepF=female*ps.keepFemale/100;
-    let sellKids=alive-keepF;
-    let sellAdult=adult*ps.replacement/100;
-
-    prodBody.innerHTML+=`
-    <tr>
-      <td>${y}</td>
-      <td>${Math.round(adult)}</td>
-      <td>${Math.round(alive)}</td>
-      <td>${Math.round(sellKids)}</td>
-      <td>${Math.round(sellAdult)}</td>
-      <td>${Math.round(adult+keepF)}</td>
-    </tr>`;
-    adult+=keepF;
-  }
+/* ---------- PRODUCTION ---------- */
+let prod=localStorage.getItem("productionSalesPlan");
+if(prod){
+  let d=JSON.parse(prod);
+  prodBox.innerHTML=`
+  प्रारम्भिक बयस्क: ${d.adult},
+  ब्याउने दर: ${d.breedRate}%,
+  मृत्युदर: ${d.death}%`;
 }
 
-/* EXPENSE CATEGORY */
-let expTotal=0;
-let groups={};
+/* ---------- EXPENSE ---------- */
+let cash=0,dep=0,intt=0;
+let expGroups={};
 (p.expenseData||[]).forEach(e=>{
-  if(!groups[e.category])groups[e.category]=[];
-  groups[e.category].push(e);
+  let c=e.category||"अन्य";
+  if(!expGroups[c]) expGroups[c]=[];
+  expGroups[c].push(e);
+
+  if((e.title||"").includes("ब्याज")) intt+=e.amount;
+  else if(c.includes("मेशिन")||c.includes("पूर्वाधार")) dep+=e.amount*0.15;
+  else cash+=e.amount;
 });
-for(let c in groups){
-  expenseBody.innerHTML+=`<tr class="cat"><td colspan="3">${c}</td></tr>`;
-  groups[c].forEach(e=>{
-    expTotal+=Number(e.amount||0);
-    expenseBody.innerHTML+=`
-    <tr>
-      <td></td><td>${e.title}</td>
-      <td class="right">${e.amount}</td>
-    </tr>`;
+for(let c in expGroups){
+  expBody.innerHTML+=`<tr class="cat"><td colspan="3">${c}</td></tr>`;
+  expGroups[c].forEach(e=>{
+    expBody.innerHTML+=`<tr>
+      <td>${e.title}</td><td>${e.qty}</td>
+      <td class="right">${e.amount}</td></tr>`;
   });
 }
-expTotalEl=document.getElementById("expTotal");
-expTotalEl.innerText=Math.round(expTotal);
+cashTotal.innerText=Math.round(cash);
+depTotal.innerText=Math.round(dep);
+intTotal.innerText=Math.round(intt);
 
-/* INCOME */
-let inc=0;
-(p.incomeData||[]).forEach(i=>inc+=Number(i.amount||0));
+/* ---------- INCOME ---------- */
+let inc=0; let incGroups={};
+(p.incomeData||[]).forEach(i=>{
+  let c=i.category||"अन्य";
+  if(!incGroups[c]) incGroups[c]=[];
+  incGroups[c].push(i);
+  inc+=i.amount;
+});
+for(let c in incGroups){
+  incBody.innerHTML+=`<tr class="cat"><td colspan="3">${c}</td></tr>`;
+  incGroups[c].forEach(i=>{
+    incBody.innerHTML+=`<tr>
+      <td>${i.title}</td><td>${i.qty}</td>
+      <td class="right">${i.amount}</td></tr>`;
+  });
+}
 incTotal.innerText=Math.round(inc);
 
-/* PROFIT */
-pl_inc.innerText=Math.round(inc);
-pl_exp.innerText=Math.round(expTotal);
-pl_net.innerText=Math.round(inc-expTotal);
+/* ---------- PROFIT ---------- */
+let PBT=inc-cash-dep-intt;
+let tax=PBT>0?PBT*0.25:0;
+let PAT=PBT-tax;
+
+p_inc.innerText=inc;
+p_cash.innerText=cash;
+p_dep.innerText=Math.round(dep);
+p_int.innerText=intt;
+p_pbt.innerText=Math.round(PBT);
+p_tax.innerText=Math.round(tax);
+p_pat.innerText=Math.round(PAT);
+
+/* ---------- ROI ---------- */
+let inv=Number((s.bp_capital||"").replace(/[^\d]/g,""))||0;
+let OCF=PAT+dep;
+roi_inv.innerText=inv;
+roi_pay.innerText=OCF>0?(inv/OCF).toFixed(2)+" वर्ष":"N/A";
+roi_irr.innerText=inv?((PAT/inv)*100).toFixed(1)+" %":"N/A";
+let npv=-inv;for(let y=1;y<=5;y++)npv+=OCF/Math.pow(1.1,y);
+roi_npv.innerText=Math.round(npv);
 </script>
 
 </body>
