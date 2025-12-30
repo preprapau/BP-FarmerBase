@@ -28,7 +28,7 @@ header a,footer a{
   padding:22px;
   border-radius:12px
 }
-h2{color:#2e7d32;margin-top:0}
+h2,h3{color:#2e7d32;margin-top:0}
 table{width:100%;border-collapse:collapse;margin-top:10px}
 th,td{border:1px solid #ccc;padding:6px;text-align:left}
 th{background:#eef5ee}
@@ -63,7 +63,7 @@ button{padding:6px 12px;border:none;border-radius:6px;cursor:pointer}
   <th></th>
 </tr>
 </thead>
-<tbody id="body"></tbody>
+<tbody id="expenseBody"></tbody>
 </table>
 
 <hr>
@@ -89,6 +89,7 @@ button{padding:6px 12px;border:none;border-radius:6px;cursor:pointer}
 <hr>
 
 <h3>📊 प्रति–उत्पादन लागत (Auto Calculated)</h3>
+
 <table>
 <thead>
 <tr>
@@ -162,7 +163,7 @@ function toggleAll(cb){
 
 function getSelectedProducts(){
   const all = applyBox.querySelector("input[type=checkbox]");
-  if(all.checked) return ["all"];
+  if(all && all.checked) return ["all"];
 
   return [...applyBox.querySelectorAll(".prod")]
     .filter(x=>x.checked)
@@ -173,9 +174,9 @@ function getSelectedProducts(){
    RENDER EXPENSE TABLE
    ===================================================== */
 function renderExpenses(){
-  body.innerHTML = "";
+  expenseBody.innerHTML = "";
   expenses.forEach(e=>{
-    body.innerHTML += `
+    expenseBody.innerHTML += `
     <tr>
       <td>
         <input value="${e.title}"
