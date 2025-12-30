@@ -2,234 +2,169 @@
 <html lang="ne">
 <head>
 <meta charset="UTF-8">
-<title>Letterhead – निवेदन</title>
+<title>औपचारिक निवेदन पत्र</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
-*{box-sizing:border-box}
 body{
-  font-family:"Noto Sans Devanagari",system-ui,Arial;
-  background:#f4f7f6;
-  margin:0;
+  font-family:"Noto Sans Devanagari","Kalimati",system-ui;
+  background:#f4f7f6;margin:0;
 }
 .page{
   max-width:900px;
-  margin:0 auto;
+  margin:25px auto;
   background:#fff;
-  padding:40px 50px;
-  min-height:100vh;
-  position:relative;
+  padding:35px;
+  border-radius:10px;
+}
+.header{
+  text-align:center;
+  border-bottom:2px solid #000;
+  padding-bottom:10px;
+  margin-bottom:25px;
+}
+.header h2{margin:0}
+.small{font-size:14px;color:#333}
+
+.row{margin:10px 0}
+label{font-weight:600}
+input,textarea{
+  width:100%;
+  padding:8px;
+  margin-top:5px;
+  font-family:inherit;
+}
+textarea{min-height:120px}
+
+.flex{
+  display:flex;
+  justify-content:space-between;
+  margin-top:20px;
 }
 
-/* Header */
-.header{text-align:center}
-.header h1{margin:0;font-size:24px}
-.header p{margin:4px 0;font-size:14px}
-.hr{margin:12px 0 20px;border-bottom:2px solid #000}
-
-/* Meta */
-.meta{
-  display:flex;justify-content:space-between;gap:20px;
-  font-size:14px;margin-bottom:18px
+.attach-list li{
+  margin:4px 0;
 }
-.to{max-width:60%}
-
-/* Body */
-.body{font-size:15px;line-height:1.9}
-.body p{margin:8px 0}
-
-/* Attachments */
-h4{margin:22px 0 8px}
-ol{line-height:1.8}
-
-/* Signature */
-.signature{margin-top:34px;text-align:right}
-.signature img{max-height:80px;display:none}
-
-/* Footer */
-.footer{
-  position:absolute;left:0;right:0;bottom:24px;
-  text-align:center;font-size:13px;color:#444
+button{
+  padding:6px 12px;
+  border:none;
+  border-radius:6px;
+  background:#2e7d32;
+  color:#fff;
+  cursor:pointer;
+}
+.del{
+  background:#c62828;
+  margin-left:6px;
 }
 
-/* ===== FINAL PRINT MODE (LOCKED) ===== */
 @media print{
-  body{background:#fff!important}
-  .no-print,button,input,select,textarea{display:none!important}
-  a[href]:after{content:""!important}
-  @page{size:A4;margin:20mm}
+  button{display:none}
+  a[href]:after{content:""}
 }
 </style>
 </head>
 
 <body>
-
 <div class="page">
 
-  <!-- HEADER -->
-  <div class="header">
-    <h1 id="orgName">संस्थाको नाम</h1>
-    <p id="orgAddress">ठेगाना</p>
-    <p>दर्ता नं: <span id="regNo">XXXX</span> | पान नं: <span id="panNo">XXXXX</span></p>
+<!-- ================= HEADER ================= -->
+<div class="header">
+  <h2 id="orgName">संस्थाको नाम</h2>
+  <div class="small" id="orgAddress">ठेगाना</div>
+  <div class="small">
+    दर्ता नं: <span id="regNo">—</span> |
+    PAN: <span id="panNo">—</span> |
+    सम्पर्क: <span id="contact">—</span>
   </div>
+</div>
 
-  <div class="hr"></div>
-
-  <!-- META -->
-  <div class="meta">
-    <div class="to">
-      <strong>श्री ..................................</strong><br>
-      <span id="receiverOffice">Self Office / कार्यालयको नाम</span><br>
-      <span id="receiverAddress">ठेगाना</span>
-    </div>
-    <div>
-      मिति: <span id="nepDate"></span>
-    </div>
+<!-- ================= META ================= -->
+<div class="flex">
+  <div>
+    <label>प्रति :</label>
+    <input id="toOffice" placeholder="कार्यालय / निकायको नाम">
   </div>
-
-  <!-- BODY -->
-  <div class="body">
-    <p><strong>विषय:</strong> व्यवसाय प्रस्ताव सम्बन्धमा ।</p>
-    <p>महोदय,</p>
-
-    <p>
-      यस संस्थामार्फत प्रस्तुत गरिएको बङ्गुर पालन व्यवसाय सम्बन्धी
-      प्रस्तावलाई अध्ययन गरी आवश्यक सहयोग / सहजीकरण गरिदिनुहुन
-      विनम्र अनुरोध गर्दछु। यस प्रस्तावमा परियोजनाको उद्देश्य,
-      आर्थिक अवस्था, सम्भाव्यता तथा कार्ययोजना समावेश गरिएको छ।
-    </p>
-
-    <p>
-      तसर्थ, यस व्यवसाय प्रस्तावलाई स्वीकृति प्रदान गरी आवश्यक
-      प्रक्रिया अगाडि बढाइदिनुहुन अनुरोध गर्दछु।
-    </p>
-
-    <!-- PROPOSAL LINK (screen only) -->
-    <p class="no-print">
-      📄 <a id="proposalLink" href="#" target="_blank">पूर्ण व्यवसाय प्रस्ताव हेर्नुहोस्</a>
-    </p>
-
-    <!-- ATTACHMENTS -->
-    <hr>
-    <h4>निवेदनका साथ संलग्न कागजपत्रहरू:</h4>
-    <ol id="attachmentList"></ol>
-
-    <div class="no-print" style="margin-top:10px">
-      <input type="text" id="attachInput" placeholder="कागजपत्रको नाम लेख्नुहोस्"
-             style="width:70%;padding:6px">
-      <button onclick="addAttachment()">Add</button>
-    </div>
+  <div style="width:200px">
+    <label>मिति :</label>
+    <input id="letterDate">
   </div>
+</div>
 
-  <!-- SIGNATORY TOGGLE (screen only) -->
-  <div class="no-print" style="margin:14px 0">
-    <label>
-      <input type="radio" name="signMode" value="owner" checked onchange="setSignatory('owner')">
-      निवेदक / Proprietor
-    </label>
-    &nbsp;&nbsp;
-    <label>
-      <input type="radio" name="signMode" value="auth" onchange="setSignatory('auth')">
-      Authorized Signatory
-    </label>
+<div class="row">
+  <label>विषय :</label>
+  <input id="subject" placeholder="निवेदनको विषय">
+</div>
+
+<div class="row">
+  <label>निवेदनको व्यहोरा :</label>
+  <textarea id="description"></textarea>
+</div>
+
+<!-- ================= ATTACHMENTS ================= -->
+<div class="row">
+  <label>संलग्न कागजातहरू :</label>
+  <div style="display:flex;gap:6px">
+    <input id="attachInput" placeholder="कागजातको नाम">
+    <button onclick="addAttach()">+ Add</button>
   </div>
+  <ul class="attach-list" id="attachList"></ul>
+</div>
 
-  <!-- SIGNATURE -->
-  <div class="signature">
-    <p>भवदीय,</p>
-
-    <img id="signImg"><br>
-
-    <input type="file" accept="image/*" class="no-print" onchange="loadSignature(event)">
-
-    <p>
-      <span id="sigName">.................................</span><br>
-      <span id="sigPost">निवेदक / Proprietor</span><br>
-      <span id="sigOrg">संस्थाको नाम</span>
-    </p>
-  </div>
-
-  <!-- FOOTER -->
-  <div class="footer">
-    सम्पर्क नं: <span id="contact">98XXXXXXXX</span> |
-    ईमेल: <span id="email">example@email.com</span>
-  </div>
+<!-- ================= SIGN ================= -->
+<div style="margin-top:40px">
+  <div>भवदीय,</div>
+  <br>
+  <div><b id="signName">नाम</b></div>
+  <div class="small">प्रोप्राइटर / आधिकारिक हस्ताक्षरकर्ता</div>
+  <div class="small" id="signOrg">संस्था</div>
+</div>
 
 </div>
 
 <script>
-/* ===== PROJECT LOAD ===== */
+/* ===== LOAD PROJECT ===== */
 let key = localStorage.getItem("activeProject");
-let project = key ? JSON.parse(localStorage.getItem(key)) : {};
+let p = key ? JSON.parse(localStorage.getItem(key)) : {};
+let s = p.shortInfo || {};
 
-/* ===== AUTO PROPOSAL LINK ===== */
-document.getElementById("proposalLink").href =
-  location.href.replace("letterhead.html","proposal.html");
+/* ===== AUTO HEADER ===== */
+orgName.innerText = s.bp_org || "संस्थाको नाम";
+orgAddress.innerText = s.bp_location || "ठेगाना";
+regNo.innerText = s.reg_no || "—";
+panNo.innerText = s.pan_no || "—";
+contact.innerText = s.bp_phone || "—";
 
-/* ===== NEPALI DATE (simple) ===== */
-function getNepaliDate(){
-  const d=new Date();
-  let y=d.getFullYear()+56, m=d.getMonth()+9, day=d.getDate();
-  if(m>12){m-=12;y+=1}
-  return `${y}/${String(m).padStart(2,"0")}/${String(day).padStart(2,"0")}`;
-}
-document.getElementById("nepDate").innerText = getNepaliDate();
+/* ===== SIGN ===== */
+signName.innerText = s.bp_owner || "नाम";
+signOrg.innerText = s.bp_org || "";
+
+/* ===== DATE (Nepali simple fallback) ===== */
+letterDate.value = new Date().toLocaleDateString("ne-NP");
 
 /* ===== ATTACHMENTS ===== */
-if(!project.attachments) project.attachments=[];
-function renderAttachments(){
-  const list=document.getElementById("attachmentList");
-  list.innerHTML="";
-  project.attachments.forEach((a,i)=>{
-    const li=document.createElement("li");
-    li.innerHTML = `${a}
-      <span class="no-print" style="color:red;cursor:pointer;margin-left:8px"
-            onclick="removeAttachment(${i})">✖</span>`;
-    list.appendChild(li);
+let attachments = [];
+
+function addAttach(){
+  if(!attachInput.value) return;
+  attachments.push(attachInput.value);
+  attachInput.value="";
+  renderAttach();
+}
+function delAttach(i){
+  attachments.splice(i,1);
+  renderAttach();
+}
+function renderAttach(){
+  attachList.innerHTML="";
+  attachments.forEach((a,i)=>{
+    attachList.innerHTML+=`
+      <li>${i+1}. ${a}
+        <button class="del" onclick="delAttach(${i})">✖</button>
+      </li>`;
   });
 }
-function addAttachment(){
-  const inp=document.getElementById("attachInput");
-  const val=inp.value.trim(); if(!val) return;
-  project.attachments.push(val);
-  localStorage.setItem(key, JSON.stringify(project));
-  inp.value=""; renderAttachments();
-}
-function removeAttachment(i){
-  project.attachments.splice(i,1);
-  localStorage.setItem(key, JSON.stringify(project));
-  renderAttachments();
-}
-renderAttachments();
-
-/* ===== AUTHORIZED SIGNATORY TOGGLE ===== */
-const SIGN_KEY="LETTER_SIGNATORY_MODE";
-const signatoryData={
-  owner:{name:".................................",post:"निवेदक / Proprietor",org:"संस्थाको नाम",signKey:"SIGN_OWNER"},
-  auth:{name:".................................",post:"Authorized Signatory",org:"संस्थाको नाम",signKey:"SIGN_AUTH"}
-};
-function setSignatory(mode){
-  localStorage.setItem(SIGN_KEY,mode);
-  applySignatory(mode);
-}
-function applySignatory(mode){
-  const d=signatoryData[mode]||signatoryData.owner;
-  sigName.innerText=d.name; sigPost.innerText=d.post; sigOrg.innerText=d.org;
-  const saved=localStorage.getItem(d.signKey);
-  if(saved){signImg.src=saved;signImg.style.display="block"}else{signImg.style.display="none"}
-  document.querySelectorAll('input[name="signMode"]').forEach(r=>r.checked=(r.value===mode));
-}
-function loadSignature(e){
-  const file=e.target.files[0]; if(!file) return;
-  const mode=localStorage.getItem(SIGN_KEY)||"owner";
-  const keyS=signatoryData[mode].signKey;
-  const r=new FileReader();
-  r.onload=()=>{signImg.src=r.result;signImg.style.display="block";localStorage.setItem(keyS,r.result)};
-  r.readAsDataURL(file);
-}
-applySignatory(localStorage.getItem(SIGN_KEY)||"owner");
 </script>
 
 </body>
 </html>
-
