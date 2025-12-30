@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+<meta charset="UTF-8">
+<title>Profit–Loss Summary | Farmerbase BP Engine</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+body{
+  font-family:"Noto Sans Devanagari","Kalimati",system-ui;
+  background:#f4f7f6;margin:0
+}
+header,footer{
+  background:#e8f5e9;
+  padding:10px 16px;
+  display:flex;
+  justify-content:space-between
+}
+header a,footer a{
+  color:#2e7d32;
+  font-weight:600;
+  text-decoration:none
+}
+.wrap{
+  max-width:800px;
+  margin:18px auto;
+  background:#fff;
+  padding:22px;
+  border-radius:12px
+}
+h2{color:#2e7d32;margin-top:0}
+table{width:100%;border-collapse:collapse;margin-top:10px}
+th,td{
+  border:1px solid #ccc;
+  padding:8px;
+  text-align:right
+}
+th{background:#eef5ee}
+.left{text-align:left}
+.sum{font-weight:700;background:#fafafa}
+.ok{color:#2e7d32;font-weight:700}
+.warn{color:#c62828;font-weight:700}
+.small{font-size:13px;color:#2e7d32}
+button{
+  padding:10px 16px;
+  background:#2e7d32;
+  color:#fff;
+  border:none;
+  border-radius:8px;
+  cursor:pointer
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <a href="profit-loss-demo.html">◀️ Profit–Loss</a>
+  <a href="index.html">🏠 Home</a>
+</header>
+
+<div class="wrap">
+
+<h2>📋 Profit–Loss Summary (ROI अघि पुष्टि)</h2>
+
+<table>
+<tr>
+  <th class="left">विवरण</th>
+  <th>रकम</th>
+</tr>
+
+<tr>
+  <td class="left">कुल आम्दानी</td>
+  <td id="totalIncome">0</td>
+</tr>
+
+<tr>
+  <td class="left">चालु खर्च</td>
+  <td id="operatingCost">0</td>
+</tr>
+
+<tr>
+  <td class="left">स्थिर खर्च / लगानी</td>
+  <td id="fixedCost">0</td>
+</tr>
+
+<tr>
+  <td class="left">ह्रासकट्टी</td>
+  <td id="depreciation">0</td>
+</tr>
+
+<tr class="sum">
+  <td class="left">कर-पूर्व नाफा</td>
+  <td id="profitBeforeTax">0</td>
+</tr>
+
+<tr>
+  <td class="left">आम्दानी कर</td>
+  <td id="incomeTax">0</td>
+</tr>
+
+<tr class="sum">
+  <td class="left">कर-पछिको खुद नाफा</td>
+  <td id="netProfit">0</td>
+</tr>
+</table>
+
+<p id="status" class="small"></p>
+
+<div style="margin-top:16px;text-align:center">
+  <button onclick="goROI()">✔️ Confirm & Go to ROI</button>
+</div>
+
+</div>
+
+<footer>
+  <a href="profit-loss-demo.html">◀️ Back</a>
+  <a href="roi.html">ROI ▶️</a>
+</footer>
+
+<script>
+/* =====================================================
+   LOAD PROJECT DATA
+   ===================================================== */
+const projectKey = localStorage.getItem("activeProject");
+if(!projectKey){
+  alert("पहिले Project खोल्नुहोस्");
+  location.href="index.html";
+}
+
+const project = JSON.parse(localStorage.getItem(projectKey)) || {};
+const pl = project.profitLoss || {};
+
+/* =====================================================
+   RENDER SUMMARY
+   ===================================================== */
+function render(){
+
+  totalIncome.innerText = (pl.totalIncome||0).toFixed(2);
+  operatingCost.innerText = (pl.operatingCost||0).toFixed(2);
+  fixedCost.innerText = (pl.fixedCost||0).toFixed(2);
+  depreciation.innerText = (pl.depreciation||0).toFixed(2);
+  profitBeforeTax.innerText = (pl.profitBeforeTax||0).toFixed(2);
+  incomeTax.innerText = (pl.incomeTax||0).toFixed(2);
+  netProfit.innerText = (pl.netProfit||0).toFixed(2);
+
+  if((pl.netProfit||0) > 0){
+    status.innerHTML =
+      "✅ नाफा सकारात्मक छ । ROI गणना गर्न तयार।";
+    status.className = "ok";
+  }else{
+    status.innerHTML =
+      "⚠️ नाफा शून्य वा नकारात्मक छ । ROI अघि पुनरावलोकन गर्नुहोस्।";
+    status.className = "warn";
+  }
+}
+
+/* =====================================================
+   GO TO ROI
+   ===================================================== */
+function goROI(){
+  location.href = "roi.html";
+}
+
+render();
+</script>
+
+</body>
+</html>
