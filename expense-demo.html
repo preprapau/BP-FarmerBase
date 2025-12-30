@@ -2,7 +2,7 @@
 <html lang="ne">
 <head>
 <meta charset="UTF-8">
-<title>Expense Detail | BPMS</title>
+<title>Expense Detail | Farmer Base BP Engine</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
@@ -10,19 +10,36 @@ body{
   font-family:"Noto Sans Devanagari","Kalimati",system-ui;
   background:#f4f7f6;margin:0
 }
+header,footer{
+  background:#e8f5e9;
+  padding:10px 16px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  font-size:14px
+}
+header a, footer a{
+  text-decoration:none;
+  color:#2e7d32;
+  font-weight:600
+}
 .wrap{
-  max-width:1100px;margin:25px auto;
-  background:#fff;padding:25px;border-radius:12px
+  max-width:1100px;margin:18px auto;
+  background:#fff;padding:22px;border-radius:12px
 }
 h2{color:#2e7d32;margin-top:0}
+h3{margin-bottom:6px;color:#1565c0}
 
 /* FORM */
 .form{
   display:grid;
-  grid-template-columns:2fr 3fr 1fr 1fr auto;
+  grid-template-columns:1.5fr 2fr 2fr 1fr 1fr auto;
   gap:8px;margin-bottom:12px
 }
-input,select{padding:8px;font-family:inherit}
+input,select,textarea{
+  padding:8px;font-family:inherit
+}
+textarea{width:100%;resize:vertical}
 button.add{
   background:#2e7d32;color:#fff;border:none;
   border-radius:6px;padding:8px 14px;cursor:pointer
@@ -35,37 +52,53 @@ th,td{border:1px solid #ccc;padding:6px;text-align:right}
 th{background:#eef5ee}
 .left{text-align:left}
 .cat{background:#e8f5e9;font-weight:700}
+.subcat{background:#f1f8f4;font-weight:600}
 .sum{background:#fafafa;font-weight:700}
 .ed{background:#1976d2;color:#fff;border:none;padding:4px 8px;border-radius:4px}
 .del{background:#c62828;color:#fff;border:none;padding:4px 8px;border-radius:4px}
 
-/* FINANCE */
 .note{font-size:13px;color:#555;margin-top:8px}
-.warn{color:#c62828;font-size:13px}
 </style>
 </head>
 
 <body>
+
+<header>
+  <a href="index.html">🏠 Back to Home</a>
+  <div>
+    <a href="income-demo.html">◀️ Income</a> |
+    <a href="profit-loss-demo.html">Profit–Loss ▶️</a>
+  </div>
+</header>
+
 <div class="wrap">
 
 <h2>💰 खर्च विवरण (वार्षिक)</h2>
 
+<!-- ===== NARRATION ===== -->
+<h3>📝 खर्च सम्बन्धी व्याख्या (Narration)</h3>
+<textarea id="narration" rows="4"
+placeholder="यहाँ आफ्नो व्यवसायको खर्च सम्बन्धी समग्र व्याख्या लेख्नुहोस्...">
+यस व्यवसाय सञ्चालनका क्रममा चालु खर्च र स्थिर खर्च दुवै प्रकारका खर्चहरू हुनेछन्। चालु खर्च उत्पादन र बिक्रीसँग प्रत्यक्ष सम्बन्धित हुनेछन् भने स्थिर खर्च दीर्घकालीन सम्पत्तिसँग सम्बन्धित रहनेछन्।
+</textarea>
+
+<hr>
+
 <!-- ===== ENTRY FORM ===== -->
 <div class="form">
-  <select id="category">
-    <option>प्रारम्भिक लगानी</option>
-    <option>मेशीन औजार / प्रविधि</option>
-    <option>पूर्वाधार निर्माण</option>
-    <option>चालु खर्च</option>
-    <option>विविध</option>
+  <select id="mainCat">
+    <option value="चालु खर्च">चालु खर्च</option>
+    <option value="स्थिर खर्च">स्थिर खर्च</option>
   </select>
+
+  <input id="subCat" placeholder="Sub-Category (जस्तै: दाना, मजदुरी, गोठ निर्माण)">
   <input id="title" placeholder="खर्च शीर्षक">
   <input id="qty" type="number" placeholder="परिमाण">
   <input id="rate" type="number" placeholder="दर">
   <button id="addBtn" class="add" onclick="addOrUpdate()">+ Add</button>
 </div>
 
-<!-- ===== EXPENSE TABLE ===== -->
+<!-- ===== TABLE ===== -->
 <table>
 <thead>
 <tr>
@@ -89,106 +122,67 @@ th{background:#eef5ee}
 </tfoot>
 </table>
 
-<hr>
-
-<!-- ===== FINANCING ===== -->
-<h3>🏦 लगानीको स्रोत</h3>
-
-<table>
-<tr>
-  <th class="left">स्रोत</th>
-  <th>%</th>
-  <th>रकम</th>
-  <th>ब्याज %</th>
-  <th>वार्षिक ब्याज</th>
-</tr>
-<tr>
-  <td class="left">स्वलगानी</td>
-  <td><input id="ownPct" value="40"></td>
-  <td id="ownAmt">0</td>
-  <td>—</td>
-  <td>—</td>
-</tr>
-<tr>
-  <td class="left">अनुदान / प्रस्ताव</td>
-  <td><input id="grantPct" value="30"></td>
-  <td id="grantAmt">0</td>
-  <td>—</td>
-  <td>—</td>
-</tr>
-<tr>
-  <td class="left">बैंक / सहकारी ऋण</td>
-  <td><input id="loanPct" value="30"></td>
-  <td id="loanAmt">0</td>
-  <td><input id="loanRate" value="12"></td>
-  <td id="loanInterest">0</td>
-</tr>
-<tr class="sum">
-  <td class="left">जम्मा</td>
-  <td id="totPct">100%</td>
-  <td id="totAmt">0</td>
-  <td></td>
-  <td id="totInt">0</td>
-</tr>
-</table>
-
 <p class="note">
-✔️ ब्याज Profit-Loss र ROI मा स्वतः तानिन्छ<br>
-✔️ Edit/Delete गर्दा data सुरक्षित रहन्छ
+✔️ Sub-Category व्यवसायी आफैंले थप्न सक्ने<br>
+✔️ Narration Proposal र Annex मा स्वतः प्रयोग गर्न मिल्ने
 </p>
 
 </div>
 
+<footer>
+  <a href="income-demo.html">◀️ Previous</a>
+  <a href="profit-loss-demo.html">Next ▶️</a>
+</footer>
+
 <script>
-/* ================= LOAD PROJECT ================= */
+/* ===== LOAD PROJECT ===== */
 let key = localStorage.getItem("activeProject");
-if(!key){
-  alert("पहिले Project खोल्नुहोस्");
-  location.href="index.html";
-}
+if(!key){ alert("पहिले Project खोल्नुहोस्"); location.href="index.html"; }
 let project = JSON.parse(localStorage.getItem(key));
 project.expenseData = project.expenseData || [];
-project.financing = project.financing || {};
+project.expenseNarration = project.expenseNarration || "";
 let expenses = project.expenseData;
+let editId=null;
 
-let editId = null;
-
-/* ================= ADD / UPDATE ================= */
+/* ===== ADD / UPDATE ===== */
 function addOrUpdate(){
   if(!title.value) return;
-  let amount = (Number(qty.value)||0) * (Number(rate.value)||0);
+  let amt=(Number(qty.value)||0)*(Number(rate.value)||0);
 
   if(editId){
-    let e = expenses.find(x=>x.id===editId);
-    if(e){
-      e.category = category.value;
-      e.title = title.value;
-      e.qty = qty.value;
-      e.rate = rate.value;
-      e.amount = amount;
-    }
+    let e=expenses.find(x=>x.id===editId);
+    Object.assign(e,{
+      mainCat:mainCat.value,
+      subCat:subCat.value,
+      title:title.value,
+      qty:qty.value,
+      rate:rate.value,
+      amount:amt
+    });
     editId=null;
     addBtn.innerText="+ Add";
     addBtn.classList.remove("editing");
   }else{
     expenses.push({
       id:Date.now(),
-      category:category.value,
+      mainCat:mainCat.value,
+      subCat:subCat.value,
       title:title.value,
       qty:qty.value,
       rate:rate.value,
-      amount:amount
+      amount:amt
     });
   }
-  title.value=""; qty.value=""; rate.value="";
+  title.value=qty.value=rate.value=subCat.value="";
   save();
 }
 
-/* ================= EDIT ================= */
+/* ===== EDIT / DELETE ===== */
 function editRow(id){
-  let e = expenses.find(x=>x.id===id);
+  let e=expenses.find(x=>x.id===id);
   if(!e) return;
-  category.value=e.category;
+  mainCat.value=e.mainCat;
+  subCat.value=e.subCat;
   title.value=e.title;
   qty.value=e.qty;
   rate.value=e.rate;
@@ -196,93 +190,59 @@ function editRow(id){
   addBtn.innerText="💾 Update";
   addBtn.classList.add("editing");
 }
-
-/* ================= DELETE ================= */
 function delRow(id){
-  if(!confirm("यो खर्च हटाउने ?")) return;
-  expenses = expenses.filter(e=>e.id!==id);
-  project.expenseData = expenses;
-  save();
+  if(confirm("हटाउने ?")){
+    expenses=expenses.filter(e=>e.id!==id);
+    project.expenseData=expenses;
+    save();
+  }
 }
 
-/* ================= SAVE ================= */
+/* ===== SAVE / RENDER ===== */
 function save(){
-  project.expenseData = expenses;
+  project.expenseData=expenses;
+  project.expenseNarration=narration.value;
   localStorage.setItem(key,JSON.stringify(project));
   render();
 }
-
-/* ================= RENDER ================= */
 function render(){
   body.innerHTML="";
-  let groups={}, cash=0, depr=0, capital=0;
+  let cash=0,depr=0;
 
+  let grouped={};
   expenses.forEach(e=>{
-    if(!groups[e.category]) groups[e.category]=[];
-    groups[e.category].push(e);
+    grouped[e.mainCat]=grouped[e.mainCat]||{};
+    grouped[e.mainCat][e.subCat]=grouped[e.mainCat][e.subCat]||[];
+    grouped[e.mainCat][e.subCat].push(e);
   });
 
-  for(let c in groups){
-    body.innerHTML+=`<tr class="cat"><td colspan="5">🔹 ${c}</td></tr>`;
-    groups[c].forEach(e=>{
-      if(c==="मेशीन औजार / प्रविधि"||c==="पूर्वाधार निर्माण"){
-        depr += e.amount*0.15;
-        capital += e.amount;
-      }else{
-        cash += e.amount;
-        if(c==="प्रारम्भिक लगानी") capital += e.amount;
-      }
-      body.innerHTML+=`
-      <tr>
-        <td class="left">${e.title}</td>
-        <td>${e.qty}</td>
-        <td>${e.rate}</td>
-        <td>${Math.round(e.amount)}</td>
-        <td>
-          <button class="ed" onclick="editRow(${e.id})">✏️</button>
-          <button class="del" onclick="delRow(${e.id})">❌</button>
-        </td>
-      </tr>`;
-    });
+  for(let m in grouped){
+    body.innerHTML+=`<tr class="cat"><td colspan="5">🔹 ${m}</td></tr>`;
+    for(let s in grouped[m]){
+      body.innerHTML+=`<tr class="subcat"><td colspan="5">▫️ ${s}</td></tr>`;
+      grouped[m][s].forEach(e=>{
+        if(m==="स्थिर खर्च") depr+=e.amount*0.15;
+        else cash+=e.amount;
+        body.innerHTML+=`
+        <tr>
+          <td class="left">${e.title}</td>
+          <td>${e.qty}</td>
+          <td>${e.rate}</td>
+          <td>${Math.round(e.amount)}</td>
+          <td>
+            <button class="ed" onclick="editRow(${e.id})">✏️</button>
+            <button class="del" onclick="delRow(${e.id})">❌</button>
+          </td>
+        </tr>`;
+      });
+    }
   }
-
   cashTotal.innerText=Math.round(cash);
   deprTotal.innerText=Math.round(depr);
-
-  /* ===== FINANCING ===== */
-  let op=Number(ownPct.value||0),
-      gp=Number(grantPct.value||0),
-      lp=Number(loanPct.value||0),
-      lr=Number(loanRate.value||0);
-
-  if(op+gp+lp!==100){
-    totPct.innerText="⚠️ 100% हुनुपर्छ";
-    return;
-  }
-
-  let oa=capital*op/100,
-      ga=capital*gp/100,
-      la=capital*lp/100,
-      li=la*lr/100;
-
-  ownAmt.innerText=Math.round(oa);
-  grantAmt.innerText=Math.round(ga);
-  loanAmt.innerText=Math.round(la);
-  loanInterest.innerText=Math.round(li);
-
-  totPct.innerText="100%";
-  totAmt.innerText=Math.round(capital);
-  totInt.innerText=Math.round(li);
-
-  project.financing={
-    capital, ownPct:op, grantPct:gp, loanPct:lp, loanRate:lr,
-    ownAmt:oa, grantAmt:ga, loanAmt:la, loanInterest:li
-  };
-  localStorage.setItem(key,JSON.stringify(project));
 }
 
 /* INIT */
-[ownPct,grantPct,loanPct,loanRate].forEach(i=>i.oninput=render);
+narration.oninput=save;
 render();
 </script>
 
