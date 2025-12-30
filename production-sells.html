@@ -14,7 +14,7 @@ body{
   max-width:1100px;margin:25px auto;
   background:#fff;padding:25px;border-radius:12px;
 }
-h2{color:#2e7d32;margin-top:0}
+h2,h3{color:#2e7d32;margin-top:0}
 
 table{
   width:100%;border-collapse:collapse;margin-top:15px;
@@ -39,37 +39,39 @@ input{width:70px;padding:5px;text-align:center}
 <body>
 <div class="wrap">
 
-<h2>🐖 उत्पादन तथा बिक्री योजना (हरेक वर्ष फरक %)</h2>
+<h2>🐖 उत्पादन तथा बिक्री योजना</h2>
 
 <!-- ===== BASIC INPUT ===== -->
 <table>
-<tr><th class="left">प्रारम्भिक बयस्क संख्या</th><td><input id="adult0" value="150"></td></tr>
+<tr><th>प्रारम्भिक बयस्क संख्या</th><td><input id="adult0" value="150"></td></tr>
 <tr><th>ब्याउने दर (%)</th><td><input id="breedRate" value="90"></td></tr>
 <tr><th>प्रति बयस्क वार्षिक बच्चा</th><td><input id="kids" value="20"></td></tr>
 <tr><th>बच्चा मृत्युदर (%)</th><td><input id="death" value="10"></td></tr>
 <tr><th>भाले अनुपात (%)</th><td><input id="maleRate" value="50"></td></tr>
 <tr><th>राखिने पोथी (%)</th><td><input id="keepFemale" value="10"></td></tr>
-<tr><th>माउ प्रतिस्थापन बिक्री (%)</th><td><input id="replaceRate" value="10"></td></tr>
 </table>
 
-<!-- ===== YEAR-WISE SELL % ===== -->
-<h3 style="color:#2e7d32;margin-top:25px">📊 वर्ष अनुसार बच्चा बिक्री %</h3>
+<!-- ===== YEAR-WISE % ===== -->
+<h3 style="margin-top:25px">📊 वर्ष अनुसार बिक्री / प्रतिस्थापन %</h3>
+
 <table>
 <tr>
   <th>वर्ष</th>
   <th>बच्चा बिक्री %</th>
+  <th>माउ प्रतिस्थापन बिक्री %</th>
 </tr>
-<tr><td>वर्ष १</td><td><input class="sellRate" value="70"></td></tr>
-<tr><td>वर्ष २</td><td><input class="sellRate" value="75"></td></tr>
-<tr><td>वर्ष ३</td><td><input class="sellRate" value="80"></td></tr>
-<tr><td>वर्ष ४</td><td><input class="sellRate" value="85"></td></tr>
-<tr><td>वर्ष ५</td><td><input class="sellRate" value="90"></td></tr>
+<tr><td>वर्ष १</td><td><input class="sellKid" value="70"></td><td><input class="sellAdult" value="10"></td></tr>
+<tr><td>वर्ष २</td><td><input class="sellKid" value="75"></td><td><input class="sellAdult" value="12"></td></tr>
+<tr><td>वर्ष ३</td><td><input class="sellKid" value="80"></td><td><input class="sellAdult" value="15"></td></tr>
+<tr><td>वर्ष ४</td><td><input class="sellKid" value="85"></td><td><input class="sellAdult" value="18"></td></tr>
+<tr><td>वर्ष ५</td><td><input class="sellKid" value="90"></td><td><input class="sellAdult" value="20"></td></tr>
 </table>
 
 <button class="btn" onclick="calculate()">💾 Save & Calculate</button>
 
 <!-- ===== RESULT ===== -->
-<h3 style="color:#2e7d32;margin-top:30px">📋 ५ वर्षे उत्पादन–बिक्री परिणाम</h3>
+<h3 style="margin-top:30px">📋 ५ वर्षे उत्पादन–बिक्री परिणाम</h3>
+
 <table>
 <thead>
 <tr>
@@ -86,8 +88,9 @@ input{width:70px;padding:5px;text-align:center}
 </table>
 
 <p class="note">
-✔️ Year-wise फरक बिक्री % लागू हुन्छ<br>
-✔️ Income calculation पछि यही data प्रयोग हुन्छ
+✔️ बच्चा र माउ दुबैको बिक्री % वर्ष अनुसार फरक छ<br>
+✔️ राखिने पोथी अर्को वर्ष बयस्कमा जोडिन्छ<br>
+✔️ Income table पछि यही data प्रयोग हुनेछ
 </p>
 
 </div>
@@ -96,7 +99,8 @@ input{width:70px;padding:5px;text-align:center}
 function num(id){return Number(document.getElementById(id).value)||0;}
 
 function calculate(){
-  const sellRates=document.querySelectorAll(".sellRate");
+  const sellKid=document.querySelectorAll(".sellKid");
+  const sellAdult=document.querySelectorAll(".sellAdult");
   const body=document.getElementById("result");
   body.innerHTML="";
 
@@ -107,12 +111,13 @@ function calculate(){
     let born = breeding * num("kids");
     let alive = born * (100-num("death"))/100;
 
-    let sellKids = alive * (Number(sellRates[y].value)||0)/100;
     let female = alive * (100-num("maleRate"))/100;
     let keepF = female * num("keepFemale")/100;
 
-    let sellAdult = adult * num("replaceRate")/100;
-    let nextAdult = adult + keepF - sellAdult;
+    let sellKids = alive * (Number(sellKid[y].value)||0)/100;
+    let sellAdultCount = adult * (Number(sellAdult[y].value)||0)/100;
+
+    let nextAdult = adult + keepF - sellAdultCount;
 
     body.innerHTML += `
       <tr>
@@ -121,10 +126,11 @@ function calculate(){
         <td>${Math.round(alive)}</td>
         <td>${Math.round(sellKids)}</td>
         <td>${Math.round(keepF)}</td>
-        <td>${Math.round(sellAdult)}</td>
+        <td>${Math.round(sellAdultCount)}</td>
         <td>${Math.round(nextAdult)}</td>
       </tr>
     `;
+
     adult = nextAdult;
   }
 }
