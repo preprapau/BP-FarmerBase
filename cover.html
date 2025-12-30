@@ -8,17 +8,26 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
-body{
-  font-family:"Noto Sans Devanagari","Kalimati",system-ui;
+@page{
+  size:A4;
   margin:0;
-  background:#fff;
 }
+
+body{
+  margin:0;
+  font-family:"Noto Sans Devanagari","Kalimati",system-ui;
+}
+
+/* ===== COVER PAGE ===== */
 .cover{
-  min-height:100vh;
+  width:210mm;
+  height:297mm;              /* 🔑 exact A4 */
+  box-sizing:border-box;
+  padding:28mm 20mm;
   display:flex;
   flex-direction:column;
   justify-content:space-between;
-  padding:40px 30px;
+  page-break-after:always;
 }
 
 /* TOP */
@@ -27,7 +36,7 @@ body{
 }
 .top h1{
   margin:0;
-  font-size:32px;
+  font-size:30px;
   color:#2e7d32;
 }
 .top .org{
@@ -38,26 +47,26 @@ body{
 /* CENTER */
 .center{
   display:flex;
-  gap:40px;
   justify-content:center;
   align-items:center;
-  margin:40px 0;
+  gap:30px;
 }
 .chart-box{
-  width:260px;
+  width:220px;   /* 🔑 fixed */
+  height:220px;
 }
 .highlight{
-  max-width:420px;
+  width:420px;
 }
 .highlight textarea{
   width:100%;
-  min-height:120px;
-  padding:12px;
+  height:110px; /* 🔑 fixed */
+  padding:10px;
   font-family:inherit;
-  font-size:16px;
-  border:1px solid #ccc;
+  font-size:15px;
+  box-sizing:border-box;
 }
-.highlight .hint{
+.hint{
   font-size:13px;
   color:#555;
   margin-top:6px;
@@ -67,17 +76,20 @@ body{
 .footer{
   text-align:center;
   font-size:14px;
-  color:#333;
   border-top:1px solid #ccc;
-  padding-top:15px;
+  padding-top:12px;
 }
 .footer .small{
   font-size:13px;
   color:#555;
 }
 
+/* ===== PRINT ===== */
 @media print{
-  textarea{border:none}
+  textarea{
+    border:none;
+    resize:none;
+  }
   a[href]:after{content:""}
 }
 </style>
@@ -87,29 +99,29 @@ body{
 
 <div class="cover">
 
-  <!-- ===== TOP ===== -->
+  <!-- TOP -->
   <div class="top">
     <h1 id="bizName">व्यवसाय प्रस्ताव</h1>
     <div class="org" id="orgName">संस्थाको नाम</div>
   </div>
 
-  <!-- ===== CENTER ===== -->
+  <!-- CENTER -->
   <div class="center">
-    <!-- PIE -->
     <div class="chart-box">
       <canvas id="expensePie"></canvas>
     </div>
 
-    <!-- HIGHLIGHT TEXT -->
     <div class="highlight">
-      <textarea id="coverText" placeholder="यहाँ आफ्नो नारा / परियोजनाको मुख्य सन्देश लेख्नुहोस्…"></textarea>
+      <textarea id="coverText"
+        placeholder="आधुनिक प्रविधिमा आधारित, दिगो र आम्दानीमूलक कृषि व्यवसाय">
+      </textarea>
       <div class="hint">
-        📌 उदाहरण: “आधुनिक प्रविधिमा आधारित, दिगो र आम्दानीमूलक कृषि व्यवसाय”
+        📌 परियोजनाको मुख्य सन्देश / नारा
       </div>
     </div>
   </div>
 
-  <!-- ===== FOOTER ===== -->
+  <!-- FOOTER -->
   <div class="footer">
     <div><b>ठेगाना:</b> <span id="address">—</span></div>
     <div class="small">
@@ -122,36 +134,36 @@ body{
 </div>
 
 <script>
-/* ================= LOAD PROJECT ================= */
+/* ===== LOAD PROJECT ===== */
 let key = localStorage.getItem("activeProject");
 let project = key ? JSON.parse(localStorage.getItem(key)) : {};
 let s = project.shortInfo || {};
 
-/* ===== TOP DATA ===== */
+/* TOP */
 bizName.innerText = s.bp_name || "व्यवसाय प्रस्ताव";
 orgName.innerText = s.bp_org || "संस्थाको नाम";
 
-/* ===== FOOTER DATA ===== */
+/* FOOTER */
 address.innerText = s.bp_location || "—";
 regNo.innerText = s.reg_no || "—";
 panNo.innerText = s.pan_no || "—";
 phone.innerText = s.bp_phone || "—";
 
-/* ===== COVER TEXT SAVE ===== */
+/* SAVE HIGHLIGHT */
 coverText.value = project.coverText || "";
 coverText.oninput = ()=>{
   project.coverText = coverText.value;
   localStorage.setItem(key,JSON.stringify(project));
 };
 
-/* ===== EXPENSE PIE ===== */
+/* PIE */
 let expCat = {};
 (project.expenseData||[]).forEach(e=>{
   expCat[e.category] = (expCat[e.category]||0) + Number(e.amount||0);
 });
 
 if(Object.keys(expCat).length){
-  new Chart(document.getElementById("expensePie"),{
+  new Chart(expensePie,{
     type:"pie",
     data:{
       labels:Object.keys(expCat),
@@ -164,8 +176,9 @@ if(Object.keys(expCat).length){
       }]
     },
     options:{
-      plugins:{legend:{position:"bottom"}},
-      responsive:true
+      responsive:true,
+      maintainAspectRatio:false,
+      plugins:{legend:{position:"bottom"}}
     }
   });
 }
