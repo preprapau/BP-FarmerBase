@@ -2,7 +2,7 @@
 <html lang="ne">
 <head>
 <meta charset="UTF-8">
-<title>स्थिर खर्च / प्रारम्भिक लगानी | Farmerbase BP Engine</title>
+<title>Operating Cost Engine | Farmerbase BP Engine</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
@@ -24,19 +24,24 @@ header a,footer a{
   font-weight:600
 }
 .wrap{
-  max-width:900px;
+  max-width:1100px;
   margin:18px auto;
   background:#fff;
   padding:22px;
   border-radius:12px
 }
 h2{color:#2e7d32;margin-top:0}
+h3{color:#1565c0;margin-bottom:6px}
 
-input,textarea{
-  width:100%;
+select,input,textarea{
   padding:8px;
-  box-sizing:border-box
+  width:100%;
+  box-sizing:border-box;
+  font-family:inherit
 }
+textarea{resize:vertical}
+.hidden{display:none}
+
 table{
   width:100%;
   border-collapse:collapse;
@@ -45,23 +50,14 @@ table{
 th,td{
   border:1px solid #ccc;
   padding:6px;
-  text-align:right
+  text-align:center
 }
 th{background:#eef5ee}
-.left{text-align:left}
-.sum{background:#fafafa;font-weight:700}
+.sum{background:#f5f5f5;font-weight:700}
 
-button{
-  margin-top:10px;
-  padding:8px 16px;
-  background:#2e7d32;
-  color:#fff;
-  border:none;
-  border-radius:6px;
-  cursor:pointer
-}
-.del{background:#c62828}
 .note{font-size:13px;color:#555}
+.readonly{background:#f0f0f0}
+.auto{color:#2e7d32;font-size:13px}
 </style>
 </head>
 
@@ -70,98 +66,153 @@ button{
 <header>
   <a href="index.html">🏠 Back to Home</a>
   <div>
-    <a href="expense-demo.html">◀️ Expense</a> |
-    <a href="five-year-roi.html">ROI ▶️</a>
+    <a href="production-sells.html">◀️ Production</a> |
+    <a href="expense-demo.html">Expense ▶️</a>
   </div>
 </header>
 
 <div class="wrap">
 
-<h2>🏗️ स्थिर खर्च / प्रारम्भिक लगानी</h2>
+<h2>🌱 Operating Cost Engine (Auto-Save)</h2>
 
+<h3>📝 खर्च सम्बन्धी व्याख्या</h3>
 <textarea id="narration" rows="3"
-placeholder="स्थिर लगानी सम्बन्धी विवरण..."></textarea>
+placeholder="चालु खर्च सम्बन्धी विवरण..."></textarea>
 
+<hr>
+
+<h3>⚙️ खर्च गणना विधि</h3>
+<select id="mode">
+  <option value="AVG">सरदर / अनुमान</option>
+  <option value="STAGE">Stage-wise / प्रतिदिन</option>
+</select>
+
+<hr>
+
+<!-- ===== AVERAGE MODE ===== -->
+<div id="avgBox">
+<table>
+<tr><th>खर्च प्रकार</th><th>रकम</th></tr>
+<tr><td>दाना / मल</td><td><input id="avgFeed" type="number"></td></tr>
+<tr><td>औषधी</td><td><input id="avgMed" type="number"></td></tr>
+<tr><td>भिटामिन</td><td><input id="avgVit" type="number"></td></tr>
+</table>
+</div>
+
+<!-- ===== STAGE MODE ===== -->
+<div id="stageBox" class="hidden">
 <table>
 <thead>
 <tr>
-  <th class="left">शीर्षक</th>
-  <th>रकम</th>
-  <th></th>
+  <th>Stage</th>
+  <th>Label</th>
+  <th>संख्या</th>
+  <th>दिन</th>
+  <th>दाना (प्रति दिन)</th>
+  <th>औषधी</th>
+  <th>भिटामिन</th>
 </tr>
 </thead>
-<tbody id="body"></tbody>
-<tfoot>
-<tr class="sum">
-  <td class="left">कुल स्थिर लगानी</td>
-  <td id="total">0</td>
-  <td></td>
-</tr>
-</tfoot>
+<tbody id="stageBody"></tbody>
+</table>
+<p class="note">✔️ Rate change गर्दा Auto-Save हुन्छ</p>
+</div>
+
+<hr>
+
+<table>
+<tr class="sum"><td>दाना</td><td id="feedTotal">0</td></tr>
+<tr class="sum"><td>औषधी</td><td id="medTotal">0</td></tr>
+<tr class="sum"><td>भिटामिन</td><td id="vitTotal">0</td></tr>
+<tr class="sum"><td>कुल चालु खर्च</td><td id="grandTotal">0</td></tr>
 </table>
 
-<input id="title" placeholder="जस्तै: गोठ निर्माण">
-<input id="amount" placeholder="रकम" type="number">
-<button onclick="add()">+ Add</button>
-
-<p class="note">
-✔️ यो रकम ROI र Proposal मा स्वतः प्रयोग हुन्छ
-</p>
+<p class="auto">✔️ Auto-Saved</p>
 
 </div>
 
 <footer>
-  <a href="expense-demo.html">◀️ Previous</a>
-  <a href="index.html">🏠 Home</a>
-  <a href="five-year-roi.html">Next ▶️</a>
+  <a href="production-sells.html">◀️ Previous</a>
+  <a href="expense-demo.html">Next ▶️</a>
 </footer>
 
 <script>
-let data = JSON.parse(localStorage.getItem("FIXED_COST_ENGINE")) || {
-  narration:"",
-  items:[]
-};
+function $(id){return document.getElementById(id)}
 
-function render(){
-  body.innerHTML="";
-  let sum=0;
-  data.items.forEach(i=>{
-    sum+=Number(i.amount)||0;
-    body.innerHTML+=`
-      <tr>
-        <td class="left">${i.title}</td>
-        <td>${i.amount}</td>
-        <td><button class="del" onclick="del('${i.id}')">❌</button></td>
-      </tr>
-    `;
-  });
-  total.innerText=sum;
-  narration.value=data.narration;
-}
+/* ===== LOAD STAGE DATA ===== */
+let stageData = JSON.parse(localStorage.getItem("PRODUCTION_STAGE_DATA")) || {};
+let saved = JSON.parse(localStorage.getItem("OPERATING_COST_ENGINE")) || {};
 
-function add(){
-  if(!title.value||!amount.value) return;
-  data.items.push({
-    id:Date.now(),
-    title:title.value,
-    amount:Number(amount.value)
-  });
-  save();
-  title.value=amount.value="";
-}
-
-function del(id){
-  data.items=data.items.filter(i=>i.id!=id);
+/* ===== MODE SWITCH ===== */
+function switchMode(){
+  avgBox.classList.toggle("hidden",mode.value!=="AVG");
+  stageBox.classList.toggle("hidden",mode.value!=="STAGE");
   save();
 }
 
+/* ===== LOAD STAGES ===== */
+function loadStages(){
+  stageBody.innerHTML="";
+  if(!stageData.stages) return;
+  Object.keys(stageData.stages).forEach(k=>{
+    let s = stageData.stages[k];
+    stageBody.innerHTML+=`
+    <tr>
+      <td>${k}</td>
+      <td>${s.label}</td>
+      <td><input class="readonly" readonly value="${s.count}"></td>
+      <td><input class="readonly" readonly value="${s.days}"></td>
+      <td><input class="feed"></td>
+      <td><input class="med"></td>
+      <td><input class="vit"></td>
+    </tr>`;
+  });
+}
+
+/* ===== CALCULATE + AUTO SAVE ===== */
 function save(){
-  data.narration=narration.value;
-  localStorage.setItem("FIXED_COST_ENGINE",JSON.stringify(data));
-  render();
+  let feed=0,med=0,vit=0;
+
+  if(mode.value==="AVG"){
+    feed=+avgFeed.value||0;
+    med =+avgMed.value||0;
+    vit =+avgVit.value||0;
+  }else{
+    stageBody.querySelectorAll("tr").forEach(r=>{
+      let c=+r.children[2].querySelector("input").value||0;
+      let d=+r.children[3].querySelector("input").value||0;
+      feed+=c*d*(+r.children[4].querySelector("input").value||0);
+      med +=c*d*(+r.children[5].querySelector("input").value||0);
+      vit +=c*d*(+r.children[6].querySelector("input").value||0);
+    });
+  }
+
+  feedTotal.innerText=Math.round(feed);
+  medTotal.innerText=Math.round(med);
+  vitTotal.innerText=Math.round(vit);
+  grandTotal.innerText=Math.round(feed+med+vit);
+
+  localStorage.setItem("OPERATING_COST_ENGINE",JSON.stringify({
+    mode:mode.value,
+    feed,med,vit,
+    narration:narration.value
+  }));
 }
 
-render();
+/* ===== AUTO SAVE EVENTS ===== */
+document.addEventListener("input", e=>{
+  if(e.target.tagName==="INPUT" || e.target.tagName==="TEXTAREA"){
+    save();
+  }
+});
+mode.onchange = switchMode;
+
+/* ===== INIT ===== */
+mode.value = saved.mode || "AVG";
+narration.value = saved.narration || "";
+loadStages();
+switchMode();
+save();
 </script>
 
 </body>
