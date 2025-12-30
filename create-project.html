@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+<meta charset="UTF-8">
+<title>नयाँ योजना बनाउनुहोस् | FarmerBase BP Engine</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+body{
+  font-family:"Noto Sans Devanagari","Kalimati",system-ui;
+  background:#f4f7f6;
+  margin:0
+}
+.box{
+  max-width:420px;
+  margin:60px auto;
+  background:#fff;
+  padding:28px;
+  border-radius:18px;
+  text-align:center;
+  box-shadow:0 6px 14px rgba(0,0,0,.08)
+}
+h2{color:#2e7d32;margin-top:0}
+input{
+  width:100%;
+  padding:14px;
+  margin:14px 0;
+  font-size:16px;
+  box-sizing:border-box
+}
+button{
+  width:100%;
+  padding:16px;
+  background:#2e7d32;
+  color:#fff;
+  border:none;
+  border-radius:14px;
+  font-size:18px;
+  cursor:pointer
+}
+.small{font-size:13px;color:#555}
+</style>
+</head>
+
+<body>
+
+<div class="box">
+  <h2>➕ नयाँ योजना सुरु गर्नुहोस्</h2>
+
+  <input id="projectName"
+    placeholder="योजनाको नाम लेख्नुहोस् (जस्तै: बाख्रापालन २०८२)">
+
+  <button onclick="createProject()">
+    योजना सुरु गर्नुहोस् ▶️
+  </button>
+
+  <p class="small">
+    पछि नाम परिवर्तन गर्न सकिन्छ
+  </p>
+</div>
+
+<script>
+function createProject(){
+
+  const name = projectName.value.trim();
+  if(!name){
+    alert("कृपया योजनाको नाम लेख्नुहोस्");
+    return;
+  }
+
+  const key = "project_" + Date.now();
+
+  const project = {
+    name: name,
+    createdAt: new Date().toISOString(),
+
+    // Core containers
+    expenses: [],
+    income: {},
+    costAllocation: {},
+    profitLoss: {},
+    roi: {},
+    projection5y: {}
+  };
+
+  localStorage.setItem(key, JSON.stringify(project));
+  localStorage.setItem("activeProject", key);
+
+  // Production reset for new project
+  localStorage.setItem("PRODUCTION_MASTER", JSON.stringify([]));
+
+  location.href = "production-sells.html";
+}
+</script>
+
+</body>
+</html>
