@@ -2,7 +2,7 @@
 <html lang="ne">
 <head>
 <meta charset="UTF-8">
-<title>Income | BPMS</title>
+<title>आम्दानी विवरण (Production + Other)</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
@@ -11,15 +11,12 @@ body{
   background:#f4f7f6;margin:0;
 }
 .wrap{
-  max-width:1000px;
-  margin:25px auto;
-  background:#fff;
-  padding:25px;
-  border-radius:10px;
+  max-width:1000px;margin:25px auto;background:#fff;
+  padding:25px;border-radius:12px;
 }
 h2{color:#2e7d32;margin-top:0}
 
-/* ===== FORM ===== */
+/* form */
 .form{
   display:grid;
   grid-template-columns:2fr 3fr 1fr 1fr auto;
@@ -28,52 +25,38 @@ h2{color:#2e7d32;margin-top:0}
 }
 input,select{padding:8px;font-family:inherit}
 .add{
-  background:#2e7d32;color:#fff;
-  border:none;border-radius:6px;
-  padding:8px 14px;cursor:pointer
+  background:#2e7d32;color:#fff;border:none;
+  border-radius:6px;padding:8px 14px;cursor:pointer
 }
 
-/* ===== TABLE ===== */
-table{
-  width:100%;
-  border-collapse:collapse;
-}
-th,td{
-  border:1px solid #ccc;
-  padding:6px;
-  text-align:right;
-}
+/* table */
+table{width:100%;border-collapse:collapse}
+th,td{border:1px solid #ccc;padding:6px;text-align:right}
 th{background:#f0f0f0}
 .left{text-align:left}
 .cat{background:#e8f5e9;font-weight:700}
 .sum{font-weight:700;background:#fafafa}
-.edit{background:#0277bd;color:#fff;border:none;padding:4px 8px;border-radius:4px}
 .del{background:#c62828;color:#fff;border:none;padding:4px 8px;border-radius:4px}
+.edit{background:#1976d2;color:#fff;border:none;padding:4px 8px;border-radius:4px}
 
-/* ===== NAV ===== */
+/* nav */
 .nav{
   display:flex;
   justify-content:space-between;
   align-items:center;
-  margin-top:25px;
+  margin-top:25px
 }
 .nav a{
   text-decoration:none;
-  font-size:18px;
-  color:#2e7d32;
   font-weight:700;
+  color:#2e7d32
 }
-.center-link{
-  background:#2e7d32;
-  color:#fff !important;
-  padding:8px 18px;
-  border-radius:20px;
+.center-btn{
+  background:#2e7d32;color:#fff;
+  padding:10px 20px;border-radius:30px;
+  text-decoration:none;font-weight:700
 }
-
-@media print{
-  .nav{display:none}
-  a[href]:after{content:""}
-}
+.note{font-size:13px;color:#555;margin-top:8px}
 </style>
 </head>
 
@@ -82,11 +65,9 @@ th{background:#f0f0f0}
 
 <h2>📈 आम्दानी विवरण (Production + Other)</h2>
 
-<!-- ===== ADD FORM ===== -->
+<!-- ================= ADD FORM ================= -->
 <div class="form">
   <select id="category">
-    <option>पशुजन्य बिक्री</option>
-    <option>सेवा आम्दानी</option>
     <option>उत्पादन बिक्री</option>
     <option>अन्य आम्दानी</option>
   </select>
@@ -96,6 +77,7 @@ th{background:#f0f0f0}
   <button class="add" onclick="addIncome()">+ Add</button>
 </div>
 
+<!-- ================= TABLE ================= -->
 <table>
 <thead>
 <tr>
@@ -106,127 +88,156 @@ th{background:#f0f0f0}
   <th></th>
 </tr>
 </thead>
-
 <tbody id="body"></tbody>
-
 <tfoot>
 <tr class="sum">
   <td colspan="3" class="left">कुल आम्दानी</td>
-  <td id="incomeTotal">0</td>
+  <td id="totalIncome">0</td>
   <td></td>
 </tr>
 </tfoot>
 </table>
 
-<!-- ===== NAV ===== -->
+<div class="note">
+✔️ Production page बाट Year-1 बिक्री स्वतः तानिन्छ<br>
+✔️ Rate/Qty edit गर्न मिल्छ<br>
+✔️ Delete गरेपछि पुनः auto-add हुँदैन
+</div>
+
 <div class="nav">
-  <a href="production.html">⬅ Production</a>
-  <a href="full-proposal.html" target="_blank" class="center-link">📄 Full Proposal</a>
-  <a href="profit-loss.html">Profit / Loss ➡</a>
+  <a href="production.html">← Production</a>
+  <a class="center-btn" href="full-proposal.html">📄 Full Proposal</a>
+  <a href="profit-loss-demo.html">Profit / Loss →</a>
 </div>
 
 </div>
 
 <script>
 /* ================= LOAD PROJECT ================= */
-let key = localStorage.getItem("activeProject");
-if(!key){alert("Project खोल्नुहोस्");location.href="index.html";}
-let project = JSON.parse(localStorage.getItem(key));
+let activeKey = localStorage.getItem("activeProject");
+if(!activeKey){
+  alert("पहिले Project खोल्नुहोस्");
+  location.href="index.html";
+}
+let project = JSON.parse(localStorage.getItem(activeKey));
 let incomes = project.incomeData || [];
-let editIndex=null;
+let editIndex = null;
 
 /* ================= AUTO PULL FROM PRODUCTION ================= */
-function pullProductionIncome(){
-  let ps = JSON.parse(localStorage.getItem("productionSalesPlan")||"{}");
-  if(!ps || ps.__added) return;
+(function pullFromProduction(){
+  let raw = localStorage.getItem("PRODUCTION_INCOME_SUMMARY");
+  if(!raw) return;
 
-  let sellKids = (ps.sellKids||0);
-  let sellAdults = (ps.replaceSell||0);
-  let rate = ps.sellRate || 0;
+  let prod = JSON.parse(raw);
+  if(prod.__used) return;
 
-  if(rate>0 && (sellKids+sellAdults)>0){
+  if(prod.sellKids > 0){
     incomes.push({
-      category:"पशुजन्य बिक्री",
-      title:"उत्पादन योजनाबाट बिक्री",
-      qty:sellKids+sellAdults,
-      rate:rate,
-      amount:(sellKids+sellAdults)*rate
+      category:"उत्पादन बिक्री",
+      title:"पाठापाठी बिक्री (Production)",
+      qty:prod.sellKids,
+      rate:30000,
+      amount:prod.sellKids * 30000,
+      _auto:true
     });
-    ps.__added=true;
-    localStorage.setItem("productionSalesPlan",JSON.stringify(ps));
   }
-}
+
+  if(prod.sellAdults > 0){
+    incomes.push({
+      category:"उत्पादन बिक्री",
+      title:"बयस्क बिक्री (प्रतिस्थापन)",
+      qty:prod.sellAdults,
+      rate:50000,
+      amount:prod.sellAdults * 50000,
+      _auto:true
+    });
+  }
+
+  prod.__used = true;
+  project.incomeData = incomes;
+
+  localStorage.setItem("PRODUCTION_INCOME_SUMMARY",JSON.stringify(prod));
+  localStorage.setItem(activeKey,JSON.stringify(project));
+})();
 
 /* ================= ADD / EDIT ================= */
 function addIncome(){
   if(!title.value) return;
-  let amt=(qty.value||0)*(rate.value||0);
-  let obj={
-    category:category.value,
-    title:title.value,
-    qty:Number(qty.value||0),
-    rate:Number(rate.value||0),
-    amount:amt
-  };
+
+  let q = Number(qty.value||0);
+  let r = Number(rate.value||0);
+  let amt = q*r;
+
   if(editIndex!==null){
-    incomes[editIndex]=obj;
+    incomes[editIndex] = {
+      category:category.value,
+      title:title.value,
+      qty:q, rate:r, amount:amt
+    };
     editIndex=null;
-  }else incomes.push(obj);
+  }else{
+    incomes.push({
+      category:category.value,
+      title:title.value,
+      qty:q, rate:r, amount:amt
+    });
+  }
 
   title.value="";qty.value="";rate.value="";
   save();
 }
-function edit(i){
-  let e=incomes[i];
+
+function editRow(i){
+  let e = incomes[i];
   category.value=e.category;
   title.value=e.title;
   qty.value=e.qty;
   rate.value=e.rate;
   editIndex=i;
 }
-function del(i){
+
+function delRow(i){
   incomes.splice(i,1);
   save();
 }
 
-/* ================= SAVE ================= */
+/* ================= SAVE / RENDER ================= */
 function save(){
   project.incomeData=incomes;
-  project.lastEdited=new Date().toLocaleString("ne-NP");
-  localStorage.setItem(key,JSON.stringify(project));
+  localStorage.setItem(activeKey,JSON.stringify(project));
   render();
 }
 
-/* ================= RENDER ================= */
 function render(){
   body.innerHTML="";
   let groups={}, total=0;
+
   incomes.forEach((e,i)=>{
     if(!groups[e.category]) groups[e.category]=[];
-    groups[e.category].push({...e,index:i});
+    groups[e.category].push({e,i});
   });
+
   for(let c in groups){
-    body.innerHTML+=`<tr class="cat"><td colspan="5">🔹 ${c}</td></tr>`;
-    groups[c].forEach(e=>{
-      total+=e.amount;
+    body.innerHTML+=`<tr class="cat"><td colspan="5">◆ ${c}</td></tr>`;
+    groups[c].forEach(o=>{
+      let e=o.e,i=o.i;
+      total+=Number(e.amount||0);
       body.innerHTML+=`
-        <tr>
-          <td class="left">${e.title}</td>
-          <td>${e.qty}</td>
-          <td>${e.rate}</td>
-          <td>${e.amount}</td>
-          <td>
-            <button class="edit" onclick="edit(${e.index})">✎</button>
-            <button class="del" onclick="del(${e.index})">✖</button>
-          </td>
-        </tr>`;
+      <tr>
+        <td class="left">${e.title}</td>
+        <td>${e.qty}</td>
+        <td>${e.rate}</td>
+        <td>${e.amount}</td>
+        <td>
+          <button class="edit" onclick="editRow(${i})">✏️</button>
+          <button class="del" onclick="delRow(${i})">✖</button>
+        </td>
+      </tr>`;
     });
   }
-  incomeTotal.innerText=Math.round(total);
+  totalIncome.innerText=Math.round(total);
 }
 
-/* INIT */
-pullProductionIncome();
 render();
 </script>
 
