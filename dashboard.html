@@ -2,140 +2,197 @@
 <html lang="ne">
 <head>
 <meta charset="UTF-8">
-<title>📊 BPMS Dashboard</title>
+<title>Smart Dashboard | FarmerBase BP Engine</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
 body{
   font-family:"Noto Sans Devanagari","Kalimati",system-ui;
-  background:#f4f7f6;margin:0
+  background:#f4f7f6;
+  margin:0
+}
+header{
+  background:#2e7d32;
+  color:#fff;
+  padding:18px;
+  text-align:center
 }
 .wrap{
-  max-width:1100px;margin:25px auto;
-  background:#fff;padding:25px;border-radius:12px
-}
-h2{color:#2e7d32;margin-top:0}
-.grid{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:20px;
+  max-width:420px;
+  margin:20px auto;
+  padding:10px
 }
 .card{
-  background:#fafafa;
-  padding:15px;
+  background:#fff;
+  border-radius:18px;
+  padding:18px;
+  margin-bottom:16px;
+  box-shadow:0 6px 14px rgba(0,0,0,.08)
+}
+h3{
+  color:#2e7d32;
+  margin-top:0
+}
+.progress{
+  background:#eee;
   border-radius:10px;
+  overflow:hidden;
+  height:10px;
+  margin:8px 0
 }
-canvas{max-height:320px}
-
-@media(max-width:900px){
-  .grid{grid-template-columns:1fr}
+.bar{
+  background:#2e7d32;
+  height:100%;
+  width:0%
 }
+.stat{
+  display:flex;
+  justify-content:space-between;
+  font-size:14px;
+  margin:6px 0
+}
+.btn{
+  display:block;
+  text-align:center;
+  padding:14px;
+  margin-top:10px;
+  background:#2e7d32;
+  color:#fff;
+  text-decoration:none;
+  border-radius:14px;
+  font-size:16px
+}
+.btn.secondary{background:#558b2f}
+.small{font-size:13px;color:#555}
+.warn{color:#c62828;font-weight:600}
+.ok{color:#2e7d32;font-weight:600}
 </style>
 </head>
 
 <body>
+
+<header>
+  <h2>📊 Smart Dashboard</h2>
+</header>
+
 <div class="wrap">
 
-<h2>📊 व्यवसायिक ड्यासबोर्ड (Summary View)</h2>
+<!-- ACTIVE PLAN -->
+<div class="card" id="planCard"></div>
 
-<div class="grid">
-
-  <!-- Expense Pie -->
-  <div class="card">
-    <h3>🔹 खर्च विधागत वितरण</h3>
-    <canvas id="expensePie"></canvas>
+<!-- PROGRESS -->
+<div class="card">
+  <h3>📈 योजना प्रगति</h3>
+  <div class="progress">
+    <div class="bar" id="progressBar"></div>
   </div>
+  <div id="progressText" class="small"></div>
+</div>
 
-  <!-- Income vs Expense -->
-  <div class="card">
-    <h3>🔹 आम्दानी बनाम खर्च</h3>
-    <canvas id="barIE"></canvas>
+<!-- KEY STATS -->
+<div class="card">
+  <h3>💡 मुख्य तथ्य</h3>
+  <div class="stat">
+    <span>कुल आम्दानी</span>
+    <span id="income">—</span>
   </div>
-
-  <!-- ROI Trend -->
-  <div class="card" style="grid-column:1/-1">
-    <h3>🔹 ५ वर्षे नगद प्रवाह / नाफा ट्रेन्ड</h3>
-    <canvas id="roiLine"></canvas>
+  <div class="stat">
+    <span>खुद नाफा</span>
+    <span id="profit">—</span>
   </div>
+  <div class="stat">
+    <span>ROI</span>
+    <span id="roi">—</span>
+  </div>
+</div>
 
+<!-- ACTIONS -->
+<div class="card">
+  <h3>⚡ छिटो काम</h3>
+  <a href="#" id="continueBtn" class="btn">➡️ योजना जारी राख्नुहोस्</a>
+  <a href="full-proposal-print.html" class="btn secondary">
+    📄 Proposal (PDF)
+  </a>
+</div>
+
+<!-- STATUS -->
+<div class="card">
+  <h3>🧭 प्रणाली सन्देश</h3>
+  <div id="statusMsg" class="small"></div>
 </div>
 
 </div>
 
 <script>
-/* ================= LOAD PROJECT ================= */
-let key = localStorage.getItem("activeProject");
-let p = key ? JSON.parse(localStorage.getItem(key)) : {};
-
-/* ================= EXPENSE GROUP ================= */
-let expCat = {};
-(p.expenseData||[]).forEach(e=>{
-  expCat[e.category] = (expCat[e.category]||0) + Number(e.amount||0);
-});
-
-/* ================= INCOME / EXPENSE TOTAL ================= */
-let income = 0, expense = 0;
-(p.incomeData||[]).forEach(i=>income+=Number(i.amount||0));
-(p.expenseData||[]).forEach(e=>expense+=Number(e.amount||0));
-
-/* ================= ROI (5 Years – Simple Trend) ================= */
-let baseProfit = income - expense;
-let roiYears = [];
-let roiValues = [];
-let cumulative = 0;
-
-for(let y=1;y<=5;y++){
-  cumulative += baseProfit;
-  roiYears.push("वर्ष "+y);
-  roiValues.push(Math.round(cumulative));
+/* =====================================================
+   LOAD ACTIVE PROJECT
+   ===================================================== */
+const key = localStorage.getItem("activeProject");
+if(!key){
+  location.href="index.html";
 }
 
-/* ================= CHART 1: EXPENSE PIE ================= */
-new Chart(document.getElementById("expensePie"),{
-  type:"pie",
-  data:{
-    labels:Object.keys(expCat),
-    datasets:[{
-      data:Object.values(expCat),
-      backgroundColor:[
-        "#66bb6a","#42a5f5","#ffa726",
-        "#ab47bc","#ef5350","#26c6da"
-      ]
-    }]
-  }
-});
+const project = JSON.parse(localStorage.getItem(key)) || {};
 
-/* ================= CHART 2: BAR ================= */
-new Chart(document.getElementById("barIE"),{
-  type:"bar",
-  data:{
-    labels:["आम्दानी","खर्च"],
-    datasets:[{
-      label:"रकम (रु.)",
-      data:[income,expense],
-      backgroundColor:["#2e7d32","#c62828"]
-    }]
-  },
-  options:{responsive:true}
-});
+/* =====================================================
+   CHECK COMPLETION
+   ===================================================== */
+let steps = [
+  {name:"उत्पादन", ok: (JSON.parse(localStorage.getItem("PRODUCTION_MASTER"))||[]).length>0, link:"production-sells.html"},
+  {name:"खर्च", ok: (project.expenses||[]).length>0, link:"operating-cost-engine.html"},
+  {name:"आम्दानी", ok: project.totalIncome>0, link:"income-demo.html"},
+  {name:"नाफा–नोक्सान", ok: project.profitLoss && project.profitLoss.netProfit!=null, link:"profit-loss-demo.html"},
+  {name:"ROI", ok: project.roi && project.roi.roiPercent!=null, link:"roi.html"}
+];
 
-/* ================= CHART 3: ROI LINE ================= */
-new Chart(document.getElementById("roiLine"),{
-  type:"line",
-  data:{
-    labels:roiYears,
-    datasets:[{
-      label:"संचित नगद प्रवाह",
-      data:roiValues,
-      borderColor:"#2e7d32",
-      backgroundColor:"rgba(46,125,50,0.15)",
-      fill:true,
-      tension:0.3
-    }]
-  }
-});
+let completed = steps.filter(s=>s.ok).length;
+let percent = Math.round((completed/steps.length)*100);
+
+/* =====================================================
+   RENDER PLAN CARD
+   ===================================================== */
+planCard.innerHTML = `
+<h3>📌 Active Plan</h3>
+<p><strong>${project.name||"नाम नभएको योजना"}</strong></p>
+<p class="small">Created: ${new Date(project.createdAt).toLocaleDateString()}</p>
+`;
+
+/* =====================================================
+   PROGRESS
+   ===================================================== */
+progressBar.style.width = percent+"%";
+progressText.innerText = percent+"% पूरा भएको छ";
+
+/* =====================================================
+   KEY STATS
+   ===================================================== */
+income.innerText = project.totalIncome
+  ? "रु "+project.totalIncome.toFixed(2)
+  : "—";
+
+profit.innerText = project.profitLoss && project.profitLoss.netProfit!=null
+  ? "रु "+project.profitLoss.netProfit.toFixed(2)
+  : "—";
+
+roi.innerText = project.roi && project.roi.roiPercent!=null
+  ? project.roi.roiPercent.toFixed(2)+" %"
+  : "—";
+
+/* =====================================================
+   NEXT ACTION
+   ===================================================== */
+let next = steps.find(s=>!s.ok);
+if(next){
+  continueBtn.innerText = "➡️ "+next.name+" पूरा गर्नुहोस्";
+  continueBtn.href = next.link;
+  statusMsg.innerHTML =
+    `<span class="warn">⚠️ ${next.name} चरण बाँकी छ</span>`;
+}else{
+  continueBtn.innerText = "✅ योजना पूरा भयो";
+  continueBtn.href = "full-proposal-print.html";
+  statusMsg.innerHTML =
+    `<span class="ok">🎉 सबै चरण पूरा भइसकेका छन्</span>`;
+}
 </script>
 
 </body>
