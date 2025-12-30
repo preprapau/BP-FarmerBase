@@ -11,7 +11,7 @@ body{
   background:#f4f7f6;margin:0;
 }
 .container{
-  max-width:1100px;
+  max-width:1200px;
   margin:25px auto;
   background:#fff;
   padding:25px;
@@ -40,9 +40,8 @@ button{
   cursor:pointer;
 }
 .note{font-size:13px;color:#555;margin-top:8px}
-@media print{
-  button{display:none}
-}
+.sum{font-weight:700;background:#f3faf3}
+@media print{button{display:none}}
 </style>
 </head>
 
@@ -58,151 +57,169 @@ button{
 <tr><th>ब्याउने दर (%)</th><td><input id="breedRate" value="90"></td></tr>
 <tr><th>प्रति बयस्क वार्षिक बच्चा</th><td><input id="kids" value="20"></td></tr>
 <tr><th>बच्चा मृत्युदर (%)</th><td><input id="death" value="10"></td></tr>
-<tr><th>भाले अनुपात (%)</th><td><input id="maleRate" value="50"></td></tr>
 </table>
 
 <!-- ================= YEAR WISE SELL ================= -->
-<h2 style="margin-top:30px">वर्ष अनुसार बिक्री / प्रतिस्थापन % र मूल्य</h2>
+<h2 style="margin-top:30px">वर्ष अनुसार बिक्री % तथा दर</h2>
 
 <table>
 <tr>
   <th>वर्ष</th>
   <th>बच्चा बिक्री %</th>
-  <th>बच्चा बिक्री दर (रु.)</th>
-  <th>माउ प्रतिस्थापन बिक्री %</th>
-  <th>माउ बिक्री दर (रु.)</th>
+  <th>बच्चा दर (रु.)</th>
+  <th>माउ बिक्री %</th>
+  <th>माउ दर (रु.)</th>
 </tr>
 
-<tr>
-<td>वर्ष १</td>
-<td><input class="sellKid" value="70"></td>
-<td><input class="kidRate" value="8000"></td>
-<td><input class="sellAdult" value="10"></td>
-<td><input class="adultRate" value="25000"></td>
-</tr>
-
-<tr>
-<td>वर्ष २</td>
-<td><input class="sellKid" value="75"></td>
-<td><input class="kidRate" value="8500"></td>
-<td><input class="sellAdult" value="20"></td>
-<td><input class="adultRate" value="26000"></td>
-</tr>
-
-<tr>
-<td>वर्ष ३</td>
-<td><input class="sellKid" value="80"></td>
-<td><input class="kidRate" value="9000"></td>
-<td><input class="sellAdult" value="30"></td>
-<td><input class="adultRate" value="27000"></td>
-</tr>
-
-<tr>
-<td>वर्ष ४</td>
-<td><input class="sellKid" value="85"></td>
-<td><input class="kidRate" value="9500"></td>
-<td><input class="sellAdult" value="40"></td>
-<td><input class="adultRate" value="28000"></td>
-</tr>
-
-<tr>
-<td>वर्ष ५</td>
-<td><input class="sellKid" value="90"></td>
-<td><input class="kidRate" value="10000"></td>
-<td><input class="sellAdult" value="50"></td>
-<td><input class="adultRate" value="30000"></td>
-</tr>
+<tr><td>१</td><td><input class="sellKid" value="70"></td><td><input class="kidRate" value="8000"></td><td><input class="sellAdult" value="10"></td><td><input class="adultRate" value="25000"></td></tr>
+<tr><td>२</td><td><input class="sellKid" value="75"></td><td><input class="kidRate" value="8500"></td><td><input class="sellAdult" value="20"></td><td><input class="adultRate" value="26000"></td></tr>
+<tr><td>३</td><td><input class="sellKid" value="80"></td><td><input class="kidRate" value="9000"></td><td><input class="sellAdult" value="30"></td><td><input class="adultRate" value="27000"></td></tr>
+<tr><td>४</td><td><input class="sellKid" value="85"></td><td><input class="kidRate" value="9500"></td><td><input class="sellAdult" value="40"></td><td><input class="adultRate" value="28000"></td></tr>
+<tr><td>५</td><td><input class="sellKid" value="90"></td><td><input class="kidRate" value="10000"></td><td><input class="sellAdult" value="50"></td><td><input class="adultRate" value="30000"></td></tr>
 </table>
 
 <button onclick="saveAndCalculate()">💾 Save & Calculate</button>
 
-<p class="note">
-📌 नोट: यहाँ बिक्री % र दर मात्र राखिन्छ।  
-आम्दानी (Income) page ले यही data प्रयोग गरेर रकम निकाल्छ।
-</p>
+<p class="note">✔️ तलको आम्दानी तालिका Income page ले सिधै प्रयोग गर्छ</p>
 
 <!-- ================= RESULT ================= -->
-<h2 style="margin-top:30px">५ वर्षे उत्पादन परिणाम (संख्या)</h2>
+<h2 style="margin-top:35px">५ वर्षे उत्पादन परिणाम (संख्या)</h2>
 
 <table>
 <thead>
 <tr>
 <th>वर्ष</th>
-<th>बयस्क संख्या</th>
+<th>बयस्क</th>
 <th>बाँचेक बच्चा</th>
 <th>बिक्री (बच्चा)</th>
-<th>माउ बिक्री</th>
-<th>अर्को वर्षका बयस्क</th>
+<th>बिक्री (माउ)</th>
+<th>अर्को वर्ष बयस्क</th>
 </tr>
 </thead>
-<tbody id="resultBody"></tbody>
+<tbody id="qtyBody"></tbody>
+</table>
+
+<!-- ================= REVENUE ================= -->
+<h2 style="margin-top:35px">५ वर्षे बिक्री आम्दानी (रु.)</h2>
+
+<table>
+<thead>
+<tr>
+<th>वर्ष</th>
+<th>बच्चा आम्दानी</th>
+<th>माउ आम्दानी</th>
+<th>कुल आम्दानी</th>
+</tr>
+</thead>
+<tbody id="revBody"></tbody>
+<tfoot>
+<tr class="sum">
+<td>जम्मा</td>
+<td id="totKidRev">0</td>
+<td id="totAdultRev">0</td>
+<td id="totRev">0</td>
+</tr>
+</tfoot>
 </table>
 
 </div>
 
 <script>
-function num(id){return Number(document.getElementById(id).value)||0;}
+function n(v){return Number(v)||0;}
 
 function saveAndCalculate(){
-  const plan={
-    adult:num("adult"),
-    breedRate:num("breedRate"),
-    kids:num("kids"),
-    death:num("death"),
-    maleRate:num("maleRate"),
-    years:[]
+  let plan={
+    base:{
+      adult:n(adult.value),
+      breedRate:n(breedRate.value),
+      kids:n(kids.value),
+      death:n(death.value)
+    },
+    years:[],
+    results:[]
   };
 
   document.querySelectorAll(".sellKid").forEach((el,i)=>{
     plan.years.push({
-      sellKid: Number(el.value)||0,
-      kidRate: Number(document.querySelectorAll(".kidRate")[i].value)||0,
-      sellAdult: Number(document.querySelectorAll(".sellAdult")[i].value)||0,
-      adultRate: Number(document.querySelectorAll(".adultRate")[i].value)||0
+      sellKid:n(el.value),
+      kidRate:n(document.querySelectorAll(".kidRate")[i].value),
+      sellAdult:n(document.querySelectorAll(".sellAdult")[i].value),
+      adultRate:n(document.querySelectorAll(".adultRate")[i].value)
     });
   });
 
-  localStorage.setItem("productionSalesPlan",JSON.stringify(plan));
   calculate(plan);
+  localStorage.setItem("productionSalesPlan",JSON.stringify(plan));
 }
 
 function calculate(p){
-  let body=document.getElementById("resultBody");
-  body.innerHTML="";
-  let adult=p.adult;
+  let adult=p.base.adult;
+  qtyBody.innerHTML="";
+  revBody.innerHTML="";
+
+  let tKR=0,tAR=0,tR=0;
+  p.results=[];
 
   for(let y=0;y<5;y++){
-    let breeding=adult*p.breedRate/100;
-    let born=breeding*p.kids;
-    let alive=born*(100-p.death)/100;
+    let born=adult*p.base.breedRate/100*p.base.kids;
+    let alive=born*(100-p.base.death)/100;
 
-    let sellKids=alive*p.years[y].sellKid/100;
-    let sellAdult=adult*p.years[y].sellAdult/100;
-    let nextAdult=adult+(alive-sellKids)-sellAdult;
+    let sellK=alive*p.years[y].sellKid/100;
+    let sellA=adult*p.years[y].sellAdult/100;
 
-    body.innerHTML+=`
+    let kRev=sellK*p.years[y].kidRate;
+    let aRev=sellA*p.years[y].adultRate;
+
+    let nextAdult=adult+(alive-sellK)-sellA;
+
+    qtyBody.innerHTML+=`
     <tr>
       <td>${y+1}</td>
       <td>${Math.round(adult)}</td>
       <td>${Math.round(alive)}</td>
-      <td>${Math.round(sellKids)}</td>
-      <td>${Math.round(sellAdult)}</td>
+      <td>${Math.round(sellK)}</td>
+      <td>${Math.round(sellA)}</td>
       <td>${Math.round(nextAdult)}</td>
     </tr>`;
+
+    revBody.innerHTML+=`
+    <tr>
+      <td>${y+1}</td>
+      <td>${Math.round(kRev)}</td>
+      <td>${Math.round(aRev)}</td>
+      <td>${Math.round(kRev+aRev)}</td>
+    </tr>`;
+
+    tKR+=kRev; tAR+=aRev; tR+=(kRev+aRev);
+
+    p.results.push({
+      year:y+1,
+      kidQty:Math.round(sellK),
+      adultQty:Math.round(sellA),
+      kidRevenue:Math.round(kRev),
+      adultRevenue:Math.round(aRev),
+      totalRevenue:Math.round(kRev+aRev)
+    });
+
     adult=nextAdult;
   }
+
+  totKidRev.innerText=Math.round(tKR);
+  totAdultRev.innerText=Math.round(tAR);
+  totRev.innerText=Math.round(tR);
+
+  // 👉 Income page direct input
+  localStorage.setItem("productionIncome",JSON.stringify(p.results));
 }
 
-// load saved
+// auto load
 let saved=localStorage.getItem("productionSalesPlan");
 if(saved){
   let p=JSON.parse(saved);
-  adult.value=p.adult;
-  breedRate.value=p.breedRate;
-  kids.value=p.kids;
-  death.value=p.death;
-  maleRate.value=p.maleRate;
-
+  adult.value=p.base.adult;
+  breedRate.value=p.base.breedRate;
+  kids.value=p.base.kids;
+  death.value=p.base.death;
   p.years.forEach((y,i)=>{
     document.querySelectorAll(".sellKid")[i].value=y.sellKid;
     document.querySelectorAll(".kidRate")[i].value=y.kidRate;
