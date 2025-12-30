@@ -2,243 +2,179 @@
 <html lang="ne">
 <head>
 <meta charset="UTF-8">
-<title>आम्दानी विवरण (Production + Other)</title>
+<title>Income & Pricing | Farmerbase BP Engine</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
 body{
   font-family:"Noto Sans Devanagari","Kalimati",system-ui;
-  background:#f4f7f6;margin:0;
+  background:#f4f7f6;margin:0
+}
+header,footer{
+  background:#e8f5e9;
+  padding:10px 16px;
+  display:flex;
+  justify-content:space-between
+}
+header a,footer a{
+  color:#2e7d32;
+  font-weight:600;
+  text-decoration:none
 }
 .wrap{
-  max-width:1000px;margin:25px auto;background:#fff;
-  padding:25px;border-radius:12px;
+  max-width:1100px;
+  margin:18px auto;
+  background:#fff;
+  padding:22px;
+  border-radius:12px
 }
 h2{color:#2e7d32;margin-top:0}
-
-/* form */
-.form{
-  display:grid;
-  grid-template-columns:2fr 3fr 1fr 1fr auto;
-  gap:8px;
-  margin-bottom:12px;
-}
-input,select{padding:8px;font-family:inherit}
-.add{
-  background:#2e7d32;color:#fff;border:none;
-  border-radius:6px;padding:8px 14px;cursor:pointer
-}
-
-/* table */
-table{width:100%;border-collapse:collapse}
+table{width:100%;border-collapse:collapse;margin-top:10px}
 th,td{border:1px solid #ccc;padding:6px;text-align:right}
-th{background:#f0f0f0}
+th{background:#eef5ee}
 .left{text-align:left}
-.cat{background:#e8f5e9;font-weight:700}
+input{width:100%;padding:6px;box-sizing:border-box}
+.small{font-size:13px;color:#2e7d32}
 .sum{font-weight:700;background:#fafafa}
-.del{background:#c62828;color:#fff;border:none;padding:4px 8px;border-radius:4px}
-.edit{background:#1976d2;color:#fff;border:none;padding:4px 8px;border-radius:4px}
-
-/* nav */
-.nav{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  margin-top:25px
-}
-.nav a{
-  text-decoration:none;
-  font-weight:700;
-  color:#2e7d32
-}
-.center-btn{
-  background:#2e7d32;color:#fff;
-  padding:10px 20px;border-radius:30px;
-  text-decoration:none;font-weight:700
-}
-.note{font-size:13px;color:#555;margin-top:8px}
 </style>
 </head>
 
 <body>
+
+<header>
+  <a href="operating-cost-engine.html">◀️ Operating Cost</a>
+  <a href="profit-loss-demo.html">Profit–Loss ▶️</a>
+</header>
+
 <div class="wrap">
 
-<h2>📈 आम्दानी विवरण (Production + Other)</h2>
+<h2>💰 आम्दानी तथा मूल्य निर्धारण</h2>
 
-<!-- ================= ADD FORM ================= -->
-<div class="form">
-  <select id="category">
-    <option>उत्पादन बिक्री</option>
-    <option>अन्य आम्दानी</option>
-  </select>
-  <input id="title" placeholder="आम्दानी शीर्षक">
-  <input id="qty" type="number" placeholder="परिमाण">
-  <input id="rate" type="number" placeholder="दर">
-  <button class="add" onclick="addIncome()">+ Add</button>
-</div>
-
-<!-- ================= TABLE ================= -->
 <table>
 <thead>
 <tr>
-  <th class="left">शीर्षक</th>
+  <th class="left">उत्पादन</th>
   <th>परिमाण</th>
-  <th>दर</th>
+  <th>एकाइ</th>
+  <th>प्रति-एकाइ लागत</th>
+  <th>नाफा %</th>
+  <th>बिक्री दर</th>
   <th>रकम</th>
-  <th></th>
 </tr>
 </thead>
 <tbody id="body"></tbody>
 <tfoot>
 <tr class="sum">
-  <td colspan="3" class="left">कुल आम्दानी</td>
-  <td id="totalIncome">0</td>
-  <td></td>
+  <td colspan="6" class="left">कुल आम्दानी</td>
+  <td id="grandTotal">0</td>
 </tr>
 </tfoot>
 </table>
 
-<div class="note">
-✔️ Production page बाट Year-1 बिक्री स्वतः तानिन्छ<br>
-✔️ Rate/Qty edit गर्न मिल्छ<br>
-✔️ Delete गरेपछि पुनः auto-add हुँदैन
-</div>
-
-<div class="nav">
-  <a href="production.html">← Production</a>
-  <a class="center-btn" href="full-proposal.html">📄 Full Proposal</a>
-  <a href="profit-loss-demo.html">Profit / Loss →</a>
-</div>
+<p class="small">
+✔️ लागत Operating Cost बाट स्वतः आएको छ  
+| ✔️ नाफा % change गर्दा Auto-Save  
+| ✔️ दर चाहिँ manual edit गर्न मिल्छ
+</p>
 
 </div>
+
+<footer>
+  <a href="operating-cost-engine.html">◀️ Operating Cost</a>
+  <a href="profit-loss-demo.html">Next ▶️</a>
+</footer>
 
 <script>
-/* ================= LOAD PROJECT ================= */
-let activeKey = localStorage.getItem("activeProject");
-if(!activeKey){
+/* =====================================================
+   LOAD PROJECT & COST ALLOCATION
+   ===================================================== */
+const projectKey = localStorage.getItem("activeProject");
+if(!projectKey){
   alert("पहिले Project खोल्नुहोस्");
   location.href="index.html";
 }
-let project = JSON.parse(localStorage.getItem(activeKey));
-let incomes = project.incomeData || [];
-let editIndex = null;
 
-/* ================= AUTO PULL FROM PRODUCTION ================= */
-(function pullFromProduction(){
-  let raw = localStorage.getItem("PRODUCTION_INCOME_SUMMARY");
-  if(!raw) return;
+let project = JSON.parse(localStorage.getItem(projectKey)) || {};
+project.income = project.income || {};
+let income = project.income;
 
-  let prod = JSON.parse(raw);
-  if(prod.__used) return;
+const allocation = project.costAllocation || {};
 
-  if(prod.sellKids > 0){
-    incomes.push({
-      category:"उत्पादन बिक्री",
-      title:"पाठापाठी बिक्री (Production)",
-      qty:prod.sellKids,
-      rate:30000,
-      amount:prod.sellKids * 30000,
-      _auto:true
-    });
-  }
+/* =====================================================
+   RENDER TABLE
+   ===================================================== */
+function renderIncome(){
+  body.innerHTML = "";
+  let total = 0;
 
-  if(prod.sellAdults > 0){
-    incomes.push({
-      category:"उत्पादन बिक्री",
-      title:"बयस्क बिक्री (प्रतिस्थापन)",
-      qty:prod.sellAdults,
-      rate:50000,
-      amount:prod.sellAdults * 50000,
-      _auto:true
-    });
-  }
+  Object.keys(allocation).forEach(pid=>{
+    const p = allocation[pid];
 
-  prod.__used = true;
-  project.incomeData = incomes;
+    // init income row if missing
+    if(!income[pid]){
+      income[pid] = {
+        margin: 20,      // default margin %
+        rate: 0,
+        override: false
+      };
+    }
 
-  localStorage.setItem("PRODUCTION_INCOME_SUMMARY",JSON.stringify(prod));
-  localStorage.setItem(activeKey,JSON.stringify(project));
-})();
+    const row = income[pid];
+    const unitCost = p.unitCost || 0;
 
-/* ================= ADD / EDIT ================= */
-function addIncome(){
-  if(!title.value) return;
+    // auto rate if not overridden
+    if(!row.override){
+      row.rate = unitCost * (1 + row.margin/100);
+    }
 
-  let q = Number(qty.value||0);
-  let r = Number(rate.value||0);
-  let amt = q*r;
+    const amount = p.qty * row.rate;
+    total += amount;
 
-  if(editIndex!==null){
-    incomes[editIndex] = {
-      category:category.value,
-      title:title.value,
-      qty:q, rate:r, amount:amt
-    };
-    editIndex=null;
-  }else{
-    incomes.push({
-      category:category.value,
-      title:title.value,
-      qty:q, rate:r, amount:amt
-    });
-  }
-
-  title.value="";qty.value="";rate.value="";
-  save();
-}
-
-function editRow(i){
-  let e = incomes[i];
-  category.value=e.category;
-  title.value=e.title;
-  qty.value=e.qty;
-  rate.value=e.rate;
-  editIndex=i;
-}
-
-function delRow(i){
-  incomes.splice(i,1);
-  save();
-}
-
-/* ================= SAVE / RENDER ================= */
-function save(){
-  project.incomeData=incomes;
-  localStorage.setItem(activeKey,JSON.stringify(project));
-  render();
-}
-
-function render(){
-  body.innerHTML="";
-  let groups={}, total=0;
-
-  incomes.forEach((e,i)=>{
-    if(!groups[e.category]) groups[e.category]=[];
-    groups[e.category].push({e,i});
+    body.innerHTML += `
+    <tr>
+      <td class="left">${p.name}</td>
+      <td>${p.qty}</td>
+      <td>${p.unit}</td>
+      <td>${unitCost.toFixed(2)}</td>
+      <td>
+        <input type="number" value="${row.margin}"
+          oninput="updateMargin('${pid}',this.value)">
+      </td>
+      <td>
+        <input type="number" value="${row.rate.toFixed(2)}"
+          oninput="updateRate('${pid}',this.value)">
+      </td>
+      <td>${amount.toFixed(2)}</td>
+    </tr>
+    `;
   });
 
-  for(let c in groups){
-    body.innerHTML+=`<tr class="cat"><td colspan="5">◆ ${c}</td></tr>`;
-    groups[c].forEach(o=>{
-      let e=o.e,i=o.i;
-      total+=Number(e.amount||0);
-      body.innerHTML+=`
-      <tr>
-        <td class="left">${e.title}</td>
-        <td>${e.qty}</td>
-        <td>${e.rate}</td>
-        <td>${e.amount}</td>
-        <td>
-          <button class="edit" onclick="editRow(${i})">✏️</button>
-          <button class="del" onclick="delRow(${i})">✖</button>
-        </td>
-      </tr>`;
-    });
-  }
-  totalIncome.innerText=Math.round(total);
+  grandTotal.innerText = total.toFixed(2);
+
+  project.income = income;
+  project.totalIncome = total;
+  localStorage.setItem(projectKey, JSON.stringify(project));
 }
 
-render();
+/* =====================================================
+   UPDATE HANDLERS
+   ===================================================== */
+function updateMargin(pid,val){
+  income[pid].margin = Number(val)||0;
+  income[pid].override = false; // back to auto
+  renderIncome();
+}
+
+function updateRate(pid,val){
+  income[pid].rate = Number(val)||0;
+  income[pid].override = true; // manual override
+  renderIncome();
+}
+
+/* =====================================================
+   INIT
+   ===================================================== */
+renderIncome();
 </script>
 
 </body>
