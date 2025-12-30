@@ -8,14 +8,14 @@
 <style>
 body{
   font-family:"Noto Sans Devanagari","Kalimati",system-ui;
-  background:#f4f7f6;margin:0;
+  background:#f4f7f6;
+  margin:0;
 }
 .page{
   max-width:900px;
   margin:25px auto;
   background:#fff;
-  padding:35px;
-  border-radius:10px;
+  padding:40px;
 }
 .header{
   text-align:center;
@@ -26,25 +26,26 @@ body{
 .header h2{margin:0}
 .small{font-size:14px;color:#333}
 
-.row{margin:10px 0}
+.row{margin:12px 0}
 label{font-weight:600}
 input,textarea{
   width:100%;
   padding:8px;
   margin-top:5px;
   font-family:inherit;
+  font-size:15px;
 }
-textarea{min-height:120px}
+textarea{min-height:140px}
 
 .flex{
   display:flex;
   justify-content:space-between;
-  margin-top:20px;
+  gap:20px;
+  margin-top:15px;
 }
 
-.attach-list li{
-  margin:4px 0;
-}
+.attach-list li{margin:4px 0}
+
 button{
   padding:6px 12px;
   border:none;
@@ -53,13 +54,20 @@ button{
   color:#fff;
   cursor:pointer;
 }
-.del{
-  background:#c62828;
-  margin-left:6px;
-}
+.del{background:#c62828}
 
+/* ================= PRINT MODE ================= */
 @media print{
+  body{background:#fff}
   button{display:none}
+  input,textarea{
+    border:none;
+    padding:0;
+  }
+  textarea{
+    resize:none;
+  }
+  label{display:none}
   a[href]:after{content:""}
 }
 </style>
@@ -68,7 +76,7 @@ button{
 <body>
 <div class="page">
 
-<!-- ================= HEADER ================= -->
+<!-- ===== HEADER ===== -->
 <div class="header">
   <h2 id="orgName">संस्थाको नाम</h2>
   <div class="small" id="orgAddress">ठेगाना</div>
@@ -79,9 +87,9 @@ button{
   </div>
 </div>
 
-<!-- ================= META ================= -->
+<!-- ===== META ===== -->
 <div class="flex">
-  <div>
+  <div style="flex:1">
     <label>प्रति :</label>
     <input id="toOffice" placeholder="कार्यालय / निकायको नाम">
   </div>
@@ -98,10 +106,10 @@ button{
 
 <div class="row">
   <label>निवेदनको व्यहोरा :</label>
-  <textarea id="description"></textarea>
+  <textarea id="description" placeholder="यहाँ निवेदनको सम्पूर्ण व्यहोरा लेख्नुहोस्…"></textarea>
 </div>
 
-<!-- ================= ATTACHMENTS ================= -->
+<!-- ===== ATTACHMENTS ===== -->
 <div class="row">
   <label>संलग्न कागजातहरू :</label>
   <div style="display:flex;gap:6px">
@@ -111,8 +119,8 @@ button{
   <ul class="attach-list" id="attachList"></ul>
 </div>
 
-<!-- ================= SIGN ================= -->
-<div style="margin-top:40px">
+<!-- ===== SIGN ===== -->
+<div style="margin-top:45px">
   <div>भवदीय,</div>
   <br>
   <div><b id="signName">नाम</b></div>
@@ -139,7 +147,7 @@ contact.innerText = s.bp_phone || "—";
 signName.innerText = s.bp_owner || "नाम";
 signOrg.innerText = s.bp_org || "";
 
-/* ===== DATE (Nepali simple fallback) ===== */
+/* ===== DATE ===== */
 letterDate.value = new Date().toLocaleDateString("ne-NP");
 
 /* ===== ATTACHMENTS ===== */
