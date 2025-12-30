@@ -2,7 +2,7 @@
 <html lang="ne">
 <head>
 <meta charset="UTF-8">
-<title>नाफा–नोक्सान विवरण | Farmerbase BP Engine</title>
+<title>Profit – Loss | Farmerbase BP Engine</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
@@ -14,200 +14,177 @@ header,footer{
   background:#e8f5e9;
   padding:10px 16px;
   display:flex;
-  justify-content:space-between;
-  align-items:center;
-  font-size:14px
+  justify-content:space-between
 }
 header a,footer a{
-  text-decoration:none;
   color:#2e7d32;
-  font-weight:600
+  font-weight:600;
+  text-decoration:none
 }
 .wrap{
-  max-width:1000px;
+  max-width:900px;
   margin:18px auto;
   background:#fff;
   padding:22px;
   border-radius:12px
 }
-h2{color:#2e7d32;margin-top:0}
-h3{color:#1565c0;margin-bottom:6px}
-
-table{
-  width:100%;
-  border-collapse:collapse;
-  margin-top:10px
-}
-th,td{
-  border:1px solid #ccc;
-  padding:6px;
-  text-align:right
-}
+h2,h3{color:#2e7d32;margin-top:0}
+table{width:100%;border-collapse:collapse;margin-top:10px}
+th,td{border:1px solid #ccc;padding:8px;text-align:right}
 th{background:#eef5ee}
 .left{text-align:left}
-.sum{background:#fafafa;font-weight:700}
-
-input{
-  width:100%;
-  padding:6px;
-  box-sizing:border-box
-}
-button{
-  padding:6px 12px;
-  border:none;
-  background:#2e7d32;
-  color:#fff;
-  border-radius:6px;
-  cursor:pointer
-}
-.del{
-  background:#c62828
-}
-.note{font-size:13px;color:#555}
+.sum{font-weight:700;background:#fafafa}
+.pos{color:#2e7d32;font-weight:700}
+.neg{color:#c62828;font-weight:700}
+.small{font-size:13px;color:#2e7d32}
 </style>
 </head>
 
 <body>
 
-<!-- 🔝 TOP NAV -->
 <header>
-  <a href="index.html">🏠 Back to Home</a>
-  <div>
-    <a href="expense-demo.html">◀️ Expense</a> |
-    <a href="five-year-roi.html">ROI ▶️</a>
-  </div>
+  <a href="income-demo.html">◀️ Income</a>
+  <a href="index.html">🏠 Home</a>
 </header>
 
 <div class="wrap">
 
-<h2>💹 नाफा–नोक्सान विवरण (वार्षिक)</h2>
+<h2>📊 नाफा – नोक्सान विवरण (वार्षिक)</h2>
 
-<!-- ================= SUMMARY ================= -->
+<!-- ================= INCOME ================= -->
+<h3>💰 आम्दानी</h3>
 <table>
-<tr><th class="left">विवरण</th><th>रकम</th></tr>
-<tr><td class="left">कुल आम्दानी</td><td id="incomeTotal">0</td></tr>
-<tr><td class="left">कुल चालु खर्च</td><td id="expenseTotal">0</td></tr>
-<tr class="sum"><td class="left">सञ्चालन नाफा</td><td id="operatingProfit">0</td></tr>
-</table>
-
-<hr>
-
-<!-- ================= PROFIT ALLOCATION ================= -->
-<h3>📊 लाभांश वितरण</h3>
-
-<table>
-<thead>
 <tr>
-  <th class="left">शीर्षक</th>
-  <th>%</th>
-  <th></th>
+  <th class="left">विवरण</th>
+  <th>रकम</th>
 </tr>
-</thead>
-<tbody id="allocBody"></tbody>
-<tfoot>
-<tr class="sum">
-  <td class="left">जम्मा</td>
-  <td id="allocPct">100%</td>
-  <td></td>
+<tr>
+  <td class="left">कुल आम्दानी</td>
+  <td id="totalIncome">0</td>
 </tr>
-</tfoot>
 </table>
 
-<div style="margin-top:8px">
-  <input id="allocTitle" placeholder="नयाँ शीर्षक">
-  <input id="allocRate" placeholder="%" type="number">
-  <button onclick="addAlloc()">+ Add</button>
-</div>
+<!-- ================= OPERATING COST ================= -->
+<h3>💸 चालु खर्च</h3>
+<table>
+<tr>
+  <th class="left">विवरण</th>
+  <th>रकम</th>
+</tr>
+<tr>
+  <td class="left">कुल चालु खर्च</td>
+  <td id="totalOperating">0</td>
+</tr>
+</table>
 
-<p class="note">
-✔️ प्रतिशतको जम्मा 100% हुनुपर्छ<br>
-✔️ Save स्वतः हुन्छ
+<!-- ================= GROSS PROFIT ================= -->
+<h3>📈 सकल नाफा</h3>
+<table>
+<tr class="sum">
+  <td class="left">सकल नाफा (आम्दानी − चालु खर्च)</td>
+  <td id="grossProfit">0</td>
+</tr>
+</table>
+
+<!-- ================= FIXED COST ================= -->
+<h3>🏗️ स्थिर खर्च / लगानी</h3>
+<table>
+<tr>
+  <th class="left">विवरण</th>
+  <th>रकम</th>
+</tr>
+<tr>
+  <td class="left">कुल स्थिर खर्च</td>
+  <td id="totalFixed">0</td>
+</tr>
+</table>
+
+<!-- ================= NET PROFIT ================= -->
+<h3>✅ खुद नाफा</h3>
+<table>
+<tr class="sum">
+  <td class="left">खुद नाफा (सकल नाफा − स्थिर खर्च)</td>
+  <td id="netProfit">0</td>
+</tr>
+</table>
+
+<p class="small">
+✔️ सबै विवरण Operating Cost र Income बाट स्वतः आएको छ  
+| ✔️ कुनै manual edit आवश्यक छैन
 </p>
 
 </div>
 
-<!-- 🔻 BOTTOM NAV -->
 <footer>
-  <a href="expense-demo.html">◀️ Previous</a>
+  <a href="income-demo.html">◀️ Income</a>
   <a href="index.html">🏠 Home</a>
-  <a href="five-year-roi.html">Next ▶️</a>
 </footer>
 
 <script>
-/* ================= LOAD PROJECT ================= */
-let key = localStorage.getItem("activeProject");
-if(!key){
+/* =====================================================
+   LOAD PROJECT
+   ===================================================== */
+const projectKey = localStorage.getItem("activeProject");
+if(!projectKey){
   alert("पहिले Project खोल्नुहोस्");
   location.href="index.html";
 }
-let project = JSON.parse(localStorage.getItem(key)) || {};
 
-/* ================= INCOME ================= */
-let income=0;
-(project.incomeData||[]).forEach(i=>{
-  income+=Number(i.amount)||0;
-});
-incomeTotal.innerText=Math.round(income);
+let project = JSON.parse(localStorage.getItem(projectKey)) || {};
+const expenses = project.expenses || [];
+const totalIncome = Number(project.totalIncome) || 0;
 
-/* ================= EXPENSE ================= */
-let expense=0;
-(project.expenseData||[]).forEach(e=>{
-  if(e.mainCat==="चालु खर्च"){
-    expense+=Number(e.amount)||0;
+/* =====================================================
+   CALCULATE COSTS
+   ===================================================== */
+let operatingCost = 0;
+let fixedCost = 0;
+
+expenses.forEach(e=>{
+  if(e.costType === "operating"){
+    operatingCost += Number(e.amount)||0;
+  }
+  if(e.costType === "fixed"){
+    fixedCost += Number(e.amount)||0;
   }
 });
-expenseTotal.innerText=Math.round(expense);
 
-/* ================= PROFIT ================= */
-let profit=income-expense;
-operatingProfit.innerText=Math.round(profit);
+/* =====================================================
+   PROFIT CALCULATION
+   ===================================================== */
+const grossProfit = totalIncome - operatingCost;
+const netProfit = grossProfit - fixedCost;
 
-/* ================= ALLOCATION ================= */
-project.profitAllocation = project.profitAllocation || [
-  {id:1,title:"पुनः लगानी",pct:50},
-  {id:2,title:"घरायसी खर्च",pct:30},
-  {id:3,title:"बचत",pct:20}
-];
+/* =====================================================
+   RENDER
+   ===================================================== */
+totalIncomeEl = document.getElementById("totalIncome");
+totalOperatingEl = document.getElementById("totalOperating");
+grossProfitEl = document.getElementById("grossProfit");
+totalFixedEl = document.getElementById("totalFixed");
+netProfitEl = document.getElementById("netProfit");
 
-function renderAlloc(){
-  allocBody.innerHTML="";
-  let tot=0;
+totalIncomeEl.innerText = totalIncome.toFixed(2);
+totalOperatingEl.innerText = operatingCost.toFixed(2);
+grossProfitEl.innerText = grossProfit.toFixed(2);
+totalFixedEl.innerText = fixedCost.toFixed(2);
+netProfitEl.innerText = netProfit.toFixed(2);
 
-  project.profitAllocation.forEach(a=>{
-    tot+=Number(a.pct)||0;
-    allocBody.innerHTML+=`
-      <tr>
-        <td class="left">${a.title}</td>
-        <td>${a.pct}</td>
-        <td><button class="del" onclick="delAlloc(${a.id})">❌</button></td>
-      </tr>
-    `;
-  });
+grossProfitEl.className = grossProfit >= 0 ? "pos" : "neg";
+netProfitEl.className = netProfit >= 0 ? "pos" : "neg";
 
-  allocPct.innerText=tot+"%";
-  localStorage.setItem(key,JSON.stringify(project));
-}
+/* =====================================================
+   SAVE FOR ROI / PROPOSAL
+   ===================================================== */
+project.profitLoss = {
+  totalIncome,
+  operatingCost,
+  fixedCost,
+  grossProfit,
+  netProfit
+};
 
-function addAlloc(){
-  if(!allocTitle.value||!allocRate.value) return;
-  project.profitAllocation.push({
-    id:Date.now(),
-    title:allocTitle.value,
-    pct:Number(allocRate.value)
-  });
-  allocTitle.value="";
-  allocRate.value="";
-  renderAlloc();
-}
-
-function delAlloc(id){
-  project.profitAllocation=
-    project.profitAllocation.filter(a=>a.id!==id);
-  renderAlloc();
-}
-
-/* INIT */
-renderAlloc();
+localStorage.setItem(projectKey, JSON.stringify(project));
 </script>
 
 </body>
