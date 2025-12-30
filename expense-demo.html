@@ -90,6 +90,7 @@ th{background:#eef5ee}
 
 <body>
 
+<!-- 🔝 TOP NAV -->
 <header>
   <a href="index.html">🏠 Back to Home</a>
   <div>
@@ -148,8 +149,10 @@ placeholder="खर्च सम्बन्धी समग्र विवर�
 
 </div>
 
+<!-- 🔻 BOTTOM NAV -->
 <footer>
   <a href="operating-cost-engine.html">◀️ Previous</a>
+  <a href="index.html">🏠 Home</a>
   <a href="profit-loss-demo.html">Next ▶️</a>
 </footer>
 
@@ -187,8 +190,8 @@ function injectAuto(){
 
   expenseNarration.value = auto.narration || "";
 
-  // remove old auto rows safely
-  expenses = expenses.filter(e=>e && !e.auto);
+  // remove previous auto rows safely
+  expenses = expenses.filter(e => e && !e.auto);
 
   if(auto.feed > 0){
     expenses.push(makeAuto(
@@ -254,7 +257,7 @@ function render(){
   let grouped={};
 
   expenses.forEach(e=>{
-    if(!e || !e.title) return; // 🛡️ safety guard
+    if(!e || !e.title) return; // safety guard
     grouped[e.mainCat]=grouped[e.mainCat]||{};
     grouped[e.mainCat][e.subCat]=grouped[e.mainCat][e.subCat]||[];
     grouped[e.mainCat][e.subCat].push(e);
@@ -297,8 +300,10 @@ function delRow(id){
 }
 
 /* ================= INIT ================= */
-injectAuto();
-render();
+window.addEventListener("load",()=>{
+  injectAuto();
+  render();
+});
 </script>
 
 </body>
