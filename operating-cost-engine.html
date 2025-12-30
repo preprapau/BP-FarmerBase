@@ -39,18 +39,8 @@ select,input,textarea{
   font-family:inherit
 }
 textarea{resize:vertical}
-.grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-  gap:10px
-}
-.box{
-  border:1px solid #ddd;
-  padding:12px;
-  border-radius:8px;
-  background:#fafafa
-}
 .hidden{display:none}
+
 table{
   width:100%;
   border-collapse:collapse;
@@ -63,6 +53,7 @@ th,td{
 }
 th{background:#eef5ee}
 .sum{background:#f5f5f5;font-weight:700}
+
 button{
   padding:8px 16px;
   border:none;
@@ -72,6 +63,9 @@ button{
   cursor:pointer
 }
 .note{font-size:13px;color:#555}
+.readonly{
+  background:#f0f0f0
+}
 </style>
 </head>
 
@@ -87,84 +81,57 @@ button{
 
 <div class="wrap">
 
-<h2>🌱 Operating Cost Engine (Generic)</h2>
+<h2>🌱 Operating Cost Engine (Stage-linked)</h2>
 
 <h3>📝 खर्च सम्बन्धी व्याख्या (Editable Narration)</h3>
 <textarea id="narration" rows="4">
-यस व्यवसायका लागि चालु खर्च सरदर वा प्रतिदिन/चरण अनुसार गणना गर्न सकिन्छ। किसानको अनुभव र क्षमताअनुसार उपयुक्त विधि छानिएको छ।
+यस व्यवसायमा चालु खर्च उत्पादनको चरण तथा उमेर अनुसार फरक–फरक हुन्छ। त्यसैले खर्च Stage-wise गणना गरिएको छ।
 </textarea>
 
 <hr>
 
-<h3>⚙️ खर्च गणना विधि छान्नुहोस्</h3>
+<h3>⚙️ खर्च गणना विधि</h3>
 <select id="mode" onchange="switchMode()">
   <option value="AVG">सरदर / अनुमान (Average)</option>
-  <option value="TIME">प्रतिदिन / चरण अनुसार (Time-based)</option>
+  <option value="STAGE">Stage-wise / प्रतिदिन (Scientific)</option>
 </select>
 
 <hr>
 
 <!-- ================= AVERAGE MODE ================= -->
-<div id="avgBox" class="box">
-<h3>🅰️ सरदर / अनुमान खर्च</h3>
-<div class="grid">
-  <div>
-    <label>दाना / मल / आहार (वार्षिक)</label>
-    <input id="avgFeed" type="number" value="0">
-  </div>
-  <div>
-    <label>औषधी / विषादी (वार्षिक)</label>
-    <input id="avgMed" type="number" value="0">
-  </div>
-  <div>
-    <label>भिटामिन / सप्लिमेन्ट (वार्षिक)</label>
-    <input id="avgVit" type="number" value="0">
-  </div>
-</div>
+<div id="avgBox">
+<h3>🅰️ सरदर / अनुमान खर्च (वार्षिक)</h3>
+<table>
+<tr><th>खर्च प्रकार</th><th>रकम</th></tr>
+<tr><td>दाना / मल / आहार</td><td><input id="avgFeed" type="number"></td></tr>
+<tr><td>औषधी / विषादी</td><td><input id="avgMed" type="number"></td></tr>
+<tr><td>भिटामिन / सप्लिमेन्ट</td><td><input id="avgVit" type="number"></td></tr>
+</table>
 </div>
 
-<!-- ================= TIME MODE ================= -->
-<div id="timeBox" class="box hidden">
-<h3>🅱️ प्रतिदिन / चरण अनुसार खर्च</h3>
+<!-- ================= STAGE MODE ================= -->
+<div id="stageBox" class="hidden">
+<h3>🅱️ Stage-wise खर्च (संख्या Production बाट)</h3>
 
-<h4>बयस्क (सरदर प्रतिदिन)</h4>
-<div class="grid">
-  <input id="adultCount" placeholder="बयस्क संख्या">
-  <input id="adultFeed" placeholder="दाना / मल (प्रति दिन)">
-  <input id="adultMed" placeholder="औषधी (प्रति दिन)">
-  <input id="adultVit" placeholder="भिटामिन (प्रति दिन)">
-</div>
-
-<h4 style="margin-top:12px">उमेर / चरण अनुसार (Optional – Advanced)</h4>
 <table>
 <thead>
 <tr>
-  <th>चरण</th>
+  <th>Stage</th>
+  <th>Label</th>
   <th>संख्या</th>
   <th>दिन</th>
-  <th>दाना</th>
-  <th>औषधी</th>
-  <th>भिटामिन</th>
+  <th>दाना (प्रति दिन)</th>
+  <th>औषधी (प्रति दिन)</th>
+  <th>भिटामिन (प्रति दिन)</th>
 </tr>
 </thead>
-<tbody id="stageBody">
-<tr>
-<td>१–३ महिना</td>
-<td><input></td><td><input></td>
-<td><input></td><td><input></td><td><input></td>
-</tr>
-<tr>
-<td>४–५ महिना</td>
-<td><input></td><td><input></td>
-<td><input></td><td><input></td><td><input></td>
-</tr>
-<tr>
-<td>५–९ महिना</td>
-<td><input></td><td><input></td>
-<td><input></td><td><input></td><td><input></td>
-</tr>
-</tbody>
+<tbody id="stageBody"></tbody>
 </table>
+
+<p class="note">
+✔️ संख्या र दिन Production बाट auto आएको हो<br>
+✔️ यहाँ दर (rate) मात्र edit गर्नुहोस्
+</p>
 </div>
 
 <hr>
@@ -179,8 +146,7 @@ button{
 </table>
 
 <p class="note">
-✔️ यो Engine बंगुर, बाख्रा, तरकारी सबैमा लागू हुन्छ<br>
-✔️ Label मात्र बदलिन्छ, लजिक एउटै
+📌 यो डेटा Expense → Profit–Loss → ROI मा स्वतः प्रयोग हुन्छ
 </p>
 
 </div>
@@ -192,45 +158,71 @@ button{
 
 <script>
 function $(id){return document.getElementById(id)}
+
+let stageData = JSON.parse(localStorage.getItem("PRODUCTION_STAGE_DATA")) || null;
+
 function switchMode(){
   avgBox.classList.toggle("hidden",mode.value!=="AVG")
-  timeBox.classList.toggle("hidden",mode.value!=="TIME")
+  stageBox.classList.toggle("hidden",mode.value!=="STAGE")
+}
+
+function loadStages(){
+  if(!stageData){
+    alert("Production data फेला परेन");
+    return;
+  }
+  stageBody.innerHTML="";
+  Object.keys(stageData.stages).forEach(k=>{
+    let s=stageData.stages[k];
+    stageBody.innerHTML+=`
+      <tr>
+        <td>${k}</td>
+        <td>${s.label}</td>
+        <td><input class="readonly" readonly value="${s.count}"></td>
+        <td><input class="readonly" readonly value="${s.days}"></td>
+        <td><input class="feedRate"></td>
+        <td><input class="medRate"></td>
+        <td><input class="vitRate"></td>
+      </tr>
+    `;
+  });
 }
 
 function calculate(){
-  let feed=0,med=0,vit=0
+  let feed=0,med=0,vit=0;
 
   if(mode.value==="AVG"){
-    feed=+avgFeed.value||0
-    med=+avgMed.value||0
-    vit=+avgVit.value||0
+    feed=+avgFeed.value||0;
+    med=+avgMed.value||0;
+    vit=+avgVit.value||0;
   }else{
-    let ac=+adultCount.value||0
-    feed+=ac*(+adultFeed.value||0)*365
-    med+=ac*(+adultMed.value||0)*365
-    vit+=ac*(+adultVit.value||0)*365
-
     document.querySelectorAll("#stageBody tr").forEach(r=>{
-      let t=r.querySelectorAll("input")
-      let n=+t[0].value||0
-      let d=+t[1].value||0
-      feed+=n*d*(+t[2].value||0)
-      med+=n*d*(+t[3].value||0)
-      vit+=n*d*(+t[4].value||0)
-    })
+      let count=+r.children[2].querySelector("input").value||0;
+      let days =+r.children[3].querySelector("input").value||0;
+      let fr   =+r.children[4].querySelector("input").value||0;
+      let mr   =+r.children[5].querySelector("input").value||0;
+      let vr   =+r.children[6].querySelector("input").value||0;
+
+      feed += count*days*fr;
+      med  += count*days*mr;
+      vit  += count*days*vr;
+    });
   }
 
-  feedTotal.innerText=Math.round(feed)
-  medTotal.innerText=Math.round(med)
-  vitTotal.innerText=Math.round(vit)
-  grandTotal.innerText=Math.round(feed+med+vit)
+  feedTotal.innerText=Math.round(feed);
+  medTotal.innerText=Math.round(med);
+  vitTotal.innerText=Math.round(vit);
+  grandTotal.innerText=Math.round(feed+med+vit);
 
   localStorage.setItem("OPERATING_COST_ENGINE",JSON.stringify({
     mode:mode.value,
     feed,med,vit,
     narration:narration.value
-  }))
+  }));
 }
+
+/* INIT */
+if(stageData) loadStages();
 </script>
 
 </body>
