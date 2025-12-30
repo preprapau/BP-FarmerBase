@@ -1,133 +1,331 @@
-.js 
-/* =========================================================
-   Farmerbase BP Engine
-   Advanced Cost Allocation Engine (FINAL)
-   ---------------------------------------------------------
-   - Uses PRODUCTION_MASTER
-   - Uses project.expenses
-   - Checklist-based allocation (appliesTo: array)
-   - Operating cost only
-   - Fixed cost excluded (used in ROI module)
-   ========================================================= */
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+<meta charset="UTF-8">
+<title>Operating Cost Engine | Farmerbase BP Engine</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
-(function () {
+<style>
+body{
+  font-family:"Noto Sans Devanagari","Kalimati",system-ui;
+  background:#f4f7f6;margin:0
+}
+header,footer{
+  background:#e8f5e9;
+  padding:10px 16px;
+  display:flex;
+  justify-content:space-between
+}
+header a,footer a{
+  color:#2e7d32;
+  font-weight:600;
+  text-decoration:none
+}
+.wrap{
+  max-width:1100px;
+  margin:18px auto;
+  background:#fff;
+  padding:22px;
+  border-radius:12px
+}
+h2{color:#2e7d32;margin-top:0}
+table{width:100%;border-collapse:collapse;margin-top:10px}
+th,td{border:1px solid #ccc;padding:6px;text-align:left}
+th{background:#eef5ee}
+input,select{width:100%;padding:6px;box-sizing:border-box}
+button{padding:6px 12px;border:none;border-radius:6px;cursor:pointer}
+.add{background:#2e7d32;color:#fff}
+.del{background:#c62828;color:#fff}
+.box{border:1px solid #ccc;padding:8px;border-radius:6px}
+.chk{margin-right:6px}
+.small{font-size:13px;color:#2e7d32}
+</style>
+</head>
 
-  /* ---------- Helpers ---------- */
+<body>
 
-  function getActiveProject() {
-    const key = localStorage.getItem("activeProject");
-    if (!key) return null;
-    return {
-      key: key,
-      data: JSON.parse(localStorage.getItem(key)) || {}
-    };
-  }
+<header>
+  <a href="production-sells.html">◀️ Production</a>
+  <a href="income-demo.html">Income ▶️</a>
+</header>
 
-  function getProduction() {
-    return JSON.parse(
-      localStorage.getItem("PRODUCTION_MASTER")
-    ) || [];
-  }
+<div class="wrap">
 
-  /* ---------- Core Engine ---------- */
+<h2>💸 खर्च विवरण (Operating / Fixed + Checklist)</h2>
 
-  function runCostAllocation() {
+<table>
+<thead>
+<tr>
+  <th>खर्च शीर्षक</th>
+  <th>रकम</th>
+  <th>प्रकार</th>
+  <th>लागू हुने उत्पादन</th>
+  <th></th>
+</tr>
+</thead>
+<tbody id="body"></tbody>
+</table>
 
-    const projectWrap = getActiveProject();
-    if (!projectWrap) return null;
+<hr>
 
-    const project = projectWrap.data;
-    const expenses = project.expenses || [];
-    const products = getProduction();
+<h3>➕ नयाँ खर्च</h3>
 
-    let allocation = {};
+<input id="eTitle" placeholder="जस्तै: दाना, मल, मजदुरी">
+<input id="eAmount" placeholder="रकम">
 
-    /* STEP 1: Prepare production base */
-    products.forEach(p => {
-      const qty = Number(p.qty) || 0;
-      if (qty === 0) return;
+<select id="eType">
+  <option value="operating">चालु खर्च</option>
+  <option value="fixed">स्थिर खर्च</option>
+</select>
 
-      allocation[p.id] = {
-        productId: p.id,
-        name: p.name,
-        qty: qty,
-        unit: p.unit || "",
-        directCost: 0,
-        allocatedCost: 0,
-        totalCost: 0,
-        unitCost: 0
-      };
-    });
+<div class="box" id="applyBox"></div>
 
-    /* STEP 2: Take operating expenses only */
-    const operatingExpenses = expenses.filter(e =>
-      e.costType === "operating" &&
-      Array.isArray(e.appliesTo) &&
-      Number(e.amount) > 0
-    );
+<button class="add" onclick="addExpense()">+ Add खर्च</button>
 
-    /* STEP 3: Allocate expenses */
-    operatingExpenses.forEach(e => {
+<p class="small">
+✔️ Checklist user ले बनाउँछ | चालु खर्च मात्र लागत गणनामा जान्छ
+</p>
 
-      const amount = Number(e.amount) || 0;
-      if (amount === 0) return;
+<hr>
 
-      /* Case A: applies to ALL products */
-      if (e.appliesTo.includes("all")) {
+<h3>📊 प्रति–उत्पादन लागत (Auto Calculated)</h3>
+<table>
+<thead>
+<tr>
+  <th>उत्पादन</th>
+  <th>परिमाण</th>
+  <th>एकाइ</th>
+  <th>कुल लागत</th>
+  <th>प्रति–एकाइ लागत</th>
+</tr>
+</thead>
+<tbody id="allocBody"></tbody>
+</table>
 
-        const totalQty = Object.values(allocation)
-          .reduce((sum, p) => sum + p.qty, 0);
+</div>
 
-        Object.values(allocation).forEach(p => {
-          const share = totalQty > 0
-            ? (p.qty / totalQty) * amount
-            : 0;
-          p.allocatedCost += share;
-        });
+<footer>
+  <a href="production-sells.html">◀️ Production</a>
+  <a href="income-demo.html">Next ▶️</a>
+</footer>
 
-      }
-      /* Case B: applies to selected products only */
-      else {
+<script>
+/* =====================================================
+   LOAD PROJECT & PRODUCTION
+   ===================================================== */
+const projectKey = localStorage.getItem("activeProject");
+if(!projectKey){
+  alert("पहिले Project खोल्नुहोस्");
+  location.href="index.html";
+}
 
-        const targets = e.appliesTo.filter(id => allocation[id]);
-        if (targets.length === 0) return;
+let project = JSON.parse(localStorage.getItem(projectKey)) || {};
+project.expenses = project.expenses || [];
+let expenses = project.expenses;
 
-        const targetQty = targets.reduce(
-          (sum, id) => sum + allocation[id].qty, 0
-        );
+let products = JSON.parse(
+  localStorage.getItem("PRODUCTION_MASTER")
+) || [];
 
-        targets.forEach(id => {
-          const p = allocation[id];
-          const share = targetQty > 0
-            ? (p.qty / targetQty) * amount
-            : 0;
-          p.directCost += share;
-        });
-      }
-    });
+/* =====================================================
+   BUILD CHECKLIST
+   ===================================================== */
+function buildChecklist(selected=[]){
+  applyBox.innerHTML = "";
 
-    /* STEP 4: Final per-unit cost */
-    Object.values(allocation).forEach(p => {
-      p.totalCost = p.directCost + p.allocatedCost;
-      p.unitCost = p.qty > 0
-        ? p.totalCost / p.qty
-        : 0;
-    });
+  applyBox.innerHTML += `
+    <label>
+      <input type="checkbox" class="chk"
+        ${selected.includes("all")?"checked":""}
+        onchange="toggleAll(this)">
+      सबै
+    </label><br>
+  `;
 
-    /* STEP 5: Save back to project */
-    project.costAllocation = allocation;
-    localStorage.setItem(
-      projectWrap.key,
-      JSON.stringify(project)
-    );
+  products.forEach(p=>{
+    if(Number(p.qty)===0) return;
+    applyBox.innerHTML += `
+      <label>
+        <input type="checkbox" class="chk prod"
+          value="${p.id}"
+          ${selected.includes(p.id)?"checked":""}>
+        ${p.name}
+      </label><br>
+    `;
+  });
+}
 
-    return allocation;
-  }
+function toggleAll(cb){
+  document.querySelectorAll(".prod")
+    .forEach(x=>x.checked=false);
+}
 
-  /* ---------- Auto Run ---------- */
+function getSelectedProducts(){
+  const all = applyBox.querySelector("input[type=checkbox]");
+  if(all.checked) return ["all"];
+
+  return [...applyBox.querySelectorAll(".prod")]
+    .filter(x=>x.checked)
+    .map(x=>x.value);
+}
+
+/* =====================================================
+   RENDER EXPENSE TABLE
+   ===================================================== */
+function renderExpenses(){
+  body.innerHTML = "";
+  expenses.forEach(e=>{
+    body.innerHTML += `
+    <tr>
+      <td>
+        <input value="${e.title}"
+          oninput="editExpense('${e.id}','title',this.value)">
+      </td>
+      <td>
+        <input value="${e.amount}"
+          oninput="editExpense('${e.id}','amount',this.value)">
+      </td>
+      <td>
+        <select onchange="editExpense('${e.id}','costType',this.value)">
+          <option value="operating" ${e.costType==="operating"?"selected":""}>चालु</option>
+          <option value="fixed" ${e.costType==="fixed"?"selected":""}>स्थिर</option>
+        </select>
+      </td>
+      <td>${e.appliesTo.join(", ")}</td>
+      <td>
+        <button class="del" onclick="delExpense('${e.id}')">❌</button>
+      </td>
+    </tr>`;
+  });
+
+  project.expenses = expenses;
+  localStorage.setItem(projectKey, JSON.stringify(project));
+}
+
+/* =====================================================
+   ADD / EDIT / DELETE
+   ===================================================== */
+function addExpense(){
+  const applies = getSelectedProducts();
+  if(!eTitle.value || !eAmount.value || applies.length===0) return;
+
+  expenses.push({
+    id: Date.now(),
+    title: eTitle.value,
+    amount: Number(eAmount.value),
+    costType: eType.value,
+    appliesTo: applies
+  });
+
+  eTitle.value = "";
+  eAmount.value = "";
+  buildChecklist([]);
+
+  saveAll();
+}
+
+function editExpense(id, field, val){
+  const e = expenses.find(x=>x.id==id);
+  if(!e) return;
+  e[field] = field==="amount" ? Number(val)||0 : val;
+  saveAll();
+}
+
+function delExpense(id){
+  expenses = expenses.filter(x=>x.id!=id);
+  saveAll();
+}
+
+function saveAll(){
+  project.expenses = expenses;
+  localStorage.setItem(projectKey, JSON.stringify(project));
+  renderExpenses();
   runCostAllocation();
+}
 
-  /* ---------- Expose (for debug / re-run) ---------- */
-  window.runCostAllocation = runCostAllocation;
+/* =====================================================
+   COST ALLOCATION ENGINE (INLINE)
+   ===================================================== */
+function runCostAllocation(){
 
-})();
+  let allocation = {};
+
+  products.forEach(p=>{
+    const qty = Number(p.qty)||0;
+    if(qty===0) return;
+    allocation[p.id] = {
+      name:p.name,
+      qty:qty,
+      unit:p.unit||"",
+      direct:0,
+      shared:0
+    };
+  });
+
+  const operating = expenses.filter(e =>
+    e.costType==="operating" &&
+    Array.isArray(e.appliesTo) &&
+    Number(e.amount)>0
+  );
+
+  operating.forEach(e=>{
+    const amt = Number(e.amount)||0;
+
+    if(e.appliesTo.includes("all")){
+      const totalQty = Object.values(allocation)
+        .reduce((s,p)=>s+p.qty,0);
+
+      Object.values(allocation).forEach(p=>{
+        p.shared += totalQty>0 ? (p.qty/totalQty)*amt : 0;
+      });
+
+    }else{
+      const targets = e.appliesTo.filter(id=>allocation[id]);
+      const targetQty = targets.reduce(
+        (s,id)=>s+allocation[id].qty,0
+      );
+
+      targets.forEach(id=>{
+        allocation[id].direct +=
+          targetQty>0
+            ? (allocation[id].qty/targetQty)*amt
+            : 0;
+      });
+    }
+  });
+
+  renderAllocation(allocation);
+  project.costAllocation = allocation;
+  localStorage.setItem(projectKey, JSON.stringify(project));
+}
+
+/* =====================================================
+   SHOW ALLOCATION TABLE
+   ===================================================== */
+function renderAllocation(allocation){
+  allocBody.innerHTML="";
+  Object.values(allocation).forEach(p=>{
+    const total = p.direct + p.shared;
+    const unitCost = p.qty>0 ? total/p.qty : 0;
+
+    allocBody.innerHTML += `
+    <tr>
+      <td>${p.name}</td>
+      <td>${p.qty}</td>
+      <td>${p.unit}</td>
+      <td>${Math.round(total)}</td>
+      <td>${unitCost.toFixed(2)}</td>
+    </tr>`;
+  });
+}
+
+/* =====================================================
+   INIT
+   ===================================================== */
+buildChecklist([]);
+renderExpenses();
+runCostAllocation();
+</script>
+
+</body>
+</html>
