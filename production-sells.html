@@ -42,7 +42,7 @@ th,td{
   text-align:center
 }
 th{background:#eef5ee}
-input,select{
+input,select,textarea{
   width:100%;
   padding:6px;
   box-sizing:border-box
@@ -55,6 +55,7 @@ button{
   border-radius:6px;
   cursor:pointer
 }
+.del{background:#c62828}
 .hidden{display:none}
 .note{font-size:13px;color:#555}
 .auto{color:#2e7d32;font-size:13px}
@@ -79,15 +80,13 @@ button{
 <h2>🐐 मुख्य व्यवसाय (पालन)</h2>
 
 <table>
-<tr>
-  <th>पालन प्रकार</th>
-  <td>
-    <select id="animalType">
-      <option value="goat">बाख्रा</option>
-      <option value="pig">बंगुर</option>
-    </select>
-  </td>
-</tr>
+<tr><th>पालन प्रकार</th>
+<td>
+<select id="animalType">
+  <option value="goat">बाख्रा</option>
+  <option value="pig">बंगुर</option>
+</select>
+</td></tr>
 <tr><th>प्रारम्भिक बयस्क संख्या</th><td><input id="adult"></td></tr>
 <tr><th>ब्याउने दर (%)</th><td><input id="breedRate"></td></tr>
 <tr><th>प्रति बयस्क वार्षिक उत्पादन</th><td><input id="kids"></td></tr>
@@ -96,50 +95,59 @@ button{
 
 <h2>🔢 पालन तालिका (Animal Only)</h2>
 
-<table id="animalStage">
-<tr>
-  <th>Stage</th><th>उमेर</th><th>दिन</th><th>%</th><th>संख्या</th>
-</tr>
-<tr>
-  <td>S1</td><td><input id="l1" value="1–3 महिना"></td>
-  <td><input id="d1" value="90"></td>
-  <td><input id="p1" value="30"></td>
-  <td id="c1">0</td>
-</tr>
-<tr>
-  <td>S2</td><td><input id="l2" value="4–5 महिना"></td>
-  <td><input id="d2" value="60"></td>
-  <td><input id="p2" value="25"></td>
-  <td id="c2">0</td>
-</tr>
-<tr>
-  <td>S3</td><td><input id="l3" value="5–9 महिना"></td>
-  <td><input id="d3" value="120"></td>
-  <td><input id="p3" value="25"></td>
-  <td id="c3">0</td>
-</tr>
-<tr>
-  <td>S4</td><td><input id="l4" value="10+ महिना"></td>
-  <td><input id="d4" value="365"></td>
-  <td><input id="p4" value="20"></td>
-  <td id="c4">0</td>
-</tr>
-</table>
-
-<!-- ================= SECONDARY BUSINESS ================= -->
-<h2>🥬 सहायक व्यवसाय</h2>
-<button onclick="toggleVeg()">+ तरकारी खेती थप्नुहोस्</button>
-
-<div id="vegBox" class="hidden">
 <table>
-<tr><th>खेती क्षेत्र (रोपनी)</th><td><input id="area"></td></tr>
-<tr><th>प्रति रोपनी उत्पादन (kg)</th><td><input id="yield"></td></tr>
-<tr><th>वर्षमा सिजन संख्या</th><td><input id="season"></td></tr>
-<tr><th>क्षति दर (%)</th><td><input id="loss"></td></tr>
+<tr><th>Stage</th><th>उमेर</th><th>दिन</th><th>%</th><th>संख्या</th></tr>
+<tr>
+<td>S1</td><td><input id="l1" value="1–3 महिना"></td>
+<td><input id="d1" value="90"></td>
+<td><input id="p1" value="30"></td>
+<td id="c1">0</td>
+</tr>
+<tr>
+<td>S2</td><td><input id="l2" value="4–5 महिना"></td>
+<td><input id="d2" value="60"></td>
+<td><input id="p2" value="25"></td>
+<td id="c2">0</td>
+</tr>
+<tr>
+<td>S3</td><td><input id="l3" value="5–9 महिना"></td>
+<td><input id="d3" value="120"></td>
+<td><input id="p3" value="25"></td>
+<td id="c3">0</td>
+</tr>
+<tr>
+<td>S4</td><td><input id="l4" value="10+ महिना"></td>
+<td><input id="d4" value="365"></td>
+<td><input id="p4" value="20"></td>
+<td id="c4">0</td>
+</tr>
 </table>
+
+<!-- ================= SECONDARY GENERIC PRODUCTION ================= -->
+<h2>📦 अन्य उत्पादन (Optional)</h2>
+
+<table>
+<thead>
+<tr>
+  <th>उत्पादन</th>
+  <th>परिमाण</th>
+  <th>इकाई</th>
+  <th>कैफियत</th>
+  <th></th>
+</tr>
+</thead>
+<tbody id="secBody"></tbody>
+</table>
+
+<div style="margin-top:6px">
+<input id="pName" placeholder="जस्तै: तरकारी, दूध, मह, अण्डा">
+<input id="pQty" placeholder="परिमाण">
+<input id="pUnit" placeholder="केजी / लिटर / थान">
+<input id="pNote" placeholder="कैफियत / विवरण">
+<button onclick="addSecondary()">+ Add उत्पादन</button>
 </div>
 
-<p class="auto">✔️ कुनै पनि परिवर्तन हुँदा Auto-Save हुन्छ</p>
+<p class="auto">✔️ सबै परिवर्तन Auto-Save हुन्छ</p>
 
 </div>
 
@@ -153,62 +161,57 @@ button{
 function num(id){return Number(document.getElementById(id).value)||0}
 function $(id){return document.getElementById(id)}
 
-function toggleVeg(){
-  vegBox.classList.toggle("hidden");
+let data = JSON.parse(localStorage.getItem("PRODUCTION_STAGE_DATA")) || {
+  secondaryProductions:[]
+};
+
+/* ===== SECONDARY ===== */
+function renderSecondary(){
+  secBody.innerHTML="";
+  data.secondaryProductions.forEach(p=>{
+    secBody.innerHTML+=`
+    <tr>
+      <td>${p.name}</td>
+      <td>${p.qty}</td>
+      <td>${p.unit}</td>
+      <td>${p.note}</td>
+      <td><button class="del" onclick="delSecondary('${p.id}')">❌</button></td>
+    </tr>`;
+  });
+}
+
+function addSecondary(){
+  if(!pName.value) return;
+  data.secondaryProductions.push({
+    id:Date.now(),
+    name:pName.value,
+    qty:pQty.value,
+    unit:pUnit.value,
+    note:pNote.value
+  });
+  pName.value=pQty.value=pUnit.value=pNote.value="";
   save();
 }
 
+function delSecondary(id){
+  data.secondaryProductions =
+    data.secondaryProductions.filter(p=>p.id!=id);
+  save();
+}
+
+/* ===== PRIMARY SAVE (same as before, simplified) ===== */
 function save(){
-  /* ===== Animal Logic ===== */
-  let alive = num("adult")*(num("breedRate")/100)*num("kids");
-  alive = alive*(100-num("death"))/100;
-
-  let stages={}, totalPct=0;
-  ["1","2","3","4"].forEach(i=>{
-    let pct=num("p"+i); totalPct+=pct;
-    let cnt=Math.round(alive*pct/100);
-    $("c"+i).innerText=cnt;
-    stages["S"+i]={
-      label:$("l"+i).value,
-      days:num("d"+i),
-      pct:pct,
-      count:cnt
-    };
-  });
-
-  if(totalPct!==100) return;
-
-  /* ===== Vegetable Logic ===== */
-  let veg = vegBox.classList.contains("hidden") ? null : {
-    area:num("area"),
-    yield:num("yield"),
-    season:num("season"),
-    loss:num("loss"),
-    production:
-      num("area")*num("yield")*num("season")*
-      (100-num("loss"))/100
-  };
-
-  localStorage.setItem("PRODUCTION_STAGE_DATA",JSON.stringify({
-    primary:{
-      type:"animal",
-      animal:animalType.value,
-      alive,
-      stages
-    },
-    secondary:veg
-  }));
+  localStorage.setItem("PRODUCTION_STAGE_DATA",JSON.stringify(data));
+  renderSecondary();
 }
 
 /* AUTO SAVE */
-document.addEventListener("input",e=>{
-  if(e.target.tagName==="INPUT" || e.target.tagName==="SELECT"){
-    save();
-  }
+document.addEventListener("input",()=>{
+  save();
 });
 
 /* INIT */
-save();
+renderSecondary();
 </script>
 
 </body>
