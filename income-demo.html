@@ -2,117 +2,108 @@
 <html lang="ne">
 <head>
 <meta charset="UTF-8">
-<title>Income Entry | BPMS</title>
+<title>Income Detail | BPMS</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
 body{
-  font-family:"Noto Sans Devanagari","Kalimati","Mangal","Nirmala UI",system-ui,Arial;
-  background:#f4f7f6;
-  margin:0;
+  font-family:"Noto Sans Devanagari","Kalimati","Mangal",system-ui;
+  background:#f4f7f6;margin:0;
 }
-.container{
+.wrap{
   max-width:1000px;
   margin:25px auto;
   background:#fff;
   padding:25px;
   border-radius:10px;
 }
-h2{margin-top:0;color:#2e7d32}
+h2{color:#2e7d32;margin-top:0}
 
 /* ===== PROGRESS ===== */
-.progress-wrap{
-  background:#e8f5e9;
-  border:1px solid #c8e6c9;
-  padding:12px;
-  border-radius:8px;
-  margin-bottom:15px;
+.progress{
+  background:#e8f5e9;border:1px solid #c8e6c9;
+  padding:12px;border-radius:8px;margin-bottom:15px
 }
-.progress-title{font-weight:700;margin-bottom:6px}
-.steps{font-size:13px}
-.steps span{padding:3px 6px;border-radius:10px;background:#eee}
-.steps .active{background:#2e7d32;color:#fff}
+.steps span{
+  padding:4px 8px;border-radius:10px;background:#eee;font-size:13px
+}
 .steps .done{background:#a5d6a7}
-.bar-wrap{height:8px;background:#ddd;border-radius:6px;overflow:hidden;margin-top:8px}
-.bar{height:100%;background:#2e7d32;width:57%}
-
-/* ===== AUTOSAVE ===== */
-#autosaveStatus{
-  font-size:13px;
-  color:#2e7d32;
-  margin-bottom:10px;
-}
-
-/* ===== NOTICE ===== */
-#noticeBox{
-  display:none;
-  background:#fff8e1;
-  border:1px solid #ffe082;
-  padding:10px;
-  border-radius:6px;
-  margin-bottom:15px;
-  font-size:14px;
-}
+.steps .active{background:#2e7d32;color:#fff}
+.bar{height:8px;background:#ddd;border-radius:6px;overflow:hidden;margin-top:8px}
+.bar span{display:block;height:100%;width:57%;background:#2e7d32}
 
 /* ===== FORM ===== */
-label{font-weight:600}
-select,input{
-  padding:6px;
-  margin-right:6px;
-  font-family:inherit;
+.form{
+  display:grid;
+  grid-template-columns:2fr 3fr 1fr 1fr auto;
+  gap:8px;
+  margin-bottom:10px;
 }
-input[type=number]{width:90px}
-input[type=text]{width:200px}
+input,select{padding:8px;font-family:inherit}
+.add{
+  background:#2e7d32;color:#fff;
+  border:none;border-radius:6px;
+  padding:8px 14px;cursor:pointer
+}
 
 /* ===== TABLE ===== */
 table{
   width:100%;
   border-collapse:collapse;
-  margin-top:15px;
+  margin-top:10px;
 }
 th,td{
   border:1px solid #ccc;
   padding:6px;
-  text-align:left;
+  text-align:right;
 }
 th{background:#f0f0f0}
-.right{text-align:right}
+.left{text-align:left}
+.cat{
+  background:#e8f5e9;
+  font-weight:700;
+}
+.sum{
+  font-weight:700;
+  background:#fafafa;
+}
+.edit{
+  background:#0277bd;color:#fff;
+  border:none;padding:4px 8px;
+  border-radius:4px;cursor:pointer
+}
+.del{
+  background:#c62828;color:#fff;
+  border:none;padding:4px 8px;
+  border-radius:4px;cursor:pointer
+}
 
 /* ===== NAV ===== */
 .nav{
   display:flex;
   justify-content:space-between;
-  margin-top:30px;
+  margin-top:25px;
 }
-button{
+button.navbtn{
   padding:8px 16px;
-  border:none;
-  border-radius:6px;
-  cursor:pointer;
-  background:#2e7d32;
-  color:#fff;
-}
-.del{background:#c62828}
-
-/* highlight */
-.highlight{
-  border:2px solid #ff9800 !important;
-  background:#fff3e0;
+  border:none;border-radius:6px;
+  background:#2e7d32;color:#fff;
+  cursor:pointer
 }
 
 @media print{
-  button,.progress-wrap,#autosaveStatus,#noticeBox{display:none}
+  button,.nav{display:none}
+  a[href]:after{content:""}
 }
 </style>
 </head>
 
 <body>
-
-<div class="container">
+<div class="wrap">
 
 <!-- ===== PROGRESS ===== -->
-<div class="progress-wrap">
-  <div class="progress-title">चरण 4 / 7 (57%)</div>
+<div class="progress">
+  <b>चरण ४ / ७</b><br><br>
   <div class="steps">
     <span class="done">Short Info</span> →
     <span class="done">Detail</span> →
@@ -122,157 +113,154 @@ button{
     <span>ROI</span> →
     <span>Proposal</span>
   </div>
-  <div class="bar-wrap"><div class="bar"></div></div>
+  <div class="bar"><span></span></div>
 </div>
 
-<div id="autosaveStatus">💾 Saved</div>
-<div id="noticeBox"></div>
+<h2>📈 आम्दानी विवरण (वार्षिक)</h2>
 
-<h2>💰 आम्दानी विवरण (वार्षिक)</h2>
-
-<!-- ===== ENTRY ===== -->
-<label>क्याटेगोरी</label>
-<select id="category">
-  <option value="उत्पादन बिक्री">उत्पादन बिक्री</option>
-  <option value="पशु / पशुजन्य उत्पादन">पशु / पशुजन्य उत्पादन</option>
-  <option value="सेवा / भाडा / अन्य">सेवा / भाडा / अन्य</option>
-  <option value="अनुदान / सहयोग">अनुदान / सहयोग</option>
-  <option value="विविध आम्दानी">विविध आम्दानी</option>
-</select>
-
-<input id="title" type="text" placeholder="आम्दानी शीर्षक">
-<input id="qty" type="number" placeholder="परिमाण">
-<input id="rate" type="number" placeholder="दर">
-<button onclick="addIncome()">➕ Add</button>
+<!-- ===== ENTRY FORM ===== -->
+<div class="form">
+  <select id="category">
+    <option>पशु बिक्री</option>
+    <option>उत्पादन बिक्री</option>
+    <option>सेवा आम्दानी</option>
+    <option>अन्य आम्दानी</option>
+  </select>
+  <input id="title" placeholder="आम्दानी शीर्षक">
+  <input id="qty" type="number" placeholder="परिमाण">
+  <input id="rate" type="number" placeholder="दर">
+  <button class="add" onclick="addIncome()">+ Add</button>
+</div>
 
 <!-- ===== TABLE ===== -->
 <table>
 <thead>
 <tr>
-  <th>क्याटेगोरी</th>
-  <th>शीर्षक</th>
-  <th class="right">परिमाण</th>
-  <th class="right">दर</th>
-  <th class="right">रकम</th>
+  <th class="left">शीर्षक</th>
+  <th>परिमाण</th>
+  <th>दर</th>
+  <th>रकम</th>
   <th></th>
 </tr>
 </thead>
-<tbody id="tbody"></tbody>
+
+<tbody id="body"></tbody>
+
 <tfoot>
-<tr>
-  <th colspan="4" class="right">कुल आम्दानी</th>
-  <th class="right" id="totalIncome">0</th>
-  <th></th>
+<tr class="sum">
+  <td colspan="3" class="left">कुल आम्दानी</td>
+  <td id="incomeTotal">0</td>
+  <td></td>
 </tr>
 </tfoot>
 </table>
 
+<!-- ===== NAV ===== -->
 <div class="nav">
-  <button onclick="goPrev()">⬅ Previous</button>
-  <button onclick="goNext()">Next ➡</button>
+  <button class="navbtn" onclick="location.href='expense-demo.html'">⬅ Previous</button>
+  <button class="navbtn" onclick="location.href='profit-loss-demo.html'">Next ➡</button>
 </div>
 
 </div>
 
 <script>
-/* ===== SAFETY ===== */
-let activeKey = localStorage.getItem("activeProject");
-if(!activeKey){
-  alert("पहिले Home बाट Project खोल्नुहोस्");
+/* ===== LOAD PROJECT ===== */
+let key = localStorage.getItem("activeProject");
+if(!key){
+  alert("पहिले Project खोल्नुहोस्");
   location.href="index.html";
 }
-let project = JSON.parse(localStorage.getItem(activeKey));
+let project = JSON.parse(localStorage.getItem(key));
+let incomes = project.incomeData || [];
 
-/* ===== DATA ===== */
-let incomeData = project.incomeData || [];
+let editIndex = null;
 
-/* ===== RENDER ===== */
-function render(){
-  tbody.innerHTML="";
-  let total=0;
-
-  incomeData.forEach((e,i)=>{
-    total += e.amount;
-    tbody.innerHTML += `
-      <tr>
-        <td>${e.category}</td>
-        <td>${e.title}</td>
-        <td class="right">${e.qty}</td>
-        <td class="right">${e.rate}</td>
-        <td class="right">${e.amount}</td>
-        <td><button class="del" onclick="removeIncome(${i})">✖</button></td>
-      </tr>`;
-  });
-
-  totalIncome.innerText = total;
-  checkNotices();
-}
-render();
-
-/* ===== ADD ===== */
+/* ===== ADD / UPDATE ===== */
 function addIncome(){
-  let q = Number(qty.value||0);
-  let r = Number(rate.value||0);
-  let amt = q*r;
+  if(!title.value) return;
 
-  incomeData.push({
+  let amt = (qty.value||0)*(rate.value||0);
+
+  let obj = {
     category:category.value,
     title:title.value,
-    qty:q,
-    rate:r,
+    qty:Number(qty.value||0),
+    rate:Number(rate.value||0),
     amount:amt
-  });
+  };
 
-  title.value="";qty.value="";rate.value="";
-  saveIncome();
+  if(editIndex!==null){
+    incomes[editIndex] = obj;
+    editIndex = null;
+  }else{
+    incomes.push(obj);
+  }
+
+  title.value=""; qty.value=""; rate.value="";
+  save();
 }
 
-/* ===== REMOVE ===== */
-function removeIncome(i){
-  incomeData.splice(i,1);
-  saveIncome();
+/* ===== DELETE ===== */
+function del(i){
+  incomes.splice(i,1);
+  save();
+}
+
+/* ===== EDIT ===== */
+function edit(i){
+  let e = incomes[i];
+  category.value = e.category;
+  title.value = e.title;
+  qty.value = e.qty;
+  rate.value = e.rate;
+  editIndex = i;
 }
 
 /* ===== SAVE ===== */
-function saveIncome(){
-  project.incomeData = incomeData;
+function save(){
+  project.incomeData = incomes;
   project.lastEdited = new Date().toLocaleString("ne-NP");
-  localStorage.setItem(activeKey, JSON.stringify(project));
-  autosaveStatus.innerText="✔ Saved";
+  localStorage.setItem(key,JSON.stringify(project));
   render();
 }
 
-/* ===== AUTOSAVE ===== */
-let t;
-document.querySelectorAll("input,select").forEach(el=>{
-  el.addEventListener("input",()=>{
-    autosaveStatus.innerText="⏳ Saving...";
-    clearTimeout(t);
-    t=setTimeout(saveIncome,700);
-  });
-});
+/* ===== RENDER ===== */
+function render(){
+  body.innerHTML="";
+  let groups={}, total=0;
 
-/* ===== NOTICE ===== */
-function checkNotices(){
-  if(incomeData.length===0){
-    noticeBox.style.display="block";
-    noticeBox.innerHTML="ℹ️ <b>सूचना:</b> हालसम्म कुनै आम्दानी विवरण थपिएको छैन।";
-  }else{
-    noticeBox.style.display="none";
+  incomes.forEach((e,i)=>{
+    if(!groups[e.category]) groups[e.category]=[];
+    groups[e.category].push({...e,index:i});
+  });
+
+  for(let c in groups){
+    body.innerHTML += `
+      <tr class="cat">
+        <td colspan="5">🔹 ${c}</td>
+      </tr>
+    `;
+    groups[c].forEach(e=>{
+      total += e.amount;
+      body.innerHTML += `
+        <tr>
+          <td class="left">${e.title}</td>
+          <td>${e.qty}</td>
+          <td>${e.rate}</td>
+          <td>${e.amount}</td>
+          <td>
+            <button class="edit" onclick="edit(${e.index})">✎</button>
+            <button class="del" onclick="del(${e.index})">✖</button>
+          </td>
+        </tr>
+      `;
+    });
   }
+
+  incomeTotal.innerText = Math.round(total);
 }
 
-/* ===== FINAL LOCK ===== */
-if(project.status==="final"){
-  document.querySelectorAll("input,select,button").forEach(b=>{
-    if(b.innerText.includes("Previous")||b.innerText.includes("Next")) return;
-    b.disabled=true;b.style.opacity=.7;
-  });
-}
-
-/* ===== NAV ===== */
-function goPrev(){location.href="expense-demo.html";}
-function goNext(){saveIncome();location.href="profit-loss-demo.html";}
+render();
 </script>
 
 </body>
