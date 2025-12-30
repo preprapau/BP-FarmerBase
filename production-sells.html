@@ -2,190 +2,113 @@
 <html lang="ne">
 <head>
 <meta charset="UTF-8">
-<title>उत्पादन तथा बिक्री योजना | Farmerbase BP Engine</title>
+<title>Production Master | Farmerbase BP Engine</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
-body{
-  font-family:"Noto Sans Devanagari","Kalimati",system-ui;
-  background:#f4f7f6;margin:0
-}
-header,footer{
-  background:#e8f5e9;
-  padding:10px 16px;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  font-size:14px
-}
-header a,footer a{
-  text-decoration:none;
-  color:#2e7d32;
-  font-weight:600
-}
-.container{
-  max-width:1050px;
-  margin:18px auto;
-  background:#fff;
-  padding:22px;
-  border-radius:12px
-}
-h1,h2{color:#2e7d32;text-align:center}
-table{
-  width:100%;
-  border-collapse:collapse;
-  margin-top:10px
-}
-th,td{
-  border:1px solid #ccc;
-  padding:6px;
-  text-align:center
-}
+body{font-family:"Noto Sans Devanagari","Kalimati",system-ui;background:#f4f7f6;margin:0}
+header,footer{background:#e8f5e9;padding:10px 16px;display:flex;justify-content:space-between}
+header a,footer a{color:#2e7d32;font-weight:600;text-decoration:none}
+.wrap{max-width:1100px;margin:18px auto;background:#fff;padding:22px;border-radius:12px}
+h2{color:#2e7d32}
+table{width:100%;border-collapse:collapse;margin-top:10px}
+th,td{border:1px solid #ccc;padding:6px;text-align:center}
 th{background:#eef5ee}
-input,select,textarea{
-  width:100%;
-  padding:6px;
-  box-sizing:border-box
-}
-button{
-  padding:6px 12px;
-  background:#2e7d32;
-  color:#fff;
-  border:none;
-  border-radius:6px;
-  cursor:pointer
-}
+input,select,textarea{width:100%;padding:6px;box-sizing:border-box}
+button{padding:6px 12px;background:#2e7d32;color:#fff;border:none;border-radius:6px}
 .del{background:#c62828}
-.hidden{display:none}
-.note{font-size:13px;color:#555}
 .auto{color:#2e7d32;font-size:13px}
+.hidden{display:none}
 </style>
 </head>
 
 <body>
 
 <header>
-  <a href="index.html">🏠 Back to Home</a>
-  <div>
-    <a href="short-info.html">◀️ Previous</a> |
-    <a href="operating-cost-engine.html">Operating Cost ▶️</a>
-  </div>
+  <a href="index.html">🏠 Home</a>
+  <a href="operating-cost-engine.html">Operating Cost ▶️</a>
 </header>
 
-<div class="container">
+<div class="wrap">
 
-<h1>उत्पादन तथा बिक्री योजना</h1>
-
-<!-- ================= PRIMARY BUSINESS ================= -->
-<h2>🐐 मुख्य व्यवसाय (पालन)</h2>
-
-<table>
-<tr><th>पालन प्रकार</th>
-<td>
-<select id="animalType">
-  <option value="goat">बाख्रा</option>
-  <option value="pig">बंगुर</option>
-</select>
-</td></tr>
-<tr><th>प्रारम्भिक बयस्क संख्या</th><td><input id="adult"></td></tr>
-<tr><th>ब्याउने दर (%)</th><td><input id="breedRate"></td></tr>
-<tr><th>प्रति बयस्क वार्षिक उत्पादन</th><td><input id="kids"></td></tr>
-<tr><th>मृत्युदर (%)</th><td><input id="death"></td></tr>
-</table>
-
-<h2>🔢 पालन तालिका (Animal Only)</h2>
-
-<table>
-<tr><th>Stage</th><th>उमेर</th><th>दिन</th><th>%</th><th>संख्या</th></tr>
-<tr>
-<td>S1</td><td><input id="l1" value="1–3 महिना"></td>
-<td><input id="d1" value="90"></td>
-<td><input id="p1" value="30"></td>
-<td id="c1">0</td>
-</tr>
-<tr>
-<td>S2</td><td><input id="l2" value="4–5 महिना"></td>
-<td><input id="d2" value="60"></td>
-<td><input id="p2" value="25"></td>
-<td id="c2">0</td>
-</tr>
-<tr>
-<td>S3</td><td><input id="l3" value="5–9 महिना"></td>
-<td><input id="d3" value="120"></td>
-<td><input id="p3" value="25"></td>
-<td id="c3">0</td>
-</tr>
-<tr>
-<td>S4</td><td><input id="l4" value="10+ महिना"></td>
-<td><input id="d4" value="365"></td>
-<td><input id="p4" value="20"></td>
-<td id="c4">0</td>
-</tr>
-</table>
-
-<!-- ================= SECONDARY GENERIC PRODUCTION ================= -->
-<h2>📦 अन्य उत्पादन (Optional)</h2>
+<h2>📦 उत्पादन सारांश (सबै व्यवसाय)</h2>
 
 <table>
 <thead>
 <tr>
   <th>उत्पादन</th>
+  <th>Logic</th>
   <th>परिमाण</th>
   <th>इकाई</th>
   <th>कैफियत</th>
   <th></th>
 </tr>
 </thead>
-<tbody id="secBody"></tbody>
+<tbody id="body"></tbody>
 </table>
 
-<div style="margin-top:6px">
-<input id="pName" placeholder="जस्तै: तरकारी, दूध, मह, अण्डा">
+<div style="margin-top:8px">
+<input id="pName" placeholder="उत्पादन (जस्तै: बाख्रा, गाई, तरकारी)">
 <input id="pQty" placeholder="परिमाण">
-<input id="pUnit" placeholder="केजी / लिटर / थान">
-<input id="pNote" placeholder="कैफियत / विवरण">
-<button onclick="addSecondary()">+ Add उत्पादन</button>
+<input id="pUnit" placeholder="इकाई">
+<input id="pNote" placeholder="कैफियत">
+<button onclick="add()">+ Add</button>
 </div>
 
-<p class="auto">✔️ सबै परिवर्तन Auto-Save हुन्छ</p>
+<p class="auto">✔️ नाम टाइप गर्दा logic auto-suggest हुन्छ | सबै Auto-Save</p>
 
 </div>
 
 <footer>
-  <a href="short-info.html">◀️ Previous</a>
   <a href="index.html">🏠 Home</a>
-  <a href="operating-cost-engine.html">Next ▶️</a>
 </footer>
 
 <script>
-function num(id){return Number(document.getElementById(id).value)||0}
-function $(id){return document.getElementById(id)}
-
-let data = JSON.parse(localStorage.getItem("PRODUCTION_STAGE_DATA")) || {
-  secondaryProductions:[]
+const LOGIC_MAP={
+  "बाख्रा":"breeding","बंगुर":"breeding",
+  "गाई":"dairy","भैंसी":"dairy","दूध":"dairy",
+  "तरकारी":"crop","धान":"crop","मकै":"crop","आलु":"crop"
 };
 
-/* ===== SECONDARY ===== */
-function renderSecondary(){
-  secBody.innerHTML="";
-  data.secondaryProductions.forEach(p=>{
-    secBody.innerHTML+=`
+let data = JSON.parse(localStorage.getItem("PRODUCTION_MASTER")) || [];
+
+function suggestLogic(name){
+  return LOGIC_MAP[name] || "generic";
+}
+
+function render(){
+  body.innerHTML="";
+  data.forEach(p=>{
+    if(Number(p.qty)===0) return; // 🔑 auto hide
+    body.innerHTML+=`
     <tr>
-      <td>${p.name}</td>
-      <td>${p.qty}</td>
-      <td>${p.unit}</td>
-      <td>${p.note}</td>
-      <td><button class="del" onclick="delSecondary('${p.id}')">❌</button></td>
+      <td>
+        <input value="${p.name}"
+          oninput="edit('${p.id}','name',this.value)">
+      </td>
+      <td>
+        <select onchange="edit('${p.id}','logicType',this.value)">
+          <option value="breeding" ${p.logicType==="breeding"?"selected":""}>पालन</option>
+          <option value="dairy" ${p.logicType==="dairy"?"selected":""}>दुग्ध</option>
+          <option value="crop" ${p.logicType==="crop"?"selected":""}>खेती</option>
+          <option value="generic" ${p.logicType==="generic"?"selected":""}>सामान्य</option>
+        </select>
+      </td>
+      <td><input value="${p.qty}" oninput="edit('${p.id}','qty',this.value)"></td>
+      <td><input value="${p.unit}" oninput="edit('${p.id}','unit',this.value)"></td>
+      <td><input value="${p.note}" oninput="edit('${p.id}','note',this.value)"></td>
+      <td><button class="del" onclick="del('${p.id}')">❌</button></td>
     </tr>`;
   });
 }
 
-function addSecondary(){
+function add(){
   if(!pName.value) return;
-  data.secondaryProductions.push({
+  data.push({
     id:Date.now(),
     name:pName.value,
-    qty:pQty.value,
+    logicType:suggestLogic(pName.value),
+    qty:pQty.value||0,
     unit:pUnit.value,
     note:pNote.value
   });
@@ -193,25 +116,25 @@ function addSecondary(){
   save();
 }
 
-function delSecondary(id){
-  data.secondaryProductions =
-    data.secondaryProductions.filter(p=>p.id!=id);
+function edit(id,f,v){
+  let p=data.find(x=>x.id==id);
+  if(!p) return;
+  if(f==="name") p.logicType=suggestLogic(v);
+  p[f]=v;
   save();
 }
 
-/* ===== PRIMARY SAVE (same as before, simplified) ===== */
+function del(id){
+  data=data.filter(x=>x.id!=id);
+  save();
+}
+
 function save(){
-  localStorage.setItem("PRODUCTION_STAGE_DATA",JSON.stringify(data));
-  renderSecondary();
+  localStorage.setItem("PRODUCTION_MASTER",JSON.stringify(data));
+  render();
 }
 
-/* AUTO SAVE */
-document.addEventListener("input",()=>{
-  save();
-});
-
-/* INIT */
-renderSecondary();
+render();
 </script>
 
 </body>
