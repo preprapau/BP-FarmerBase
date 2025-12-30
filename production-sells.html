@@ -31,7 +31,6 @@ header a,footer a{
   border-radius:12px
 }
 h1,h2{color:#2e7d32;text-align:center}
-
 table{
   width:100%;
   border-collapse:collapse;
@@ -48,6 +47,15 @@ input,select{
   padding:6px;
   box-sizing:border-box
 }
+button{
+  padding:6px 12px;
+  background:#2e7d32;
+  color:#fff;
+  border:none;
+  border-radius:6px;
+  cursor:pointer
+}
+.hidden{display:none}
 .note{font-size:13px;color:#555}
 .auto{color:#2e7d32;font-size:13px}
 </style>
@@ -65,16 +73,18 @@ input,select{
 
 <div class="container">
 
-<h1>उत्पादन तथा बिक्री योजना (Auto-Save)</h1>
+<h1>उत्पादन तथा बिक्री योजना</h1>
+
+<!-- ================= PRIMARY BUSINESS ================= -->
+<h2>🐐 मुख्य व्यवसाय (पालन)</h2>
 
 <table>
 <tr>
-  <th>व्यवसाय प्रकार</th>
+  <th>पालन प्रकार</th>
   <td>
-    <select id="bizType">
-      <option value="pig">बंगुर</option>
+    <select id="animalType">
       <option value="goat">बाख्रा</option>
-      <option value="veg">तरकारी</option>
+      <option value="pig">बंगुर</option>
     </select>
   </td>
 </tr>
@@ -82,45 +92,52 @@ input,select{
 <tr><th>ब्याउने दर (%)</th><td><input id="breedRate"></td></tr>
 <tr><th>प्रति बयस्क वार्षिक उत्पादन</th><td><input id="kids"></td></tr>
 <tr><th>मृत्युदर (%)</th><td><input id="death"></td></tr>
-<tr><th>राखिने पोथी (%)</th><td><input id="keepFemale"></td></tr>
-<tr><th>प्रतिस्थापन बिक्री (%)</th><td><input id="replacement"></td></tr>
 </table>
 
-<h2>🔢 Stage-wise संख्या वितरण</h2>
+<h2>🔢 पालन तालिका (Animal Only)</h2>
 
-<table>
+<table id="animalStage">
 <tr>
-  <th>Stage</th><th>Label</th><th>दिन</th><th>%</th><th>संख्या</th>
+  <th>Stage</th><th>उमेर</th><th>दिन</th><th>%</th><th>संख्या</th>
 </tr>
 <tr>
-  <td>S1</td>
-  <td><input id="l1"></td>
-  <td><input id="d1"></td>
-  <td><input id="p1"></td>
+  <td>S1</td><td><input id="l1" value="1–3 महिना"></td>
+  <td><input id="d1" value="90"></td>
+  <td><input id="p1" value="30"></td>
   <td id="c1">0</td>
 </tr>
 <tr>
-  <td>S2</td>
-  <td><input id="l2"></td>
-  <td><input id="d2"></td>
-  <td><input id="p2"></td>
+  <td>S2</td><td><input id="l2" value="4–5 महिना"></td>
+  <td><input id="d2" value="60"></td>
+  <td><input id="p2" value="25"></td>
   <td id="c2">0</td>
 </tr>
 <tr>
-  <td>S3</td>
-  <td><input id="l3"></td>
-  <td><input id="d3"></td>
-  <td><input id="p3"></td>
+  <td>S3</td><td><input id="l3" value="5–9 महिना"></td>
+  <td><input id="d3" value="120"></td>
+  <td><input id="p3" value="25"></td>
   <td id="c3">0</td>
 </tr>
 <tr>
-  <td>S4</td>
-  <td><input id="l4"></td>
-  <td><input id="d4"></td>
-  <td><input id="p4"></td>
+  <td>S4</td><td><input id="l4" value="10+ महिना"></td>
+  <td><input id="d4" value="365"></td>
+  <td><input id="p4" value="20"></td>
   <td id="c4">0</td>
 </tr>
 </table>
+
+<!-- ================= SECONDARY BUSINESS ================= -->
+<h2>🥬 सहायक व्यवसाय</h2>
+<button onclick="toggleVeg()">+ तरकारी खेती थप्नुहोस्</button>
+
+<div id="vegBox" class="hidden">
+<table>
+<tr><th>खेती क्षेत्र (रोपनी)</th><td><input id="area"></td></tr>
+<tr><th>प्रति रोपनी उत्पादन (kg)</th><td><input id="yield"></td></tr>
+<tr><th>वर्षमा सिजन संख्या</th><td><input id="season"></td></tr>
+<tr><th>क्षति दर (%)</th><td><input id="loss"></td></tr>
+</table>
+</div>
 
 <p class="auto">✔️ कुनै पनि परिवर्तन हुँदा Auto-Save हुन्छ</p>
 
@@ -136,48 +153,19 @@ input,select{
 function num(id){return Number(document.getElementById(id).value)||0}
 function $(id){return document.getElementById(id)}
 
-let saved = JSON.parse(localStorage.getItem("PRODUCTION_STAGE_DATA")) || {
-  businessType:"pig",
-  adult:300,
-  breedRate:90,
-  kids:20,
-  death:10,
-  keepFemale:40,
-  replacement:10,
-  stages:{
-    S1:{label:"1–3 महिना",days:90,pct:30},
-    S2:{label:"4–5 महिना",days:60,pct:25},
-    S3:{label:"5–9 महिना",days:120,pct:25},
-    S4:{label:"10+ महिना",days:365,pct:20}
-  }
-};
+function toggleVeg(){
+  vegBox.classList.toggle("hidden");
+  save();
+}
 
-/* ===== RESTORE ===== */
-bizType.value = saved.businessType;
-adult.value = saved.adult;
-breedRate.value = saved.breedRate;
-kids.value = saved.kids;
-death.value = saved.death;
-keepFemale.value = saved.keepFemale;
-replacement.value = saved.replacement;
-
-["1","2","3","4"].forEach(i=>{
-  $("l"+i).value = saved.stages["S"+i].label;
-  $("d"+i).value = saved.stages["S"+i].days;
-  $("p"+i).value = saved.stages["S"+i].pct;
-});
-
-/* ===== AUTO SAVE + CALCULATE ===== */
-function saveAndCalculate(){
+function save(){
+  /* ===== Animal Logic ===== */
   let alive = num("adult")*(num("breedRate")/100)*num("kids");
   alive = alive*(100-num("death"))/100;
 
-  let stages={};
-  let totalPct=0;
-
+  let stages={}, totalPct=0;
   ["1","2","3","4"].forEach(i=>{
-    let pct=num("p"+i);
-    totalPct+=pct;
+    let pct=num("p"+i); totalPct+=pct;
     let cnt=Math.round(alive*pct/100);
     $("c"+i).innerText=cnt;
     stages["S"+i]={
@@ -190,28 +178,37 @@ function saveAndCalculate(){
 
   if(totalPct!==100) return;
 
+  /* ===== Vegetable Logic ===== */
+  let veg = vegBox.classList.contains("hidden") ? null : {
+    area:num("area"),
+    yield:num("yield"),
+    season:num("season"),
+    loss:num("loss"),
+    production:
+      num("area")*num("yield")*num("season")*
+      (100-num("loss"))/100
+  };
+
   localStorage.setItem("PRODUCTION_STAGE_DATA",JSON.stringify({
-    businessType:bizType.value,
-    adult:num("adult"),
-    breedRate:num("breedRate"),
-    kids:num("kids"),
-    death:num("death"),
-    keepFemale:num("keepFemale"),
-    replacement:num("replacement"),
-    alive,
-    stages
+    primary:{
+      type:"animal",
+      animal:animalType.value,
+      alive,
+      stages
+    },
+    secondary:veg
   }));
 }
 
-/* ===== AUTO SAVE EVENTS ===== */
+/* AUTO SAVE */
 document.addEventListener("input",e=>{
   if(e.target.tagName==="INPUT" || e.target.tagName==="SELECT"){
-    saveAndCalculate();
+    save();
   }
 });
 
 /* INIT */
-saveAndCalculate();
+save();
 </script>
 
 </body>
