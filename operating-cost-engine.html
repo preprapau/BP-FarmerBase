@@ -4,32 +4,36 @@
    ---------------------------------------------------------
    - Uses PRODUCTION_MASTER
    - Uses project.expenses
-   - Checklist-based allocation
+   - Checklist-based allocation (appliesTo: array)
    - Operating cost only
-   - Fixed cost excluded (ROI module uses it)
+   - Fixed cost excluded (used in ROI module)
    ========================================================= */
 
-(function(){
+(function () {
 
-  function getActiveProject(){
+  /* ---------- Helpers ---------- */
+
+  function getActiveProject() {
     const key = localStorage.getItem("activeProject");
-    if(!key) return null;
+    if (!key) return null;
     return {
-      key,
+      key: key,
       data: JSON.parse(localStorage.getItem(key)) || {}
     };
   }
 
-  function getProduction(){
+  function getProduction() {
     return JSON.parse(
       localStorage.getItem("PRODUCTION_MASTER")
     ) || [];
   }
 
-  function runCostAllocation(){
+  /* ---------- Core Engine ---------- */
+
+  function runCostAllocation() {
 
     const projectWrap = getActiveProject();
-    if(!projectWrap) return null;
+    if (!projectWrap) return null;
 
     const project = projectWrap.data;
     const expenses = project.expenses || [];
@@ -37,12 +41,10 @@
 
     let allocation = {};
 
-    /* -----------------------------------------
-       STEP 1: Prepare production base
-       ----------------------------------------- */
-    products.forEach(p=>{
+    /* STEP 1: Prepare production base */
+    products.forEach(p => {
       const qty = Number(p.qty) || 0;
-      if(qty === 0) return;
+      if (qty === 0) return;
 
       allocation[p.id] = {
         productId: p.id,
@@ -56,28 +58,26 @@
       };
     });
 
-    /* -----------------------------------------
-       STEP 2: Filter operating expenses only
-       ----------------------------------------- */
+    /* STEP 2: Take operating expenses only */
     const operatingExpenses = expenses.filter(e =>
       e.costType === "operating" &&
       Array.isArray(e.appliesTo) &&
       Number(e.amount) > 0
     );
 
-    /* -----------------------------------------
-       STEP 3: Allocate expenses
-       ----------------------------------------- */
-    operatingExpenses.forEach(e=>{
-      const amount = Number(e.amount) || 0;
+    /* STEP 3: Allocate expenses */
+    operatingExpenses.forEach(e => {
 
-      // Case A: applies to ALL
-      if(e.appliesTo.includes("all")){
+      const amount = Number(e.amount) || 0;
+      if (amount === 0) return;
+
+      /* Case A: applies to ALL products */
+      if (e.appliesTo.includes("all")) {
 
         const totalQty = Object.values(allocation)
-          .reduce((s,p)=>s+p.qty,0);
+          .reduce((sum, p) => sum + p.qty, 0);
 
-        Object.values(allocation).forEach(p=>{
+        Object.values(allocation).forEach(p => {
           const share = totalQty > 0
             ? (p.qty / totalQty) * amount
             : 0;
@@ -85,16 +85,17 @@
         });
 
       }
-      // Case B: applies to specific products (array)
-      else{
+      /* Case B: applies to selected products only */
+      else {
 
-        const targets = e.appliesTo
-          .filter(id => allocation[id]);
+        const targets = e.appliesTo.filter(id => allocation[id]);
+        if (targets.length === 0) return;
 
-        const targetQty = targets
-          .reduce((s,id)=>s+allocation[id].qty,0);
+        const targetQty = targets.reduce(
+          (sum, id) => sum + allocation[id].qty, 0
+        );
 
-        targets.forEach(id=>{
+        targets.forEach(id => {
           const p = allocation[id];
           const share = targetQty > 0
             ? (p.qty / targetQty) * amount
@@ -104,19 +105,15 @@
       }
     });
 
-    /* -----------------------------------------
-       STEP 4: Final per-unit calculation
-       ----------------------------------------- */
-    Object.values(allocation).forEach(p=>{
+    /* STEP 4: Final per-unit cost */
+    Object.values(allocation).forEach(p => {
       p.totalCost = p.directCost + p.allocatedCost;
       p.unitCost = p.qty > 0
         ? p.totalCost / p.qty
         : 0;
     });
 
-    /* -----------------------------------------
-       STEP 5: Save back to project
-       ----------------------------------------- */
+    /* STEP 5: Save back to project */
     project.costAllocation = allocation;
     localStorage.setItem(
       projectWrap.key,
@@ -126,14 +123,10 @@
     return allocation;
   }
 
-  /* -----------------------------------------
-     Auto-run once on load
-     ----------------------------------------- */
+  /* ---------- Auto Run ---------- */
   runCostAllocation();
 
-  /* -----------------------------------------
-     Expose globally (optional)
-     ----------------------------------------- */
+  /* ---------- Expose (for debug / re-run) ---------- */
   window.runCostAllocation = runCostAllocation;
 
 })();
