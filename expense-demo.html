@@ -2,7 +2,7 @@
 <html lang="ne">
 <head>
 <meta charset="UTF-8">
-<title>खर्च विवरण | Farmerbase BP Engine</title>
+<title>खर्च विवरण (वार्षिक) | Farmerbase BP Engine</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
@@ -42,7 +42,7 @@ input,select,textarea{
 }
 textarea{resize:vertical}
 
-/* FORM */
+/* ENTRY FORM */
 .form{
   display:grid;
   grid-template-columns:1.3fr 2fr 2fr 1fr 1fr auto;
@@ -125,7 +125,7 @@ placeholder="खर्च सम्बन्धी समग्र विवर�
   <button class="add" onclick="addManual()">+ Add</button>
 </div>
 
-<!-- ===== TABLE ===== -->
+<!-- ===== EXPENSE TABLE ===== -->
 <table>
 <thead>
 <tr>
@@ -154,7 +154,7 @@ placeholder="खर्च सम्बन्धी समग्र विवर�
 </footer>
 
 <script>
-/* ================= LOAD PROJECT ================= */
+/* ================= LOAD ACTIVE PROJECT ================= */
 let key = localStorage.getItem("activeProject");
 if(!key){
   alert("पहिले Project खोल्नुहोस्");
@@ -165,32 +165,11 @@ let project = JSON.parse(localStorage.getItem(key)) || {};
 project.expenseData = project.expenseData || [];
 let expenses = project.expenseData;
 
-/* ================= AUTO INJECT ================= */
+/* ================= AUTO INJECT FROM OPERATING COST ================= */
 let auto = JSON.parse(localStorage.getItem("OPERATING_COST_ENGINE"));
 
-function injectAuto(){
-  if(!auto) return;
-
-  expenseNarration.value = auto.narration || "";
-
-  // remove old auto rows
-  expenses = expenses.filter(e => !e.auto);
-
-  if(auto.feed > 0){
-    expenses.push(makeAuto("AUTO_FEED","दाना / मल / आहार","Operating Cost (Feed)",auto.feed));
-  }
-  if(auto.med > 0){
-    expenses.push(makeAuto("AUTO_MED","औषधी / विषादी","Operating Cost (Medicine)",auto.med));
-  }
-  if(auto.vit > 0){
-    expenses.push(makeAuto("AUTO_VIT","भिटामिन / सप्लिमेन्ट","Operating Cost (Supplement)",auto.vit));
-  }
-
-  project.expenseData = expenses;
-  localStorage.setItem(key,JSON.stringify(project));
-}
-
 function makeAuto(id,sub,title,amt){
+  amt = Number(amt) || 0;
   return{
     id:id,
     auto:true,
@@ -203,75 +182,15 @@ function makeAuto(id,sub,title,amt){
   };
 }
 
-/* ================= MANUAL ADD ================= */
-function addManual(){
-  if(!title.value) return;
-  let amt=(+qty.value||0)*(+rate.value||0);
+function injectAuto(){
+  if(!auto) return;
 
-  expenses.push({
-    id:Date.now(),
-    mainCat:mainCat.value,
-    subCat:subCat.value,
-    title:title.value,
-    qty:qty.value,
-    rate:rate.value,
-    amount:amt
-  });
+  expenseNarration.value = auto.narration || "";
 
-  title.value=qty.value=rate.value=subCat.value="";
-  save();
-}
+  // remove old auto rows safely
+  expenses = expenses.filter(e=>e && !e.auto);
 
-/* ================= RENDER ================= */
-function save(){
-  project.expenseData=expenses;
-  localStorage.setItem(key,JSON.stringify(project));
-  render();
-}
-
-function render(){
-  body.innerHTML="";
-  let cash=0;
-  let grouped={};
-
-  expenses.forEach(e=>{
-    grouped[e.mainCat]=grouped[e.mainCat]||{};
-    grouped[e.mainCat][e.subCat]=grouped[e.mainCat][e.subCat]||[];
-    grouped[e.mainCat][e.subCat].push(e);
-  });
-
-  for(let m in grouped){
-    body.innerHTML+=`<tr class="cat"><td colspan="5">${m}</td></tr>`;
-    for(let s in grouped[m]){
-      body.innerHTML+=`<tr class="subcat"><td colspan="5">${s}</td></tr>`;
-      grouped[m][s].forEach(e=>{
-        if(m==="चालु खर्च") cash+=e.amount;
-        body.innerHTML+=`
-        <tr>
-          <td class="left">${e.title}${e.auto?' <span class="auto">(Auto)</span>':''}</td>
-          <td>${e.qty}</td>
-          <td>${e.rate}</td>
-          <td>${Math.round(e.amount)}</td>
-          <td>${e.auto?'':'<button class="del" onclick="delRow('+e.id+')">❌</button>'}</td>
-        </tr>`;
-      });
-    }
-  }
-  cashTotal.innerText=Math.round(cash);
-}
-
-function delRow(id){
-  if(confirm("हटाउने ?")){
-    expenses=expenses.filter(e=>e.id!==id);
-    project.expenseData=expenses;
-    save();
-  }
-}
-
-/* INIT */
-injectAuto();
-render();
-</script>
-
-</body>
-</html>
+  if(auto.feed > 0){
+    expenses.push(makeAuto(
+      "AUTO_FEED",
+      "दा
