@@ -2,200 +2,172 @@
 <html lang="ne">
 <head>
 <meta charset="UTF-8">
-<title>खर्च विवरण | Farmerbase BP Engine</title>
+<title>खर्च विवरण (Checklist) | Farmerbase BP Engine</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
-body{
-  font-family:"Noto Sans Devanagari","Kalimati",system-ui;
-  background:#f4f7f6;margin:0
-}
-header,footer{
-  background:#e8f5e9;
-  padding:10px 16px;
-  display:flex;
-  justify-content:space-between;
-  font-size:14px
-}
-header a,footer a{
-  color:#2e7d32;
-  font-weight:600;
-  text-decoration:none
-}
-.wrap{
-  max-width:1000px;
-  margin:18px auto;
-  background:#fff;
-  padding:22px;
-  border-radius:12px
-}
+body{font-family:"Noto Sans Devanagari","Kalimati",system-ui;background:#f4f7f6;margin:0}
+header,footer{background:#e8f5e9;padding:10px 16px;display:flex;justify-content:space-between}
+header a,footer a{color:#2e7d32;font-weight:600;text-decoration:none}
+.wrap{max-width:1000px;margin:18px auto;background:#fff;padding:22px;border-radius:12px}
 h2{color:#2e7d32;margin-top:0}
-
-table{
-  width:100%;
-  border-collapse:collapse;
-  margin-top:10px
-}
-th,td{
-  border:1px solid #ccc;
-  padding:6px;
-  text-align:right
-}
+table{width:100%;border-collapse:collapse;margin-top:10px}
+th,td{border:1px solid #ccc;padding:6px;text-align:left}
 th{background:#eef5ee}
-.left{text-align:left}
-
-input,select{
-  width:100%;
-  padding:6px;
-  box-sizing:border-box
-}
-button{
-  padding:6px 12px;
-  background:#2e7d32;
-  color:#fff;
-  border:none;
-  border-radius:6px;
-  cursor:pointer
-}
+input,select{width:100%;padding:6px;box-sizing:border-box}
+button{padding:6px 12px;background:#2e7d32;color:#fff;border:none;border-radius:6px}
 .del{background:#c62828}
+.chkbox{margin-right:6px}
 .auto{color:#2e7d32;font-size:13px}
-.sum{font-weight:700;background:#fafafa}
+.box{border:1px solid #ccc;padding:6px;border-radius:6px}
 </style>
 </head>
 
 <body>
 
 <header>
-  <a href="operating-cost-engine.html">◀️ Operating Cost</a>
+  <a href="production-sells.html">◀️ Production</a>
   <a href="income-demo.html">Income ▶️</a>
 </header>
 
 <div class="wrap">
-
-<h2>💸 खर्च विवरण (Product Tagged)</h2>
+<h2>💸 खर्च विवरण (Checklist आधारित)</h2>
 
 <table>
 <thead>
 <tr>
-  <th class="left">खर्च शीर्षक</th>
+  <th>खर्च शीर्षक</th>
   <th>रकम</th>
-  <th class="left">लागू हुने उत्पादन</th>
+  <th>खर्च प्रकार</th>
+  <th>लागू हुने उत्पादन</th>
   <th></th>
 </tr>
 </thead>
 <tbody id="body"></tbody>
-<tfoot>
-<tr class="sum">
-  <td class="left">कुल खर्च</td>
-  <td id="total">0</td>
-  <td colspan="2"></td>
-</tr>
-</tfoot>
 </table>
 
-<div style="margin-top:8px">
+<hr>
+
+<h3>➕ नयाँ खर्च</h3>
+
 <input id="eTitle" placeholder="जस्तै: दाना, मल, मजदुरी">
 <input id="eAmount" placeholder="रकम">
-<select id="eApply"></select>
+<select id="eType">
+  <option value="operating">चालु खर्च</option>
+  <option value="fixed">स्थिर खर्च</option>
+</select>
+
+<div class="box" id="applyBox"></div>
+
 <button onclick="add()">+ Add खर्च</button>
-</div>
 
-<p class="auto">
-✔️ उत्पादन अनुसार खर्च Tag गरिएको छ | सबै Auto-Save
-</p>
-
+<p class="auto">✔️ Checklist user ले बनाउँछ | सबै Auto-Save</p>
 </div>
 
 <footer>
-  <a href="operating-cost-engine.html">◀️ Operating Cost</a>
+  <a href="production-sells.html">◀️ Production</a>
   <a href="income-demo.html">Next ▶️</a>
 </footer>
 
 <script>
-/* ===== LOAD PROJECT ===== */
+/* ===== LOAD ===== */
 let key = localStorage.getItem("activeProject");
-if(!key){
-  alert("पहिले Project खोल्नुहोस्");
-  location.href="index.html";
-}
+if(!key){ alert("Project छैन"); location.href="index.html"; }
+
 let project = JSON.parse(localStorage.getItem(key)) || {};
 project.expenses = project.expenses || [];
 let expenses = project.expenses;
 
-/* ===== LOAD PRODUCTION ===== */
-let production = JSON.parse(localStorage.getItem("PRODUCTION_MASTER")) || [];
+let products = JSON.parse(localStorage.getItem("PRODUCTION_MASTER")) || [];
 
-/* ===== BUILD APPLY DROPDOWN ===== */
-function buildApplyOptions(){
-  eApply.innerHTML = `<option value="all">सबै (Shared)</option>`;
-  production.forEach(p=>{
+/* ===== BUILD CHECKLIST ===== */
+function buildChecklist(target, selected=[]){
+  target.innerHTML="";
+  let allChecked = selected.includes("all");
+
+  target.innerHTML += `
+    <label>
+      <input type="checkbox" class="chkbox"
+        ${allChecked?"checked":""}
+        onchange="toggleAll(this)">
+      सबै
+    </label><br>
+  `;
+
+  products.forEach(p=>{
     if(Number(p.qty)===0) return;
-    eApply.innerHTML +=
-      `<option value="${p.id}">${p.name}</option>`;
+    target.innerHTML += `
+      <label>
+        <input type="checkbox" class="chkbox prod"
+          value="${p.id}"
+          ${selected.includes(p.id)?"checked":""}>
+        ${p.name}
+      </label><br>
+    `;
   });
+}
+
+function toggleAll(cb){
+  document.querySelectorAll(".prod").forEach(x=>{
+    x.checked = false;
+  });
+}
+
+/* ===== GET SELECTED ===== */
+function getSelected(box){
+  let all = box.querySelector("input[type=checkbox]");
+  if(all.checked) return ["all"];
+
+  return [...box.querySelectorAll(".prod")]
+    .filter(x=>x.checked)
+    .map(x=>x.value);
 }
 
 /* ===== RENDER ===== */
 function render(){
   body.innerHTML="";
-  let sum=0;
-
   expenses.forEach(e=>{
-    sum += Number(e.amount)||0;
-
-    let applyLabel = e.appliesTo==="all"
-      ? "सबै"
-      : (production.find(p=>p.id===e.appliesTo)?.name || "");
-
     body.innerHTML += `
     <tr>
-      <td class="left">
-        <input value="${e.title}"
-        oninput="edit('${e.id}','title',this.value)">
-      </td>
+      <td><input value="${e.title}" oninput="edit('${e.id}','title',this.value)"></td>
+      <td><input value="${e.amount}" oninput="edit('${e.id}','amount',this.value)"></td>
       <td>
-        <input type="number" value="${e.amount}"
-        oninput="edit('${e.id}','amount',this.value)">
-      </td>
-      <td class="left">
-        <select onchange="edit('${e.id}','appliesTo',this.value)">
-          <option value="all" ${e.appliesTo==="all"?"selected":""}>सबै</option>
-          ${production.map(p=>{
-            if(Number(p.qty)===0) return "";
-            return `<option value="${p.id}"
-              ${e.appliesTo===p.id?"selected":""}>${p.name}</option>`;
-          }).join("")}
+        <select onchange="edit('${e.id}','costType',this.value)">
+          <option value="operating" ${e.costType==="operating"?"selected":""}>चालु</option>
+          <option value="fixed" ${e.costType==="fixed"?"selected":""}>स्थिर</option>
         </select>
       </td>
-      <td>
-        <button class="del" onclick="del('${e.id}')">❌</button>
-      </td>
+      <td>${e.appliesTo.join(", ")}</td>
+      <td><button class="del" onclick="del('${e.id}')">❌</button></td>
     </tr>`;
   });
 
-  total.innerText = Math.round(sum);
   project.expenses = expenses;
   localStorage.setItem(key,JSON.stringify(project));
 }
 
 /* ===== ADD / EDIT / DELETE ===== */
 function add(){
-  if(!eTitle.value || !eAmount.value) return;
+  let applies = getSelected(applyBox);
+  if(!eTitle.value || !eAmount.value || applies.length===0) return;
+
   expenses.push({
     id:Date.now(),
     title:eTitle.value,
     amount:Number(eAmount.value),
-    appliesTo:eApply.value
+    costType:eType.value,
+    appliesTo:applies
   });
+
   eTitle.value=eAmount.value="";
-  eApply.value="all";
+  buildChecklist(applyBox,[]);
   save();
 }
 
 function edit(id,f,v){
   let e = expenses.find(x=>x.id==id);
   if(!e) return;
-  e[f]= (f==="amount") ? Number(v)||0 : v;
+  e[f] = (f==="amount") ? Number(v)||0 : v;
   save();
 }
 
@@ -210,8 +182,8 @@ function save(){
   render();
 }
 
-/* ===== INIT ===== */
-buildApplyOptions();
+/* INIT */
+buildChecklist(applyBox,[]);
 render();
 </script>
 
