@@ -2,133 +2,186 @@
 <html lang="ne">
 <head>
 <meta charset="UTF-8">
-<title>Profit & Loss | Farmer Base BP Engine</title>
+<title>Cover Page | Business Proposal</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <style>
-body{
-  font-family:"Noto Sans Devanagari",system-ui;
-  background:#f6f8f7;
+@page{
+  size:A4;
   margin:0;
 }
-.container{
-  max-width:900px;
-  margin:auto;
-  background:#fff;
-  padding:20px;
+
+body{
+  margin:0;
+  font-family:"Noto Sans Devanagari","Kalimati",system-ui;
 }
 
-/* Top Header */
-.top-links{
+/* ===== COVER PAGE ===== */
+.cover{
+  width:210mm;
+  height:297mm;              /* 🔑 exact A4 */
+  box-sizing:border-box;
+  padding:28mm 20mm;
   display:flex;
+  flex-direction:column;
   justify-content:space-between;
-  align-items:center;
-  margin-bottom:15px;
-  padding-bottom:10px;
-  border-bottom:1px solid #ccc;
-}
-.top-links a{
-  text-decoration:none;
-  font-weight:600;
-  color:#034;
-  background:#e8f3ef;
-  padding:6px 12px;
-  border-radius:6px;
+  page-break-after:always;
 }
 
-/* Tables */
-table{
-  width:100%;
-  border-collapse:collapse;
-  margin-top:10px;
-}
-th, td{
-  border:1px solid #ccc;
-  padding:8px;
+/* TOP */
+.top{
   text-align:center;
 }
-th{
-  background:#f0f0f0;
+.top h1{
+  margin:0;
+  font-size:30px;
+  color:#2e7d32;
+}
+.top .org{
+  font-size:18px;
+  margin-top:6px;
 }
 
-/* Footer */
-footer{
-  margin-top:30px;
-  padding-top:15px;
-  border-top:1px solid #ccc;
+/* CENTER */
+.center{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:30px;
+}
+.chart-box{
+  width:220px;   /* 🔑 fixed */
+  height:220px;
+}
+.highlight{
+  width:420px;
+}
+.highlight textarea{
+  width:100%;
+  height:110px; /* 🔑 fixed */
+  padding:10px;
+  font-family:inherit;
+  font-size:15px;
+  box-sizing:border-box;
+}
+.hint{
+  font-size:13px;
+  color:#555;
+  margin-top:6px;
+}
+
+/* FOOTER */
+.footer{
   text-align:center;
   font-size:14px;
-  color:#444;
+  border-top:1px solid #ccc;
+  padding-top:12px;
+}
+.footer .small{
+  font-size:13px;
+  color:#555;
 }
 
+/* ===== PRINT ===== */
 @media print{
-  .top-links{ display:none; }
+  textarea{
+    border:none;
+    resize:none;
+  }
+  a[href]:after{content:""}
 }
 </style>
 </head>
 
 <body>
 
-<div class="container">
+<div class="cover">
 
-  <!-- TOP HEADER LINKS -->
-  <div class="top-links">
-    <a href="index.html">🏠 Back To Home</a>
-    <a href="full-proposal.html">📄 Full Proposal</a>
+  <!-- TOP -->
+  <div class="top">
+    <h1 id="bizName">व्यवसाय प्रस्ताव</h1>
+    <div class="org" id="orgName">संस्थाको नाम</div>
   </div>
 
-  <!-- CONTENT -->
-  <h2>📊 नाफा / नोक्सान विवरण</h2>
+  <!-- CENTER -->
+  <div class="center">
+    <div class="chart-box">
+      <canvas id="expensePie"></canvas>
+    </div>
 
-  <p>
-    उपरोक्त आम्दानी विवरण (Income Narration) तथा खर्चको आधारमा नाफा वा नोक्सान गणना गरिएको छ।
-  </p>
-
-  <!-- PROFIT / LOSS TABLE (EXISTING – NOT TOUCHED) -->
-  <table>
-    <tr>
-      <th>विवरण</th>
-      <th>रकम (Rs)</th>
-    </tr>
-    <tr>
-      <td>कुल आम्दानी</td>
-      <td id="totalIncome">0</td>
-    </tr>
-    <tr>
-      <td>कुल खर्च</td>
-      <td id="totalExpense">0</td>
-    </tr>
-    <tr>
-      <th>नाफा / नोक्सान</th>
-      <th id="netProfit">0</th>
-    </tr>
-  </table>
+    <div class="highlight">
+      <textarea id="coverText"
+        placeholder="आधुनिक प्रविधिमा आधारित, दिगो र आम्दानीमूलक कृषि व्यवसाय">
+      </textarea>
+      <div class="hint">
+        📌 परियोजनाको मुख्य सन्देश / नारा
+      </div>
+    </div>
+  </div>
 
   <!-- FOOTER -->
-  <footer>
-    <strong>Farmer Base BP Engine</strong> – कृषकमैत्री व्यवसायिक योजना यन्त्र<br>
-    <em>“योजना, गणना र प्रस्तुति – एउटै इन्जिनबाट”</em><br>
-    <em>क्रमशः Farmer Base BP Engine एक Complete Engine बन्ने तयारीमा…</em>
-  </footer>
+  <div class="footer">
+    <div><b>ठेगाना:</b> <span id="address">—</span></div>
+    <div class="small">
+      दर्ता नं: <span id="regNo">—</span> |
+      PAN: <span id="panNo">—</span> |
+      सम्पर्क: <span id="phone">—</span>
+    </div>
+  </div>
 
 </div>
 
-<!-- EXISTING JS LOGIC (AS IS / SAMPLE PLACEHOLDER) -->
 <script>
-/* 
-  NOTE:
-  यहाँ तपाईंको original JS logic रहन्छ
-  Total Income, Total Expense, Net Profit
-  income.html र expense page बाट populate हुने
-*/
+/* ===== LOAD PROJECT ===== */
+let key = localStorage.getItem("activeProject");
+let project = key ? JSON.parse(localStorage.getItem(key)) : {};
+let s = project.shortInfo || {};
 
-// Example only
-let income = 1152000;
-let expense = 720000;
+/* TOP */
+bizName.innerText = s.bp_name || "व्यवसाय प्रस्ताव";
+orgName.innerText = s.bp_org || "संस्थाको नाम";
 
-document.getElementById("totalIncome").innerText = income.toLocaleString("en-IN");
-document.getElementById("totalExpense").innerText = expense.toLocaleString("en-IN");
-document.getElementById("netProfit").innerText = (income-expense).toLocaleString("en-IN");
+/* FOOTER */
+address.innerText = s.bp_location || "—";
+regNo.innerText = s.reg_no || "—";
+panNo.innerText = s.pan_no || "—";
+phone.innerText = s.bp_phone || "—";
+
+/* SAVE HIGHLIGHT */
+coverText.value = project.coverText || "";
+coverText.oninput = ()=>{
+  project.coverText = coverText.value;
+  localStorage.setItem(key,JSON.stringify(project));
+};
+
+/* PIE */
+let expCat = {};
+(project.expenseData||[]).forEach(e=>{
+  expCat[e.category] = (expCat[e.category]||0) + Number(e.amount||0);
+});
+
+if(Object.keys(expCat).length){
+  new Chart(expensePie,{
+    type:"pie",
+    data:{
+      labels:Object.keys(expCat),
+      datasets:[{
+        data:Object.values(expCat),
+        backgroundColor:[
+          "#66bb6a","#42a5f5","#ffa726",
+          "#ab47bc","#ef5350","#26c6da"
+        ]
+      }]
+    },
+    options:{
+      responsive:true,
+      maintainAspectRatio:false,
+      plugins:{legend:{position:"bottom"}}
+    }
+  });
+}
 </script>
 
 </body>
