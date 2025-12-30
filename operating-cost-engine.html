@@ -1,219 +1,139 @@
-<!DOCTYPE html>
-<html lang="ne">
-<head>
-<meta charset="UTF-8">
-<title>Operating Cost Engine | Farmerbase BP Engine</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
+/* =========================================================
+   Farmerbase BP Engine
+   Advanced Cost Allocation Engine (FINAL)
+   ---------------------------------------------------------
+   - Uses PRODUCTION_MASTER
+   - Uses project.expenses
+   - Checklist-based allocation
+   - Operating cost only
+   - Fixed cost excluded (ROI module uses it)
+   ========================================================= */
 
-<style>
-body{
-  font-family:"Noto Sans Devanagari","Kalimati",system-ui;
-  background:#f4f7f6;margin:0
-}
-header,footer{
-  background:#e8f5e9;
-  padding:10px 16px;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  font-size:14px
-}
-header a,footer a{
-  text-decoration:none;
-  color:#2e7d32;
-  font-weight:600
-}
-.wrap{
-  max-width:1100px;
-  margin:18px auto;
-  background:#fff;
-  padding:22px;
-  border-radius:12px
-}
-h2{color:#2e7d32;margin-top:0}
-h3{color:#1565c0;margin-bottom:6px}
+(function(){
 
-select,input,textarea{
-  padding:8px;
-  width:100%;
-  box-sizing:border-box;
-  font-family:inherit
-}
-textarea{resize:vertical}
-.hidden{display:none}
+  function getActiveProject(){
+    const key = localStorage.getItem("activeProject");
+    if(!key) return null;
+    return {
+      key,
+      data: JSON.parse(localStorage.getItem(key)) || {}
+    };
+  }
 
-table{
-  width:100%;
-  border-collapse:collapse;
-  margin-top:10px
-}
-th,td{
-  border:1px solid #ccc;
-  padding:6px;
-  text-align:center
-}
-th{background:#eef5ee}
-.sum{background:#f5f5f5;font-weight:700}
+  function getProduction(){
+    return JSON.parse(
+      localStorage.getItem("PRODUCTION_MASTER")
+    ) || [];
+  }
 
-.note{font-size:13px;color:#555}
-.readonly{background:#f0f0f0}
-.auto{color:#2e7d32;font-size:13px}
-</style>
-</head>
+  function runCostAllocation(){
 
-<body>
+    const projectWrap = getActiveProject();
+    if(!projectWrap) return null;
 
-<header>
-  <a href="index.html">🏠 Back to Home</a>
-  <div>
-    <a href="production-sells.html">◀️ Production</a> |
-    <a href="expense-demo.html">Expense ▶️</a>
-  </div>
-</header>
+    const project = projectWrap.data;
+    const expenses = project.expenses || [];
+    const products = getProduction();
 
-<div class="wrap">
+    let allocation = {};
 
-<h2>🌱 Operating Cost Engine (Auto-Save)</h2>
+    /* -----------------------------------------
+       STEP 1: Prepare production base
+       ----------------------------------------- */
+    products.forEach(p=>{
+      const qty = Number(p.qty) || 0;
+      if(qty === 0) return;
 
-<h3>📝 खर्च सम्बन्धी व्याख्या</h3>
-<textarea id="narration" rows="3"
-placeholder="चालु खर्च सम्बन्धी विवरण..."></textarea>
-
-<hr>
-
-<h3>⚙️ खर्च गणना विधि</h3>
-<select id="mode">
-  <option value="AVG">सरदर / अनुमान</option>
-  <option value="STAGE">Stage-wise / प्रतिदिन</option>
-</select>
-
-<hr>
-
-<!-- ===== AVERAGE MODE ===== -->
-<div id="avgBox">
-<table>
-<tr><th>खर्च प्रकार</th><th>रकम</th></tr>
-<tr><td>दाना / मल</td><td><input id="avgFeed" type="number"></td></tr>
-<tr><td>औषधी</td><td><input id="avgMed" type="number"></td></tr>
-<tr><td>भिटामिन</td><td><input id="avgVit" type="number"></td></tr>
-</table>
-</div>
-
-<!-- ===== STAGE MODE ===== -->
-<div id="stageBox" class="hidden">
-<table>
-<thead>
-<tr>
-  <th>Stage</th>
-  <th>Label</th>
-  <th>संख्या</th>
-  <th>दिन</th>
-  <th>दाना (प्रति दिन)</th>
-  <th>औषधी</th>
-  <th>भिटामिन</th>
-</tr>
-</thead>
-<tbody id="stageBody"></tbody>
-</table>
-<p class="note">✔️ Rate change गर्दा Auto-Save हुन्छ</p>
-</div>
-
-<hr>
-
-<table>
-<tr class="sum"><td>दाना</td><td id="feedTotal">0</td></tr>
-<tr class="sum"><td>औषधी</td><td id="medTotal">0</td></tr>
-<tr class="sum"><td>भिटामिन</td><td id="vitTotal">0</td></tr>
-<tr class="sum"><td>कुल चालु खर्च</td><td id="grandTotal">0</td></tr>
-</table>
-
-<p class="auto">✔️ Auto-Saved</p>
-
-</div>
-
-<footer>
-  <a href="production-sells.html">◀️ Previous</a>
-  <a href="expense-demo.html">Next ▶️</a>
-</footer>
-
-<script>
-function $(id){return document.getElementById(id)}
-
-/* ===== LOAD STAGE DATA ===== */
-let stageData = JSON.parse(localStorage.getItem("PRODUCTION_STAGE_DATA")) || {};
-let saved = JSON.parse(localStorage.getItem("OPERATING_COST_ENGINE")) || {};
-
-/* ===== MODE SWITCH ===== */
-function switchMode(){
-  avgBox.classList.toggle("hidden",mode.value!=="AVG");
-  stageBox.classList.toggle("hidden",mode.value!=="STAGE");
-  save();
-}
-
-/* ===== LOAD STAGES ===== */
-function loadStages(){
-  stageBody.innerHTML="";
-  if(!stageData.stages) return;
-  Object.keys(stageData.stages).forEach(k=>{
-    let s = stageData.stages[k];
-    stageBody.innerHTML+=`
-    <tr>
-      <td>${k}</td>
-      <td>${s.label}</td>
-      <td><input class="readonly" readonly value="${s.count}"></td>
-      <td><input class="readonly" readonly value="${s.days}"></td>
-      <td><input class="feed"></td>
-      <td><input class="med"></td>
-      <td><input class="vit"></td>
-    </tr>`;
-  });
-}
-
-/* ===== CALCULATE + AUTO SAVE ===== */
-function save(){
-  let feed=0,med=0,vit=0;
-
-  if(mode.value==="AVG"){
-    feed=+avgFeed.value||0;
-    med =+avgMed.value||0;
-    vit =+avgVit.value||0;
-  }else{
-    stageBody.querySelectorAll("tr").forEach(r=>{
-      let c=+r.children[2].querySelector("input").value||0;
-      let d=+r.children[3].querySelector("input").value||0;
-      feed+=c*d*(+r.children[4].querySelector("input").value||0);
-      med +=c*d*(+r.children[5].querySelector("input").value||0);
-      vit +=c*d*(+r.children[6].querySelector("input").value||0);
+      allocation[p.id] = {
+        productId: p.id,
+        name: p.name,
+        qty: qty,
+        unit: p.unit || "",
+        directCost: 0,
+        allocatedCost: 0,
+        totalCost: 0,
+        unitCost: 0
+      };
     });
+
+    /* -----------------------------------------
+       STEP 2: Filter operating expenses only
+       ----------------------------------------- */
+    const operatingExpenses = expenses.filter(e =>
+      e.costType === "operating" &&
+      Array.isArray(e.appliesTo) &&
+      Number(e.amount) > 0
+    );
+
+    /* -----------------------------------------
+       STEP 3: Allocate expenses
+       ----------------------------------------- */
+    operatingExpenses.forEach(e=>{
+      const amount = Number(e.amount) || 0;
+
+      // Case A: applies to ALL
+      if(e.appliesTo.includes("all")){
+
+        const totalQty = Object.values(allocation)
+          .reduce((s,p)=>s+p.qty,0);
+
+        Object.values(allocation).forEach(p=>{
+          const share = totalQty > 0
+            ? (p.qty / totalQty) * amount
+            : 0;
+          p.allocatedCost += share;
+        });
+
+      }
+      // Case B: applies to specific products (array)
+      else{
+
+        const targets = e.appliesTo
+          .filter(id => allocation[id]);
+
+        const targetQty = targets
+          .reduce((s,id)=>s+allocation[id].qty,0);
+
+        targets.forEach(id=>{
+          const p = allocation[id];
+          const share = targetQty > 0
+            ? (p.qty / targetQty) * amount
+            : 0;
+          p.directCost += share;
+        });
+      }
+    });
+
+    /* -----------------------------------------
+       STEP 4: Final per-unit calculation
+       ----------------------------------------- */
+    Object.values(allocation).forEach(p=>{
+      p.totalCost = p.directCost + p.allocatedCost;
+      p.unitCost = p.qty > 0
+        ? p.totalCost / p.qty
+        : 0;
+    });
+
+    /* -----------------------------------------
+       STEP 5: Save back to project
+       ----------------------------------------- */
+    project.costAllocation = allocation;
+    localStorage.setItem(
+      projectWrap.key,
+      JSON.stringify(project)
+    );
+
+    return allocation;
   }
 
-  feedTotal.innerText=Math.round(feed);
-  medTotal.innerText=Math.round(med);
-  vitTotal.innerText=Math.round(vit);
-  grandTotal.innerText=Math.round(feed+med+vit);
+  /* -----------------------------------------
+     Auto-run once on load
+     ----------------------------------------- */
+  runCostAllocation();
 
-  localStorage.setItem("OPERATING_COST_ENGINE",JSON.stringify({
-    mode:mode.value,
-    feed,med,vit,
-    narration:narration.value
-  }));
-}
+  /* -----------------------------------------
+     Expose globally (optional)
+     ----------------------------------------- */
+  window.runCostAllocation = runCostAllocation;
 
-/* ===== AUTO SAVE EVENTS ===== */
-document.addEventListener("input", e=>{
-  if(e.target.tagName==="INPUT" || e.target.tagName==="TEXTAREA"){
-    save();
-  }
-});
-mode.onchange = switchMode;
-
-/* ===== INIT ===== */
-mode.value = saved.mode || "AVG";
-narration.value = saved.narration || "";
-loadStages();
-switchMode();
-save();
-</script>
-
-</body>
-</html>
+})();
