@@ -10,18 +10,32 @@ body{
   font-family:"Noto Sans Devanagari","Kalimati",system-ui;
   background:#f4f7f6;margin:0
 }
+header,footer{
+  background:#e8f5e9;
+  padding:10px 16px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  font-size:14px
+}
+header a,footer a{
+  text-decoration:none;
+  color:#2e7d32;
+  font-weight:600
+}
 .container{
   max-width:1050px;
-  margin:20px auto;
+  margin:18px auto;
   background:#fff;
-  padding:25px;
-  border-radius:10px
+  padding:22px;
+  border-radius:12px
 }
 h1,h2{color:#2e7d32;text-align:center}
+
 table{
   width:100%;
   border-collapse:collapse;
-  margin-top:12px
+  margin-top:10px
 }
 th,td{
   border:1px solid #ccc;
@@ -34,182 +48,170 @@ input,select{
   padding:6px;
   box-sizing:border-box
 }
-button{
-  margin-top:15px;
-  padding:10px 18px;
-  background:#2e7d32;
-  color:#fff;
-  border:none;
-  border-radius:6px;
-  cursor:pointer
-}
-.note{font-size:13px;color:#555;margin-top:8px}
-.nav{
-  display:flex;
-  justify-content:space-between;
-  margin-top:25px
-}
-@media print{
-  button,.nav{display:none}
-}
+.note{font-size:13px;color:#555}
+.auto{color:#2e7d32;font-size:13px}
 </style>
 </head>
 
 <body>
+
+<header>
+  <a href="index.html">🏠 Back to Home</a>
+  <div>
+    <a href="short-info.html">◀️ Previous</a> |
+    <a href="operating-cost-engine.html">Operating Cost ▶️</a>
+  </div>
+</header>
+
 <div class="container">
 
-<h1>उत्पादन तथा बिक्री योजना</h1>
+<h1>उत्पादन तथा बिक्री योजना (Auto-Save)</h1>
 
-<!-- ================= BASIC INPUT ================= -->
 <table>
-<tr><th>व्यवसाय प्रकार</th>
-<td>
-<select id="bizType">
-  <option value="pig">बंगुर</option>
-  <option value="goat">बाख्रा</option>
-  <option value="veg">तरकारी</option>
-</select>
-</td></tr>
-
-<tr><th>प्रारम्भिक बयस्क संख्या</th><td><input id="adult" value="300"></td></tr>
-<tr><th>ब्याउने दर (%)</th><td><input id="breedRate" value="90"></td></tr>
-<tr><th>प्रति बयस्क वार्षिक उत्पादन</th><td><input id="kids" value="20"></td></tr>
-<tr><th>मृत्युदर (%)</th><td><input id="death" value="10"></td></tr>
-<tr><th>राखिने पोथी (%)</th><td><input id="keepFemale" value="40"></td></tr>
-<tr><th>प्रतिस्थापन (बयस्क बिक्री %)</th><td><input id="replacement" value="10"></td></tr>
+<tr>
+  <th>व्यवसाय प्रकार</th>
+  <td>
+    <select id="bizType">
+      <option value="pig">बंगुर</option>
+      <option value="goat">बाख्रा</option>
+      <option value="veg">तरकारी</option>
+    </select>
+  </td>
+</tr>
+<tr><th>प्रारम्भिक बयस्क संख्या</th><td><input id="adult"></td></tr>
+<tr><th>ब्याउने दर (%)</th><td><input id="breedRate"></td></tr>
+<tr><th>प्रति बयस्क वार्षिक उत्पादन</th><td><input id="kids"></td></tr>
+<tr><th>मृत्युदर (%)</th><td><input id="death"></td></tr>
+<tr><th>राखिने पोथी (%)</th><td><input id="keepFemale"></td></tr>
+<tr><th>प्रतिस्थापन बिक्री (%)</th><td><input id="replacement"></td></tr>
 </table>
 
-<p class="note">
-📌 यो भाग सबै व्यवसायमा समान रहन्छ (label मात्र फरक)
-</p>
-
-<!-- ================= STAGE DISTRIBUTION ================= -->
 <h2>🔢 Stage-wise संख्या वितरण</h2>
 
 <table>
 <tr>
-<th>Stage</th>
-<th>Label (Editable)</th>
-<th>दिन</th>
-<th>वितरण %</th>
-<th>संख्या (Auto)</th>
-</tr>
-
-<tr>
-<td>S1</td>
-<td><input id="l1" value="1–3 महिना / प्रारम्भिक चरण"></td>
-<td><input id="d1" value="90"></td>
-<td><input id="p1" value="30"></td>
-<td id="c1">0</td>
+  <th>Stage</th><th>Label</th><th>दिन</th><th>%</th><th>संख्या</th>
 </tr>
 <tr>
-<td>S2</td>
-<td><input id="l2" value="4–5 महिना / बढ्दो"></td>
-<td><input id="d2" value="60"></td>
-<td><input id="p2" value="25"></td>
-<td id="c2">0</td>
+  <td>S1</td>
+  <td><input id="l1"></td>
+  <td><input id="d1"></td>
+  <td><input id="p1"></td>
+  <td id="c1">0</td>
 </tr>
 <tr>
-<td>S3</td>
-<td><input id="l3" value="5–9 महिना / उत्पादन"></td>
-<td><input id="d3" value="120"></td>
-<td><input id="p3" value="25"></td>
-<td id="c3">0</td>
+  <td>S2</td>
+  <td><input id="l2"></td>
+  <td><input id="d2"></td>
+  <td><input id="p2"></td>
+  <td id="c2">0</td>
 </tr>
 <tr>
-<td>S4</td>
-<td><input id="l4" value="10+ महिना / बयस्क"></td>
-<td><input id="d4" value="365"></td>
-<td><input id="p4" value="20"></td>
-<td id="c4">0</td>
+  <td>S3</td>
+  <td><input id="l3"></td>
+  <td><input id="d3"></td>
+  <td><input id="p3"></td>
+  <td id="c3">0</td>
+</tr>
+<tr>
+  <td>S4</td>
+  <td><input id="l4"></td>
+  <td><input id="d4"></td>
+  <td><input id="p4"></td>
+  <td id="c4">0</td>
 </tr>
 </table>
 
-<p class="note">
-✔️ % परिवर्तन गर्दा stage संख्या स्वतः बदलिन्छ<br>
-✔️ बंगुर / बाख्रा / तरकारी सबैमा यही logic
-</p>
-
-<button onclick="saveAndCalculate()">💾 Save & Calculate</button>
-
-<!-- ================= RESULT ================= -->
-<h2>५ वर्षे उत्पादन–बिक्री सारांश</h2>
-
-<table>
-<thead>
-<tr>
-  <th>वर्ष</th>
-  <th>बयस्क</th>
-  <th>बाँचेक उत्पादन</th>
-  <th>बिक्री</th>
-  <th>अर्को वर्ष बयस्क</th>
-</tr>
-</thead>
-<tbody id="resultBody"></tbody>
-</table>
-
-<div class="nav">
-  <button onclick="location.href='short-info.html'">⬅ Previous</button>
-  <button onclick="location.href='operating-cost-engine.html'">Next ➡</button>
-</div>
+<p class="auto">✔️ कुनै पनि परिवर्तन हुँदा Auto-Save हुन्छ</p>
 
 </div>
+
+<footer>
+  <a href="short-info.html">◀️ Previous</a>
+  <a href="index.html">🏠 Home</a>
+  <a href="operating-cost-engine.html">Next ▶️</a>
+</footer>
 
 <script>
 function num(id){return Number(document.getElementById(id).value)||0}
+function $(id){return document.getElementById(id)}
 
+let saved = JSON.parse(localStorage.getItem("PRODUCTION_STAGE_DATA")) || {
+  businessType:"pig",
+  adult:300,
+  breedRate:90,
+  kids:20,
+  death:10,
+  keepFemale:40,
+  replacement:10,
+  stages:{
+    S1:{label:"1–3 महिना",days:90,pct:30},
+    S2:{label:"4–5 महिना",days:60,pct:25},
+    S3:{label:"5–9 महिना",days:120,pct:25},
+    S4:{label:"10+ महिना",days:365,pct:20}
+  }
+};
+
+/* ===== RESTORE ===== */
+bizType.value = saved.businessType;
+adult.value = saved.adult;
+breedRate.value = saved.breedRate;
+kids.value = saved.kids;
+death.value = saved.death;
+keepFemale.value = saved.keepFemale;
+replacement.value = saved.replacement;
+
+["1","2","3","4"].forEach(i=>{
+  $("l"+i).value = saved.stages["S"+i].label;
+  $("d"+i).value = saved.stages["S"+i].days;
+  $("p"+i).value = saved.stages["S"+i].pct;
+});
+
+/* ===== AUTO SAVE + CALCULATE ===== */
 function saveAndCalculate(){
-  let adult=num("adult")
-  let alive=adult*(num("breedRate")/100)*num("kids")
-  alive=alive*(100-num("death"))/100
+  let alive = num("adult")*(num("breedRate")/100)*num("kids");
+  alive = alive*(100-num("death"))/100;
 
-  /* ===== STAGE DISTRIBUTION ===== */
-  let stages={
-    S1:{label:l1.value,days:num("d1"),pct:num("p1")},
-    S2:{label:l2.value,days:num("d2"),pct:num("p2")},
-    S3:{label:l3.value,days:num("d3"),pct:num("p3")},
-    S4:{label:l4.value,days:num("d4"),pct:num("p4")}
-  }
+  let stages={};
+  let totalPct=0;
 
-  let totalPct=stages.S1.pct+stages.S2.pct+stages.S3.pct+stages.S4.pct
-  if(totalPct!==100){
-    alert("Stage वितरण 100% हुनुपर्छ")
-    return
-  }
+  ["1","2","3","4"].forEach(i=>{
+    let pct=num("p"+i);
+    totalPct+=pct;
+    let cnt=Math.round(alive*pct/100);
+    $("c"+i).innerText=cnt;
+    stages["S"+i]={
+      label:$("l"+i).value,
+      days:num("d"+i),
+      pct:pct,
+      count:cnt
+    };
+  });
 
-  Object.keys(stages).forEach((k,i)=>{
-    let c=Math.round(alive*stages[k].pct/100)
-    stages[k].count=c
-    document.getElementById("c"+(i+1)).innerText=c
-  })
+  if(totalPct!==100) return;
 
-  /* ===== SAVE PRODUCTION STAGE DATA ===== */
   localStorage.setItem("PRODUCTION_STAGE_DATA",JSON.stringify({
     businessType:bizType.value,
-    adult,
+    adult:num("adult"),
+    breedRate:num("breedRate"),
+    kids:num("kids"),
+    death:num("death"),
+    keepFemale:num("keepFemale"),
+    replacement:num("replacement"),
     alive,
     stages
-  }))
-
-  /* ===== SIMPLE 5-YEAR SUMMARY ===== */
-  let body=resultBody
-  body.innerHTML=""
-  let curAdult=adult
-
-  for(let y=1;y<=5;y++){
-    let nextAdult=curAdult+(alive*(num("keepFemale")/100))
-    body.innerHTML+=`
-      <tr>
-        <td>${y}</td>
-        <td>${Math.round(curAdult)}</td>
-        <td>${Math.round(alive)}</td>
-        <td>${Math.round(alive*(1-num("keepFemale")/100))}</td>
-        <td>${Math.round(nextAdult)}</td>
-      </tr>
-    `
-    curAdult=nextAdult
-  }
+  }));
 }
+
+/* ===== AUTO SAVE EVENTS ===== */
+document.addEventListener("input",e=>{
+  if(e.target.tagName==="INPUT" || e.target.tagName==="SELECT"){
+    saveAndCalculate();
+  }
+});
+
+/* INIT */
+saveAndCalculate();
 </script>
 
 </body>
