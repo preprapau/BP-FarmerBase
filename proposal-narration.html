@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+<meta charset="UTF-8">
+<title>Proposal Narration | Farmerbase BP Engine</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+body{
+  font-family:"Noto Sans Devanagari","Kalimati",system-ui;
+  background:#f4f7f6;margin:0
+}
+header,footer{
+  background:#e8f5e9;
+  padding:10px 16px;
+  display:flex;
+  justify-content:space-between
+}
+header a,footer a{
+  color:#2e7d32;
+  font-weight:600;
+  text-decoration:none
+}
+.wrap{
+  max-width:1000px;
+  margin:18px auto;
+  background:#fff;
+  padding:24px;
+  border-radius:12px
+}
+h2,h3{color:#2e7d32;margin-top:0}
+.section{
+  margin-bottom:20px
+}
+.box{
+  border:1px solid #ccc;
+  padding:14px;
+  border-radius:8px;
+  background:#fafafa;
+  line-height:1.6
+}
+.lang{
+  font-size:13px;
+  color:#2e7d32;
+  margin-bottom:6px
+}
+button{
+  padding:10px 16px;
+  background:#2e7d32;
+  color:#fff;
+  border:none;
+  border-radius:8px;
+  cursor:pointer
+}
+.small{font-size:13px;color:#2e7d32}
+</style>
+</head>
+
+<body>
+
+<header>
+  <a href="projection-5year.html">◀️ 5-Year Projection</a>
+  <a href="index.html">🏠 Home</a>
+</header>
+
+<div class="wrap">
+
+<h2>📄 Proposal Narration (Auto-Generated)</h2>
+
+<!-- ================= NEPALI ================= -->
+<div class="section">
+  <div class="lang">नेपाली (Nepali)</div>
+  <div class="box" id="nepText"></div>
+</div>
+
+<!-- ================= ENGLISH ================= -->
+<div class="section">
+  <div class="lang">English</div>
+  <div class="box" id="engText"></div>
+</div>
+
+<div style="text-align:center;margin-top:16px">
+  <button onclick="window.print()">🖨️ Print / Save PDF</button>
+</div>
+
+<p class="small">
+✔️ सबै विवरण स्वचालित रूपमा गणनामा आधारित  
+| ✔️ Editing आवश्यक छैन (तर copy गरेर परिमार्जन गर्न सक्नुहुन्छ)
+</p>
+
+</div>
+
+<footer>
+  <a href="projection-5year.html">◀️ Back</a>
+  <a href="index.html">🏠 Home</a>
+</footer>
+
+<script>
+/* =====================================================
+   LOAD PROJECT DATA
+   ===================================================== */
+const projectKey = localStorage.getItem("activeProject");
+if(!projectKey){
+  alert("पहिले Project खोल्नुहोस्");
+  location.href="index.html";
+}
+
+const project = JSON.parse(localStorage.getItem(projectKey)) || {};
+const pl = project.profitLoss || {};
+const roi = project.roi || {};
+const proj5 = project.projection5y || {};
+const costAlloc = project.costAllocation || {};
+
+/* =====================================================
+   HELPER
+   ===================================================== */
+function money(n){
+  return "रु " + (Number(n)||0).toFixed(2);
+}
+
+/* =====================================================
+   BUILD PRODUCT LIST
+   ===================================================== */
+let productList = Object.values(costAlloc)
+  .map(p => `${p.name} (${p.qty} ${p.unit})`)
+  .join(", ");
+
+/* =====================================================
+   NEPALI TEXT
+   ===================================================== */
+nepText.innerHTML = `
+यस प्रस्तावित व्यवसाय अन्तर्गत ${productList} उत्पादन गर्ने योजना रहेको छ।
+यस व्यवसायका लागि कुल स्थिर लगानी ${money(pl.fixedCost)} रहेको छ।
+व्यवसाय सञ्चालन क्रममा वार्षिक चालु खर्च ${money(pl.operatingCost)} अनुमान गरिएको छ।
+
+यस योजनाबाट वार्षिक कुल आम्दानी ${money(pl.totalIncome)} हुने प्रक्षेपण गरिएको छ।
+ह्रासकट्टी पश्चात कर-पूर्व नाफा ${money(pl.profitBeforeTax)} रहेको छ।
+आम्दानी कर कट्टा गरी वार्षिक खुद नाफा ${money(pl.netProfit)} हुने देखिन्छ।
+
+उक्त लगानीका आधारमा वार्षिक ROI ${roi.roiPercent ? roi.roiPercent.toFixed(2) : "0"}% रहने
+र लगानी फिर्ता अवधि करिब ${roi.paybackYears ? roi.paybackYears.toFixed(2) : "—"} वर्ष हुने देखिन्छ।
+
+५ वर्षको अवधिमा औसत ${proj5.growthRate || 0}% वार्षिक वृद्धिदरका आधारमा
+कुल नाफा ${money(proj5.total5YearProfit)} हुने प्रक्षेपण गरिएको छ।
+यसरी उक्त व्यवसाय आर्थिक रूपमा सम्भाव्य, दिगो तथा लाभदायक देखिन्छ।
+`;
+
+/* =====================================================
+   ENGLISH TEXT
+   ===================================================== */
+engText.innerHTML = `
+Under this proposed business plan, production of ${productList} has been planned.
+The total fixed investment required for this business is NPR ${Number(pl.fixedCost||0).toFixed(2)}.
+The estimated annual operating cost is NPR ${Number(pl.operatingCost||0).toFixed(2)}.
+
+Based on the financial projection, the estimated annual total income is
+NPR ${Number(pl.totalIncome||0).toFixed(2)}.
+After accounting for depreciation, the profit before tax is
+NPR ${Number(pl.profitBeforeTax||0).toFixed(2)}.
+After income tax, the annual net profit is estimated at
+NPR ${Number(pl.netProfit||0).toFixed(2)}.
+
+Based on the above figures, the expected annual ROI is
+${roi.roiPercent ? roi.roiPercent.toFixed(2) : "0"}%,
+with an estimated payback period of
+${roi.paybackYears ? roi.paybackYears.toFixed(2) : "—"} years.
+
+Over a five-year period, assuming an average annual growth rate of
+${proj5.growthRate || 0}%,
+the total projected profit is estimated at
+NPR ${Number(proj5.total5YearProfit||0).toFixed(2)}.
+Hence, the proposed business is financially viable, sustainable, and profitable.
+`;
+</script>
+
+</body>
+</html>
