@@ -2,63 +2,35 @@
 <html lang="ne">
 <head>
 <meta charset="UTF-8">
-<title>खर्च विवरण (वार्षिक) | Farmerbase BP Engine</title>
+<title>खर्च विवरण | Farmerbase BP Engine</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
 body{
   font-family:"Noto Sans Devanagari","Kalimati",system-ui;
-  background:#f4f7f6;
-  margin:0
+  background:#f4f7f6;margin:0
 }
 header,footer{
   background:#e8f5e9;
   padding:10px 16px;
   display:flex;
   justify-content:space-between;
-  align-items:center;
   font-size:14px
 }
 header a,footer a{
-  text-decoration:none;
   color:#2e7d32;
-  font-weight:600
+  font-weight:600;
+  text-decoration:none
 }
 .wrap{
-  max-width:1100px;
+  max-width:1000px;
   margin:18px auto;
   background:#fff;
   padding:22px;
   border-radius:12px
 }
 h2{color:#2e7d32;margin-top:0}
-h3{color:#1565c0;margin-bottom:6px}
 
-input,select,textarea{
-  padding:8px;
-  font-family:inherit;
-  width:100%;
-  box-sizing:border-box
-}
-textarea{resize:vertical}
-
-/* ENTRY FORM */
-.form{
-  display:grid;
-  grid-template-columns:1.3fr 2fr 2fr 1fr 1fr auto;
-  gap:8px;
-  margin-bottom:12px
-}
-button.add{
-  background:#2e7d32;
-  color:#fff;
-  border:none;
-  border-radius:6px;
-  padding:8px 14px;
-  cursor:pointer
-}
-
-/* TABLE */
 table{
   width:100%;
   border-collapse:collapse;
@@ -71,239 +43,176 @@ th,td{
 }
 th{background:#eef5ee}
 .left{text-align:left}
-.cat{background:#e8f5e9;font-weight:700}
-.subcat{background:#f1f8f4;font-weight:600}
-.sum{background:#fafafa;font-weight:700}
 
-.auto{color:#2e7d32;font-size:12px}
-.del{
-  background:#c62828;
+input,select{
+  width:100%;
+  padding:6px;
+  box-sizing:border-box
+}
+button{
+  padding:6px 12px;
+  background:#2e7d32;
   color:#fff;
   border:none;
-  padding:4px 8px;
-  border-radius:4px;
+  border-radius:6px;
   cursor:pointer
 }
-.note{font-size:13px;color:#555}
+.del{background:#c62828}
+.auto{color:#2e7d32;font-size:13px}
+.sum{font-weight:700;background:#fafafa}
 </style>
 </head>
 
 <body>
 
-<!-- 🔝 TOP NAV -->
 <header>
-  <a href="index.html">🏠 Back to Home</a>
-  <div>
-    <a href="operating-cost-engine.html">◀️ Operating Cost</a> |
-    <a href="profit-loss-demo.html">Profit–Loss ▶️</a>
-  </div>
+  <a href="operating-cost-engine.html">◀️ Operating Cost</a>
+  <a href="income-demo.html">Income ▶️</a>
 </header>
 
 <div class="wrap">
 
-<h2>💰 खर्च विवरण (वार्षिक)</h2>
+<h2>💸 खर्च विवरण (Product Tagged)</h2>
 
-<h3>📝 खर्च सम्बन्धी व्याख्या</h3>
-<textarea id="expenseNarration" rows="4"
-placeholder="खर्च सम्बन्धी समग्र विवरण यहाँ लेख्नुहोस्..."></textarea>
-
-<p class="note auto">
-✔️ Operating Cost Engine बाट आएको खर्च स्वतः समावेश गरिएको छ
-</p>
-
-<hr>
-
-<!-- ===== MANUAL ENTRY ===== -->
-<div class="form">
-  <select id="mainCat">
-    <option value="चालु खर्च">चालु खर्च</option>
-    <option value="स्थिर खर्च">स्थिर खर्च</option>
-  </select>
-  <input id="subCat" placeholder="Sub-Category">
-  <input id="title" placeholder="खर्च शीर्षक">
-  <input id="qty" type="number" placeholder="परिमाण">
-  <input id="rate" type="number" placeholder="दर">
-  <button class="add" onclick="addManual()">+ Add</button>
-</div>
-
-<!-- ===== EXPENSE TABLE ===== -->
 <table>
 <thead>
 <tr>
-  <th class="left">शीर्षक</th>
-  <th>परिमाण</th>
-  <th>दर</th>
+  <th class="left">खर्च शीर्षक</th>
   <th>रकम</th>
+  <th class="left">लागू हुने उत्पादन</th>
   <th></th>
 </tr>
 </thead>
 <tbody id="body"></tbody>
 <tfoot>
 <tr class="sum">
-  <td colspan="3" class="left">कुल चालु खर्च</td>
-  <td id="cashTotal">0</td>
-  <td></td>
+  <td class="left">कुल खर्च</td>
+  <td id="total">0</td>
+  <td colspan="2"></td>
 </tr>
 </tfoot>
 </table>
 
+<div style="margin-top:8px">
+<input id="eTitle" placeholder="जस्तै: दाना, मल, मजदुरी">
+<input id="eAmount" placeholder="रकम">
+<select id="eApply"></select>
+<button onclick="add()">+ Add खर्च</button>
 </div>
 
-<!-- 🔻 BOTTOM NAV -->
+<p class="auto">
+✔️ उत्पादन अनुसार खर्च Tag गरिएको छ | सबै Auto-Save
+</p>
+
+</div>
+
 <footer>
-  <a href="operating-cost-engine.html">◀️ Previous</a>
-  <a href="index.html">🏠 Home</a>
-  <a href="profit-loss-demo.html">Next ▶️</a>
+  <a href="operating-cost-engine.html">◀️ Operating Cost</a>
+  <a href="income-demo.html">Next ▶️</a>
 </footer>
 
 <script>
-/* ================= LOAD ACTIVE PROJECT ================= */
+/* ===== LOAD PROJECT ===== */
 let key = localStorage.getItem("activeProject");
 if(!key){
   alert("पहिले Project खोल्नुहोस्");
   location.href="index.html";
 }
-
 let project = JSON.parse(localStorage.getItem(key)) || {};
-project.expenseData = project.expenseData || [];
-let expenses = project.expenseData;
+project.expenses = project.expenses || [];
+let expenses = project.expenses;
 
-/* ================= AUTO INJECT FROM OPERATING COST ================= */
-let auto = JSON.parse(localStorage.getItem("OPERATING_COST_ENGINE"));
+/* ===== LOAD PRODUCTION ===== */
+let production = JSON.parse(localStorage.getItem("PRODUCTION_MASTER")) || [];
 
-function makeAuto(id,sub,title,amt){
-  amt = Number(amt) || 0;
-  return{
-    id:id,
-    auto:true,
-    mainCat:"चालु खर्च",
-    subCat:sub,
-    title:title,
-    qty:1,
-    rate:amt,
-    amount:amt
-  };
+/* ===== BUILD APPLY DROPDOWN ===== */
+function buildApplyOptions(){
+  eApply.innerHTML = `<option value="all">सबै (Shared)</option>`;
+  production.forEach(p=>{
+    if(Number(p.qty)===0) return;
+    eApply.innerHTML +=
+      `<option value="${p.id}">${p.name}</option>`;
+  });
 }
 
-function injectAuto(){
-  if(!auto) return;
+/* ===== RENDER ===== */
+function render(){
+  body.innerHTML="";
+  let sum=0;
 
-  expenseNarration.value = auto.narration || "";
+  expenses.forEach(e=>{
+    sum += Number(e.amount)||0;
 
-  // remove previous auto rows safely
-  expenses = expenses.filter(e => e && !e.auto);
+    let applyLabel = e.appliesTo==="all"
+      ? "सबै"
+      : (production.find(p=>p.id===e.appliesTo)?.name || "");
 
-  if(auto.feed > 0){
-    expenses.push(makeAuto(
-      "AUTO_FEED",
-      "दाना / मल / आहार",
-      "Operating Cost (Feed/Input)",
-      auto.feed
-    ));
-  }
-  if(auto.med > 0){
-    expenses.push(makeAuto(
-      "AUTO_MED",
-      "औषधी / विषादी",
-      "Operating Cost (Medicine)",
-      auto.med
-    ));
-  }
-  if(auto.vit > 0){
-    expenses.push(makeAuto(
-      "AUTO_VIT",
-      "भिटामिन / सप्लिमेन्ट",
-      "Operating Cost (Supplement)",
-      auto.vit
-    ));
-  }
+    body.innerHTML += `
+    <tr>
+      <td class="left">
+        <input value="${e.title}"
+        oninput="edit('${e.id}','title',this.value)">
+      </td>
+      <td>
+        <input type="number" value="${e.amount}"
+        oninput="edit('${e.id}','amount',this.value)">
+      </td>
+      <td class="left">
+        <select onchange="edit('${e.id}','appliesTo',this.value)">
+          <option value="all" ${e.appliesTo==="all"?"selected":""}>सबै</option>
+          ${production.map(p=>{
+            if(Number(p.qty)===0) return "";
+            return `<option value="${p.id}"
+              ${e.appliesTo===p.id?"selected":""}>${p.name}</option>`;
+          }).join("")}
+        </select>
+      </td>
+      <td>
+        <button class="del" onclick="del('${e.id}')">❌</button>
+      </td>
+    </tr>`;
+  });
 
-  project.expenseData = expenses;
+  total.innerText = Math.round(sum);
+  project.expenses = expenses;
   localStorage.setItem(key,JSON.stringify(project));
 }
 
-/* ================= MANUAL ADD ================= */
-function addManual(){
-  if(!title.value) return;
-
-  let q = Number(qty.value) || 0;
-  let r = Number(rate.value) || 0;
-  let amt = q * r;
-
+/* ===== ADD / EDIT / DELETE ===== */
+function add(){
+  if(!eTitle.value || !eAmount.value) return;
   expenses.push({
     id:Date.now(),
-    mainCat:mainCat.value,
-    subCat:subCat.value || "अन्य",
-    title:title.value,
-    qty:q,
-    rate:r,
-    amount:amt
+    title:eTitle.value,
+    amount:Number(eAmount.value),
+    appliesTo:eApply.value
   });
-
-  title.value=qty.value=rate.value=subCat.value="";
+  eTitle.value=eAmount.value="";
+  eApply.value="all";
   save();
 }
 
-/* ================= RENDER ================= */
+function edit(id,f,v){
+  let e = expenses.find(x=>x.id==id);
+  if(!e) return;
+  e[f]= (f==="amount") ? Number(v)||0 : v;
+  save();
+}
+
+function del(id){
+  expenses = expenses.filter(x=>x.id!=id);
+  save();
+}
+
 function save(){
-  project.expenseData = expenses;
+  project.expenses = expenses;
   localStorage.setItem(key,JSON.stringify(project));
   render();
 }
 
-function render(){
-  body.innerHTML="";
-  let cash=0;
-  let grouped={};
-
-  expenses.forEach(e=>{
-    if(!e || !e.title) return; // safety guard
-    grouped[e.mainCat]=grouped[e.mainCat]||{};
-    grouped[e.mainCat][e.subCat]=grouped[e.mainCat][e.subCat]||[];
-    grouped[e.mainCat][e.subCat].push(e);
-  });
-
-  for(let m in grouped){
-    body.innerHTML+=`<tr class="cat"><td colspan="5">${m}</td></tr>`;
-    for(let s in grouped[m]){
-      body.innerHTML+=`<tr class="subcat"><td colspan="5">${s}</td></tr>`;
-      grouped[m][s].forEach(e=>{
-        let amt = Number(e.amount) || 0;
-        if(m==="चालु खर्च") cash+=amt;
-        body.innerHTML+=`
-        <tr>
-          <td class="left">
-            ${e.title}
-            ${e.auto ? '<span class="auto"> (Auto)</span>' : ''}
-          </td>
-          <td>${e.qty || 1}</td>
-          <td>${e.rate || 0}</td>
-          <td>${Math.round(amt)}</td>
-          <td>
-            ${e.auto ? '' :
-              '<button class="del" onclick="delRow('+e.id+')">❌</button>'
-            }
-          </td>
-        </tr>`;
-      });
-    }
-  }
-  cashTotal.innerText = Math.round(cash);
-}
-
-function delRow(id){
-  if(confirm("यो खर्च हटाउने ?")){
-    expenses = expenses.filter(e=>e.id!==id);
-    project.expenseData = expenses;
-    save();
-  }
-}
-
-/* ================= INIT ================= */
-window.addEventListener("load",()=>{
-  injectAuto();
-  render();
-});
+/* ===== INIT ===== */
+buildApplyOptions();
+render();
 </script>
 
 </body>
