@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+<meta charset="UTF-8">
+<title>अख्तियारी पत्र</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+body{
+  font-family:"Noto Sans Devanagari","Kalimati",system-ui;
+  background:#f4f7f6;
+  margin:0;
+}
+.page{
+  max-width:900px;
+  margin:25px auto;
+  background:#fff;
+  padding:40px;
+}
+.header{
+  text-align:center;
+  border-bottom:2px solid #000;
+  padding-bottom:10px;
+  margin-bottom:25px;
+}
+.header h2{margin:0}
+.small{font-size:14px;color:#333}
+
+.row{margin:12px 0}
+label{font-weight:600}
+input,textarea{
+  width:100%;
+  padding:8px;
+  margin-top:5px;
+  font-family:inherit;
+  font-size:15px;
+}
+textarea{min-height:140px}
+
+.flex{
+  display:flex;
+  justify-content:space-between;
+  gap:20px;
+  margin-top:15px;
+}
+
+.sign{
+  margin-top:45px;
+  display:flex;
+  justify-content:space-between;
+}
+
+button{
+  padding:6px 12px;
+  border:none;
+  border-radius:6px;
+  background:#2e7d32;
+  color:#fff;
+  cursor:pointer;
+}
+
+/* ================= PRINT MODE ================= */
+@media print{
+  body{background:#fff}
+  button{display:none}
+  input,textarea{
+    border:none;
+    padding:0;
+  }
+  textarea{resize:none}
+  label{display:none}
+  a[href]:after{content:""}
+}
+</style>
+</head>
+
+<body>
+<div class="page">
+
+<!-- ================= HEADER ================= -->
+<div class="header">
+  <h2 id="orgName">संस्थाको नाम</h2>
+  <div class="small" id="orgAddress">ठेगाना</div>
+  <div class="small">
+    दर्ता नं: <span id="regNo">—</span> |
+    PAN: <span id="panNo">—</span> |
+    सम्पर्क: <span id="contact">—</span>
+  </div>
+</div>
+
+<!-- ================= META ================= -->
+<div class="flex">
+  <div style="flex:1">
+    <label>प्रति :</label>
+    <input id="toOffice" placeholder="कार्यालय / निकायको नाम">
+  </div>
+  <div style="width:200px">
+    <label>मिति :</label>
+    <input id="letterDate">
+  </div>
+</div>
+
+<div class="row">
+  <label>विषय :</label>
+  <input id="subject" value="अख्तियारी सम्बन्धमा">
+</div>
+
+<div class="row">
+  <label>अख्तियारीको व्यहोरा :</label>
+  <textarea id="description" placeholder="यहाँ अख्तियारी सम्बन्धी सम्पूर्ण व्यहोरा लेख्नुहोस्…"></textarea>
+</div>
+
+<!-- ================= AUTHORIZATION ================= -->
+<div class="row">
+  <label>अख्तियारी दिने व्यक्ति :</label>
+  <input id="grantor" readonly>
+</div>
+
+<div class="row">
+  <label>अख्तियारी लिने व्यक्ति :</label>
+  <input id="grantee" placeholder="नाम">
+</div>
+
+<div class="row">
+  <label>पद :</label>
+  <input id="granteePost" placeholder="पद / जिम्मेवारी">
+</div>
+
+<!-- ================= SIGN ================= -->
+<div class="sign">
+  <div>
+    <div>अख्तियारी दिने</div>
+    <br>
+    <div><b id="signGrantor">नाम</b></div>
+    <div class="small">प्रोप्राइटर / आधिकारिक व्यक्ति</div>
+    <div class="small" id="signOrg">संस्था</div>
+  </div>
+
+  <div style="text-align:right">
+    <div>अख्तियारी लिने</div>
+    <br>
+    <div><b id="signGrantee">नाम</b></div>
+    <div class="small" id="signPost">पद</div>
+  </div>
+</div>
+
+</div>
+
+<script>
+/* ===== LOAD PROJECT ===== */
+let key = localStorage.getItem("activeProject");
+let p = key ? JSON.parse(localStorage.getItem(key)) : {};
+let s = p.shortInfo || {};
+
+/* ===== AUTO HEADER ===== */
+orgName.innerText = s.bp_org || "संस्थाको नाम";
+orgAddress.innerText = s.bp_location || "ठेगाना";
+regNo.innerText = s.reg_no || "—";
+panNo.innerText = s.pan_no || "—";
+contact.innerText = s.bp_phone || "—";
+
+/* ===== GRANTOR (AUTO) ===== */
+grantor.value = s.bp_owner || "";
+signGrantor.innerText = s.bp_owner || "नाम";
+signOrg.innerText = s.bp_org || "";
+
+/* ===== DATE ===== */
+letterDate.value = new Date().toLocaleDateString("ne-NP");
+
+/* ===== GRANTEE SIGN UPDATE ===== */
+grantee.oninput = ()=>{ signGrantee.innerText = grantee.value || "नाम"; };
+granteePost.oninput = ()=>{ signPost.innerText = granteePost.value || "पद"; };
+</script>
+
+</body>
+</html>
