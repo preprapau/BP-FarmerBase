@@ -2,186 +2,232 @@
 <html lang="ne">
 <head>
 <meta charset="UTF-8">
-<title>Cover Page | Business Proposal</title>
+<title>Income | BPMS</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 <style>
-@page{
-  size:A4;
-  margin:0;
-}
-
 body{
-  margin:0;
   font-family:"Noto Sans Devanagari","Kalimati",system-ui;
+  background:#f4f7f6;margin:0;
+}
+.wrap{
+  max-width:1000px;
+  margin:25px auto;
+  background:#fff;
+  padding:25px;
+  border-radius:10px;
+}
+h2{color:#2e7d32;margin-top:0}
+
+/* ===== FORM ===== */
+.form{
+  display:grid;
+  grid-template-columns:2fr 3fr 1fr 1fr auto;
+  gap:8px;
+  margin-bottom:12px;
+}
+input,select{padding:8px;font-family:inherit}
+.add{
+  background:#2e7d32;color:#fff;
+  border:none;border-radius:6px;
+  padding:8px 14px;cursor:pointer
 }
 
-/* ===== COVER PAGE ===== */
-.cover{
-  width:210mm;
-  height:297mm;              /* 🔑 exact A4 */
-  box-sizing:border-box;
-  padding:28mm 20mm;
-  display:flex;
-  flex-direction:column;
-  justify-content:space-between;
-  page-break-after:always;
-}
-
-/* TOP */
-.top{
-  text-align:center;
-}
-.top h1{
-  margin:0;
-  font-size:30px;
-  color:#2e7d32;
-}
-.top .org{
-  font-size:18px;
-  margin-top:6px;
-}
-
-/* CENTER */
-.center{
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  gap:30px;
-}
-.chart-box{
-  width:220px;   /* 🔑 fixed */
-  height:220px;
-}
-.highlight{
-  width:420px;
-}
-.highlight textarea{
+/* ===== TABLE ===== */
+table{
   width:100%;
-  height:110px; /* 🔑 fixed */
-  padding:10px;
-  font-family:inherit;
-  font-size:15px;
-  box-sizing:border-box;
+  border-collapse:collapse;
 }
-.hint{
-  font-size:13px;
-  color:#555;
-  margin-top:6px;
+th,td{
+  border:1px solid #ccc;
+  padding:6px;
+  text-align:right;
+}
+th{background:#f0f0f0}
+.left{text-align:left}
+.cat{background:#e8f5e9;font-weight:700}
+.sum{font-weight:700;background:#fafafa}
+.edit{background:#0277bd;color:#fff;border:none;padding:4px 8px;border-radius:4px}
+.del{background:#c62828;color:#fff;border:none;padding:4px 8px;border-radius:4px}
+
+/* ===== NAV ===== */
+.nav{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-top:25px;
+}
+.nav a{
+  text-decoration:none;
+  font-size:18px;
+  color:#2e7d32;
+  font-weight:700;
+}
+.center-link{
+  background:#2e7d32;
+  color:#fff !important;
+  padding:8px 18px;
+  border-radius:20px;
 }
 
-/* FOOTER */
-.footer{
-  text-align:center;
-  font-size:14px;
-  border-top:1px solid #ccc;
-  padding-top:12px;
-}
-.footer .small{
-  font-size:13px;
-  color:#555;
-}
-
-/* ===== PRINT ===== */
 @media print{
-  textarea{
-    border:none;
-    resize:none;
-  }
+  .nav{display:none}
   a[href]:after{content:""}
 }
 </style>
 </head>
 
 <body>
+<div class="wrap">
 
-<div class="cover">
+<h2>📈 आम्दानी विवरण (Production + Other)</h2>
 
-  <!-- TOP -->
-  <div class="top">
-    <h1 id="bizName">व्यवसाय प्रस्ताव</h1>
-    <div class="org" id="orgName">संस्थाको नाम</div>
-  </div>
+<!-- ===== ADD FORM ===== -->
+<div class="form">
+  <select id="category">
+    <option>पशुजन्य बिक्री</option>
+    <option>सेवा आम्दानी</option>
+    <option>उत्पादन बिक्री</option>
+    <option>अन्य आम्दानी</option>
+  </select>
+  <input id="title" placeholder="आम्दानी शीर्षक">
+  <input id="qty" type="number" placeholder="परिमाण">
+  <input id="rate" type="number" placeholder="दर">
+  <button class="add" onclick="addIncome()">+ Add</button>
+</div>
 
-  <!-- CENTER -->
-  <div class="center">
-    <div class="chart-box">
-      <canvas id="expensePie"></canvas>
-    </div>
+<table>
+<thead>
+<tr>
+  <th class="left">शीर्षक</th>
+  <th>परिमाण</th>
+  <th>दर</th>
+  <th>रकम</th>
+  <th></th>
+</tr>
+</thead>
 
-    <div class="highlight">
-      <textarea id="coverText"
-        placeholder="आधुनिक प्रविधिमा आधारित, दिगो र आम्दानीमूलक कृषि व्यवसाय">
-      </textarea>
-      <div class="hint">
-        📌 परियोजनाको मुख्य सन्देश / नारा
-      </div>
-    </div>
-  </div>
+<tbody id="body"></tbody>
 
-  <!-- FOOTER -->
-  <div class="footer">
-    <div><b>ठेगाना:</b> <span id="address">—</span></div>
-    <div class="small">
-      दर्ता नं: <span id="regNo">—</span> |
-      PAN: <span id="panNo">—</span> |
-      सम्पर्क: <span id="phone">—</span>
-    </div>
-  </div>
+<tfoot>
+<tr class="sum">
+  <td colspan="3" class="left">कुल आम्दानी</td>
+  <td id="incomeTotal">0</td>
+  <td></td>
+</tr>
+</tfoot>
+</table>
+
+<!-- ===== NAV ===== -->
+<div class="nav">
+  <a href="production.html">⬅ Production</a>
+  <a href="full-proposal.html" target="_blank" class="center-link">📄 Full Proposal</a>
+  <a href="profit-loss.html">Profit / Loss ➡</a>
+</div>
 
 </div>
 
 <script>
-/* ===== LOAD PROJECT ===== */
+/* ================= LOAD PROJECT ================= */
 let key = localStorage.getItem("activeProject");
-let project = key ? JSON.parse(localStorage.getItem(key)) : {};
-let s = project.shortInfo || {};
+if(!key){alert("Project खोल्नुहोस्");location.href="index.html";}
+let project = JSON.parse(localStorage.getItem(key));
+let incomes = project.incomeData || [];
+let editIndex=null;
 
-/* TOP */
-bizName.innerText = s.bp_name || "व्यवसाय प्रस्ताव";
-orgName.innerText = s.bp_org || "संस्थाको नाम";
+/* ================= AUTO PULL FROM PRODUCTION ================= */
+function pullProductionIncome(){
+  let ps = JSON.parse(localStorage.getItem("productionSalesPlan")||"{}");
+  if(!ps || ps.__added) return;
 
-/* FOOTER */
-address.innerText = s.bp_location || "—";
-regNo.innerText = s.reg_no || "—";
-panNo.innerText = s.pan_no || "—";
-phone.innerText = s.bp_phone || "—";
+  let sellKids = (ps.sellKids||0);
+  let sellAdults = (ps.replaceSell||0);
+  let rate = ps.sellRate || 0;
 
-/* SAVE HIGHLIGHT */
-coverText.value = project.coverText || "";
-coverText.oninput = ()=>{
-  project.coverText = coverText.value;
-  localStorage.setItem(key,JSON.stringify(project));
-};
-
-/* PIE */
-let expCat = {};
-(project.expenseData||[]).forEach(e=>{
-  expCat[e.category] = (expCat[e.category]||0) + Number(e.amount||0);
-});
-
-if(Object.keys(expCat).length){
-  new Chart(expensePie,{
-    type:"pie",
-    data:{
-      labels:Object.keys(expCat),
-      datasets:[{
-        data:Object.values(expCat),
-        backgroundColor:[
-          "#66bb6a","#42a5f5","#ffa726",
-          "#ab47bc","#ef5350","#26c6da"
-        ]
-      }]
-    },
-    options:{
-      responsive:true,
-      maintainAspectRatio:false,
-      plugins:{legend:{position:"bottom"}}
-    }
-  });
+  if(rate>0 && (sellKids+sellAdults)>0){
+    incomes.push({
+      category:"पशुजन्य बिक्री",
+      title:"उत्पादन योजनाबाट बिक्री",
+      qty:sellKids+sellAdults,
+      rate:rate,
+      amount:(sellKids+sellAdults)*rate
+    });
+    ps.__added=true;
+    localStorage.setItem("productionSalesPlan",JSON.stringify(ps));
+  }
 }
+
+/* ================= ADD / EDIT ================= */
+function addIncome(){
+  if(!title.value) return;
+  let amt=(qty.value||0)*(rate.value||0);
+  let obj={
+    category:category.value,
+    title:title.value,
+    qty:Number(qty.value||0),
+    rate:Number(rate.value||0),
+    amount:amt
+  };
+  if(editIndex!==null){
+    incomes[editIndex]=obj;
+    editIndex=null;
+  }else incomes.push(obj);
+
+  title.value="";qty.value="";rate.value="";
+  save();
+}
+function edit(i){
+  let e=incomes[i];
+  category.value=e.category;
+  title.value=e.title;
+  qty.value=e.qty;
+  rate.value=e.rate;
+  editIndex=i;
+}
+function del(i){
+  incomes.splice(i,1);
+  save();
+}
+
+/* ================= SAVE ================= */
+function save(){
+  project.incomeData=incomes;
+  project.lastEdited=new Date().toLocaleString("ne-NP");
+  localStorage.setItem(key,JSON.stringify(project));
+  render();
+}
+
+/* ================= RENDER ================= */
+function render(){
+  body.innerHTML="";
+  let groups={}, total=0;
+  incomes.forEach((e,i)=>{
+    if(!groups[e.category]) groups[e.category]=[];
+    groups[e.category].push({...e,index:i});
+  });
+  for(let c in groups){
+    body.innerHTML+=`<tr class="cat"><td colspan="5">🔹 ${c}</td></tr>`;
+    groups[c].forEach(e=>{
+      total+=e.amount;
+      body.innerHTML+=`
+        <tr>
+          <td class="left">${e.title}</td>
+          <td>${e.qty}</td>
+          <td>${e.rate}</td>
+          <td>${e.amount}</td>
+          <td>
+            <button class="edit" onclick="edit(${e.index})">✎</button>
+            <button class="del" onclick="del(${e.index})">✖</button>
+          </td>
+        </tr>`;
+    });
+  }
+  incomeTotal.innerText=Math.round(total);
+}
+
+/* INIT */
+pullProductionIncome();
+render();
 </script>
 
 </body>
