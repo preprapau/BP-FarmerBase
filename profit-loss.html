@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+<meta charset="UTF-8">
+<title>नाफा–नोक्सान विवरण | FarmerBase BP Engine</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+body{
+  font-family:"Noto Sans Devanagari","Kalimati",system-ui;
+  background:#f4f7f6;
+  margin:0;
+}
+header, footer{
+  background:#e8f5e9;
+  padding:10px 16px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+header a, footer a{
+  text-decoration:none;
+  font-weight:700;
+  color:#2e7d32;
+}
+.navAero a{ margin:0 8px; }
+.container{
+  max-width:900px;
+  margin:0 auto;
+  padding:20px;
+}
+h2,h3{ color:#2e7d32; margin:10px 0; }
+table{
+  width:100%;
+  border-collapse:collapse;
+  background:#fff;
+}
+th,td{
+  border:1px solid #ccc;
+  padding:8px;
+  font-size:15px;
+}
+th{ background:#eef5ee; text-align:left; }
+td:last-child{ text-align:right; }
+.highlight{
+  font-weight:700;
+  background:#f1f8f1;
+}
+input{
+  width:120px;
+  padding:6px;
+}
+.small{ font-size:13px;color:#555; }
+</style>
+</head>
+
+<body>
+
+<!-- ===== TOP NAV ===== -->
+<header>
+  <div class="navAero">
+    <a href="income-demo.html">⬅️ Income</a>
+  </div>
+
+  <div>
+    <a href="index.html" target="_blank">🏠 Home</a> |
+    <a href="pl-report.html" target="_blank">📊 P&L Report</a>
+  </div>
+
+  <div class="navAero">
+    <a href="roi.html">ROI ➡️</a>
+  </div>
+</header>
+
+<div class="container">
+
+<h2>📊 नाफा–नोक्सान विवरण (वार्षिक)</h2>
+
+<p class="small">
+यो विवरण Income र Expense पेजमा प्रविष्ट डाटाका आधारमा स्वतः गणना गरिएको हो।
+</p>
+
+<table>
+<tbody>
+<tr>
+  <th>कुल आम्दानी</th>
+  <td id="totalIncome">0</td>
+</tr>
+
+<tr>
+  <th>कुल चालु + स्थिर खर्च</th>
+  <td id="totalExpense">0</td>
+</tr>
+
+<tr>
+  <th>ह्रासकट्टी (Depreciation)</th>
+  <td id="depreciation">0</td>
+</tr>
+
+<tr class="highlight">
+  <th>सञ्चालन नाफा</th>
+  <td id="operatingProfit">0</td>
+</tr>
+
+<tr>
+  <th>
+    आम्दानी कर (%)
+    <input type="number" id="taxRate" value="5">
+  </th>
+  <td id="taxAmount">0</td>
+</tr>
+
+<tr class="highlight">
+  <th>शुद्ध नाफा</th>
+  <td id="netProfit">0</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+
+<!-- ===== BOTTOM NAV ===== -->
+<footer>
+  <div class="navAero">
+    <a href="income-demo.html">⬅️ Income</a>
+  </div>
+
+  <div class="small">
+    FarmerBase BP Engine – नाफा–नोक्सान विश्लेषण
+  </div>
+
+  <div class="navAero">
+    <a href="roi.html">ROI ➡️</a>
+  </div>
+</footer>
+
+<script>
+/* ===== LOAD PROJECT ===== */
+const key = localStorage.getItem("activeProject");
+if(!key){ alert("Active योजना भेटिएन"); }
+
+let project = JSON.parse(localStorage.getItem(key)) || {};
+project.taxRate = project.taxRate || 5;
+
+/* ===== CALCULATIONS ===== */
+function calcPL(){
+  const income = Number(project.totalIncome)||0;
+
+  let expense = 0;
+  (project.expenses||[]).forEach(e=>{
+    expense += Number(e.amount)||0;
+  });
+
+  let depreciation = 0;
+  const depRate = project.depRate || 10;
+  (project.expenses||[]).forEach(e=>{
+    if(
+      e.category==="पूर्वाधार निर्माण" ||
+      e.category==="मेशिन औजार"
+    ){
+      depreciation += Number(e.amount)||0;
+    }
+  });
+  depreciation = depreciation * (depRate/100);
+
+  const operatingProfit = income - expense - depreciation;
+
+  const tax = operatingProfit>0
+    ? operatingProfit * (project.taxRate/100)
+    : 0;
+
+  const netProfit = operatingProfit - tax;
+
+  /* ===== RENDER ===== */
+  totalIncome.innerText = income.toFixed(2);
+  totalExpense.innerText = expense.toFixed(2);
+  depreciation.innerText = depreciation.toFixed(2);
+  operatingProfit.innerText = operatingProfit.toFixed(2);
+  taxAmount.innerText = tax.toFixed(2);
+  netProfit.innerText = netProfit.toFixed(2);
+
+  /* Save for ROI */
+  project.netProfit = netProfit;
+  project.operatingProfit = operatingProfit;
+  project.depreciationAmount = depreciation;
+  project.taxAmount = tax;
+
+  save();
+}
+
+/* ===== TAX RATE ===== */
+taxRate.value = project.taxRate;
+taxRate.oninput = ()=>{
+  project.taxRate = Number(taxRate.value)||0;
+  calcPL();
+};
+
+/* ===== SAVE ===== */
+function save(){
+  localStorage.setItem(key, JSON.stringify(project));
+}
+
+/* INIT */
+calcPL();
+</script>
+
+</body>
+</html>
