@@ -2,56 +2,59 @@
 <html lang="ne">
 <head>
 <meta charset="UTF-8">
-<title>Business Detail | BPMS</title>
+<title>Business Detail | FarmerBase BP Engine</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
 body{
   font-family:"Noto Sans Devanagari","Kalimati","Mangal","Nirmala UI",system-ui,Arial;
-  background:#f4f7f6;margin:0;
+  background:#f4f7f6;
+  margin:0;
 }
 .wrap{
-  max-width:900px;margin:25px auto;background:#fff;
-  padding:25px;border-radius:10px;
+  max-width:900px;
+  margin:25px auto;
+  background:#fff;
+  padding:25px;
+  border-radius:10px;
 }
 h2{color:#2e7d32;margin-top:0}
-
-/* progress */
-.progress{
-  background:#e8f5e9;border:1px solid #c8e6c9;
-  padding:12px;border-radius:8px;margin-bottom:15px
-}
-.steps span{
-  padding:4px 8px;border-radius:10px;background:#eee;font-size:13px
-}
-.steps .done{background:#a5d6a7}
-.steps .active{background:#2e7d32;color:#fff}
-.bar{height:8px;background:#ddd;border-radius:6px;overflow:hidden;margin-top:8px}
-.bar span{display:block;height:100%;width:29%;background:#2e7d32}
 
 /* form */
 label{font-weight:600}
 input,textarea{
-  width:100%;padding:8px;margin-top:6px;
+  width:100%;
+  padding:8px;
+  margin-top:6px;
   font-family:inherit;
 }
 textarea{min-height:120px}
 button.add{
   margin-top:10px;
-  background:#2e7d32;color:#fff;
-  border:none;border-radius:6px;
-  padding:8px 16px;cursor:pointer
+  background:#2e7d32;
+  color:#fff;
+  border:none;
+  border-radius:6px;
+  padding:8px 16px;
+  cursor:pointer;
 }
 
 /* list */
 .topic-box{
-  background:#f9fdf9;border:1px solid #dceddc;
-  border-radius:8px;padding:12px;margin-top:12px
+  background:#f9fdf9;
+  border:1px solid #dceddc;
+  border-radius:8px;
+  padding:12px;
+  margin-top:12px;
 }
 .topic-box h3{margin:0 0 6px 0}
 .actions button{
-  margin-right:6px;border:none;border-radius:4px;
-  padding:4px 8px;color:#fff;cursor:pointer
+  margin-right:6px;
+  border:none;
+  border-radius:4px;
+  padding:4px 8px;
+  color:#fff;
+  cursor:pointer;
 }
 .edit{background:#0277bd}
 .del{background:#c62828}
@@ -66,44 +69,39 @@ button.add{
 }
 .preview-label{
   background:#fff3cd;
-  padding:6px 10px;border-radius:6px;
-  font-size:13px;margin-bottom:8px
+  padding:6px 10px;
+  border-radius:6px;
+  font-size:13px;
+  margin-bottom:8px;
 }
 
 /* nav */
 .nav{
-  display:flex;justify-content:space-between;
-  margin-top:30px
+  display:flex;
+  justify-content:space-between;
+  margin-top:30px;
 }
 .nav button{
-  padding:8px 16px;border:none;border-radius:6px;
-  background:#2e7d32;color:#fff;cursor:pointer
+  padding:8px 16px;
+  border:none;
+  border-radius:6px;
+  background:#2e7d32;
+  color:#fff;
+  cursor:pointer;
 }
 </style>
 </head>
 
 <body>
-<div class="wrap">
 
-<div class="progress">
-  <b>चरण २ / ७</b><br><br>
-  <div class="steps">
-    <span class="done">Short Info</span> →
-    <span class="active">Detail</span> →
-    <span>Expense</span> →
-    <span>Income</span> →
-    <span>Profit</span> →
-    <span>ROI</span> →
-    <span>Proposal</span>
-  </div>
-  <div class="bar"><span></span></div>
-</div>
+<div class="wrap">
 
 <h2>📌 व्यवसायको विस्तृत विवरण</h2>
 
 <div id="previewLabel" class="preview-label" style="display:none">
 👁 Preview Mode (Read-only)
 </div>
+
 <button onclick="togglePreview()">👁 Preview / ✏️ Edit</button>
 
 <!-- ===== FORM ===== -->
@@ -120,9 +118,10 @@ button.add{
 <!-- ===== LIST ===== -->
 <div id="topicList"></div>
 
+<!-- ===== NAVIGATION ===== -->
 <div class="nav">
-  <button onclick="location.href='short-info.html'">⬅ Previous</button>
-  <button onclick="location.href='expense-demo.html'">Next ➡</button>
+  <button onclick="location.href='existing-status.html'">⬅ Preview</button>
+  <button onclick="location.href='production.html'">Next ➡</button>
 </div>
 
 </div>
@@ -195,7 +194,7 @@ function render(){
     topicList.innerHTML+=`
       <div class="topic-box">
         <h3>${i+1}. ${t.topic}</h3>
-        <p>${t.content.replace(/\n/g,"<br>")}</p>
+        <p>${t.content.replace(/\\n/g,"<br>")}</p>
         <div class="actions">
           <button class="edit" onclick="editTopic(${i})">✏️ Edit</button>
           <button class="del" onclick="deleteTopic(${i})">🗑 Delete</button>
