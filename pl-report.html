@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+<meta charset="UTF-8">
+<title>Profit–Loss Report | FarmerBase BP Engine</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+body{
+  font-family:"Noto Sans Devanagari","Kalimati",system-ui;
+  background:#fff;
+  margin:20px;
+}
+h2,h3{ color:#2e7d32; margin:10px 0; }
+.topbar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+button{ padding:6px 12px; }
+canvas{
+  max-width:900px;
+  margin:20px auto;
+  display:block;
+}
+table{
+  width:100%;
+  border-collapse:collapse;
+  margin-top:20px;
+}
+th,td{
+  border:1px solid #000;
+  padding:6px;
+  font-size:14px;
+}
+th{ background:#f0f0f0; text-align:left; }
+td:last-child{ text-align:right; }
+.highlight{ font-weight:700; background:#f9fff9; }
+.small{ font-size:13px; color:#555; }
+</style>
+</head>
+
+<body>
+
+<div class="topbar">
+  <h2>📊 नाफा–नोक्सान प्रतिवेदन (Profit–Loss)</h2>
+  <button onclick="window.print()">🖨️ Print</button>
+</div>
+
+<p class="small">
+यो प्रतिवेदन Production, Expense Allocation र Income Pricing को आधारमा स्वतः तयार गरिएको हो।
+</p>
+
+<!-- ===== SUMMARY TABLE ===== -->
+<table>
+<tbody>
+<tr>
+  <th>कुल आम्दानी</th>
+  <td id="totalIncome">0</td>
+</tr>
+<tr>
+  <th>कुल चालु खर्च</th>
+  <td id="operatingCost">0</td>
+</tr>
+<tr>
+  <th>ह्रासकट्टी (Depreciation)</th>
+  <td id="depreciation">0</td>
+</tr>
+<tr class="highlight">
+  <th>सञ्चालन नाफा</th>
+  <td id="operatingProfit">0</td>
+</tr>
+<tr>
+  <th>कर</th>
+  <td id="tax">0</td>
+</tr>
+<tr class="highlight">
+  <th>शुद्ध नाफा</th>
+  <td id="netProfit">0</td>
+</tr>
+</tbody>
+</table>
+
+<!-- ===== BAR CHART ===== -->
+<h3>📈 आम्दानी, खर्च र नाफा तुलना</h3>
+<canvas id="plBar"></canvas>
+
+<!-- ===== PIE CHART ===== -->
+<h3>🥧 खर्च–कर–नाफा वितरण</h3>
+<canvas id="plPie"></canvas>
+
+<script>
+/* ===== LOAD PROJECT ===== */
+const key = localStorage.getItem("activeProject");
+if(!key){ alert("Active योजना भेटिएन"); }
+const project = JSON.parse(localStorage.getItem(key)) || {};
+
+/* ===== HELPERS ===== */
+function getTotalIncome(){
+  return Number(project.totalIncome)||0;
+}
+function getOperatingCost(){
+  return (project.expenses||[])
+    .reduce((s,e)=>s+(Number(e.amount)||0),0);
+}
+function getDepreciation(){
+  let fixed=0;
+  (project.expenses||[]).forEach(e=>{
+    if(e.category?.includes("स्थिर") ||
+       e.category?.includes("पूर्वाधार") ||
+       e.category?.includes("मेशीन")){
+      fixed+=Number(e.amount)||0;
+    }
+  });
+  return fixed*((project.depRate||10)/100);
+}
+
+/* ===== CALC ===== */
+const income = getTotalIncome();
+const cost = getOperatingCost();
+const dep  = getDepreciation();
+const opProfit = income - cost - dep;
+const taxRate = project.taxRate || 5;
+const tax = opProfit>0 ? opProfit*(taxRate/100) : 0;
+const net = opProfit - tax;
+
+/* ===== RENDER TABLE ===== */
+totalIncome.innerText = income.toFixed(2);
+operatingCost.innerText = cost.toFixed(2);
+depreciation.innerText = dep.toFixed(2);
+operatingProfit.innerText = opProfit.toFixed(2);
+tax.innerText = tax.toFixed(2);
+netProfit.innerText = net.toFixed(2);
+
+/* ===== BAR CHART ===== */
+new Chart(document.getElementById("plBar"),{
+  type:"bar",
+  data:{
+    labels:["आम्दानी","खर्च","नाफा"],
+    datasets:[{
+      data:[income, cost+dep+tax, net],
+      backgroundColor:["#81c784","#e57373","#64b5f6"]
+    }]
+  },
+  options:{
+    responsive:true,
+    plugins:{ legend:{ display:false } },
+    scales:{ y:{ beginAtZero:true } }
+  }
+});
+
+/* ===== PIE CHART ===== */
+new Chart(document.getElementById("plPie"),{
+  type:"pie",
+  data:{
+    labels:["खर्च","कर","शुद्ध नाफा"],
+    datasets:[{
+      data:[cost+dep, tax, net],
+      backgroundColor:["#ef9a9a","#ffe082","#a5d6a7"]
+    }]
+  },
+  options:{ responsive:true }
+});
+</script>
+
+</body>
+</html>
