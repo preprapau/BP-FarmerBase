@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+<meta charset="UTF-8">
+<title>Annex–C : Assumptions & Policies</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+body{
+  font-family:"Noto Sans Devanagari","Kalimati","Mangal","Nirmala UI",system-ui;
+  background:#eaeaea;
+  margin:0;
+}
+.page{
+  max-width:210mm;
+  margin:20px auto;
+  background:#fff;
+  padding:25mm 20mm;
+}
+h1,h2,h3{
+  color:#2e7d32;
+  margin-top:0;
+}
+.small{font-size:13px;color:#555}
+
+/* tables */
+table{
+  width:100%;
+  border-collapse:collapse;
+  margin-top:10px;
+}
+th,td{
+  border:1px solid #444;
+  padding:6px;
+  font-size:13px;
+}
+th{background:#f1f8e9}
+
+/* policy box */
+.policy{
+  border:1px solid #ccc;
+  border-radius:8px;
+  padding:12px;
+  margin:10px 0;
+  background:#fafafa;
+}
+
+/* print rules */
+@media print{
+  body{background:#fff}
+  thead{display:table-header-group}
+  tr{page-break-inside:avoid}
+  h1,h2,h3{page-break-after:avoid}
+  section{page-break-inside:avoid}
+}
+</style>
+</head>
+
+<body>
+
+<div class="page">
+
+<h1>📎 Annex–C : Assumptions & Policies</h1>
+<p class="small">
+यस Annex मा वित्तीय अनुमान, वृद्धि दर, आम्दानी बाँडफाँट तथा
+व्यवसाय सञ्चालन सम्बन्धी प्रमुख नीतिगत धारणाहरू प्रस्तुत गरिएको छ।
+</p>
+
+<hr>
+
+<!-- ================= C1. GROWTH ASSUMPTIONS ================= -->
+<section>
+<h2>C1. Growth Assumptions (वृद्धि अनुमान)</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>वर्ष</th>
+      <th>आम्दानी वृद्धि %</th>
+      <th>खर्च वृद्धि %</th>
+      <th>टिप्पणी</th>
+    </tr>
+  </thead>
+  <tbody id="growthTable"></tbody>
+</table>
+</section>
+
+<hr>
+
+<!-- ================= C2. INCOME ALLOCATION ================= -->
+<section>
+<h2>C2. Income Allocation / Distribution Policy</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>शीर्षक</th>
+      <th>प्रतिशत (%)</th>
+      <th>उद्देश्य</th>
+    </tr>
+  </thead>
+  <tbody id="allocationTable"></tbody>
+</table>
+</section>
+
+<hr>
+
+<!-- ================= C3. KEY ASSUMPTIONS ================= -->
+<section>
+<h2>C3. Key Assumptions</h2>
+<div id="assumptionNotes"></div>
+</section>
+
+<hr>
+
+<!-- ================= C4. POLICY NOTES ================= -->
+<section>
+<h2>C4. Policy Notes</h2>
+<div id="policyNotes"></div>
+</section>
+
+</div>
+
+<script>
+/* ===== LOAD PROJECT ===== */
+const key = localStorage.getItem("activeProject");
+if(!key){
+  alert("Project not found");
+  location.href="index.html";
+}
+const p = JSON.parse(localStorage.getItem(key));
+
+/* ================= GROWTH ASSUMPTIONS ================= */
+const g = p.growthAssumptions || {};
+let rows = "";
+
+if(g.mode === "same"){
+  rows += `
+    <tr>
+      <td>Year 2 – Year 5</td>
+      <td>${g.same?.revenue ?? 0}%</td>
+      <td>${g.same?.expense ?? 0}%</td>
+      <td>सबै वर्ष एउटै वृद्धि दर लागू</td>
+    </tr>`;
+}else if(Array.isArray(g.years)){
+  g.years.forEach((y,i)=>{
+    rows += `
+      <tr>
+        <td>Year ${i+2}</td>
+        <td>${y.revenue ?? 0}%</td>
+        <td>${y.expense ?? 0}%</td>
+        <td>वर्ष अनुसार फरक वृद्धि दर</td>
+      </tr>`;
+  });
+}else{
+  rows = `<tr><td colspan="4"><i>Growth assumption उपलब्ध छैन</i></td></tr>`;
+}
+growthTable.innerHTML = rows;
+
+/* ================= INCOME ALLOCATION ================= */
+const alloc = p.incomeAllocation || {};
+let arows = "";
+
+if(alloc.items && alloc.items.length){
+  arows = alloc.items.map(i=>`
+    <tr>
+      <td>${i.title}</td>
+      <td>${i.percent}%</td>
+      <td>${i.note || ""}</td>
+    </tr>
+  `).join("");
+}else{
+  arows = `
+    <tr>
+      <td>पुनः लगानी</td>
+      <td>${alloc.reinvest ?? 0}%</td>
+      <td>व्यवसाय विस्तारका लागि</td>
+    </tr>
+    <tr>
+      <td>सामुदायिक / वातावरण</td>
+      <td>${alloc.community ?? 0}%</td>
+      <td>सामाजिक उत्तरदायित्व</td>
+    </tr>
+    <tr>
+      <td>कामदार विकास कोष</td>
+      <td>${alloc.worker ?? 0}%</td>
+      <td>क्षमता विकास तथा प्रोत्साहन</td>
+    </tr>`;
+}
+allocationTable.innerHTML = arows;
+
+/* ================= ASSUMPTION NOTES ================= */
+const assumptions = p.policyAssumptions || [
+  "बजार मूल्य हालको स्थानीय बजार दरमा आधारित गरिएको छ।",
+  "कच्चा पदार्थको उपलब्धता नियमित रहने अनुमान गरिएको छ।",
+  "प्राविधिक तथा व्यवस्थापन पक्ष स्थिर रहने अपेक्षा गरिएको छ।"
+];
+
+assumptionNotes.innerHTML = assumptions.map(a=>`
+  <div class="policy">• ${a}</div>
+`).join("");
+
+/* ================= POLICY NOTES ================= */
+const policies = p.policyNotes || [
+  "लेखा तथा अभिलेख पारदर्शी रूपमा राखिनेछ।",
+  "स्थानीय रोजगारीलाई प्राथमिकता दिइनेछ।",
+  "पर्यावरणमैत्री अभ्यास अपनाइनेछ।"
+];
+
+policyNotes.innerHTML = policies.map(pn=>`
+  <div class="policy">• ${pn}</div>
+`).join("");
+</script>
+
+</body>
+</html>
