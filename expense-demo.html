@@ -23,9 +23,7 @@ header a, footer a{
   font-weight:700;
   color:#2e7d32;
 }
-.navAero a{
-  margin:0 8px;
-}
+.navAero a{ margin:0 8px; }
 .container{
   max-width:1100px;
   margin:0 auto;
@@ -61,7 +59,12 @@ textarea{ resize:vertical; }
   color:#c62828;
   font-weight:700;
   cursor:pointer;
-  text-align:center;
+}
+.editBtn{
+  color:#1565c0;
+  font-weight:700;
+  cursor:pointer;
+  margin-right:6px;
 }
 .footerBox{
   background:#fff;
@@ -70,6 +73,7 @@ textarea{ resize:vertical; }
   margin-top:16px;
 }
 .small{ font-size:13px;color:#555; }
+.right{text-align:right;}
 </style>
 </head>
 
@@ -101,12 +105,12 @@ textarea{ resize:vertical; }
 <table>
 <thead>
 <tr>
-  <th>खर्च शीर्षक</th>
-  <th>बर्ग</th>
-  <th style="width:90px">परिमाण</th>
-  <th style="width:110px">दर</th>
-  <th style="width:130px;text-align:right">रकम</th>
-  <th>❌</th>
+  <th style="width:32%">खर्च शीर्षक / नोट</th>
+  <th style="width:18%">बर्ग</th>
+  <th style="width:10%">परिमाण</th>
+  <th style="width:12%">दर</th>
+  <th style="width:14%" class="right">रकम</th>
+  <th style="width:14%">Action</th>
 </tr>
 </thead>
 <tbody id="expenseBody"></tbody>
@@ -123,14 +127,14 @@ textarea{ resize:vertical; }
         <th>शीर्षक</th>
         <th>परिमाण</th>
         <th>दर</th>
-        <th style="text-align:right">रकम</th>
+        <th class="right">रकम</th>
       </tr>
     </thead>
     <tbody id="summaryBody"></tbody>
     <tfoot>
       <tr>
         <th colspan="3">कुल खर्च</th>
-        <th style="text-align:right" id="summaryTotal">0</th>
+        <th class="right" id="summaryTotal">0</th>
       </tr>
     </tfoot>
   </table>
@@ -141,7 +145,7 @@ textarea{ resize:vertical; }
   <h3>📉 ह्रासकट्टी (Depreciation)</h3>
   <table>
     <tr>
-      <th>ह्रासकट्टी दर (%)</th>
+      <th style="width:40%">ह्रासकट्टी दर (%)</th>
       <th>वार्षिक ह्रासकट्टी रकम</th>
     </tr>
     <tr>
@@ -178,7 +182,7 @@ project.depRate = project.depRate || 10;
 
 /* ===== NARRATION ===== */
 expenseNarration.value = project.expenseNarration ||
- "यस व्यवसाय सञ्चालनका लागि आवश्यक चालु तथा स्थिर खर्चहरू यथार्थपरक रूपमा अनुमान गरिएको छ।";
+"यस व्यवसाय सञ्चालनका लागि आवश्यक चालु तथा स्थिर खर्चहरू यथार्थपरक रूपमा अनुमान गरिएको छ।";
 
 expenseNarration.oninput = ()=>{
   project.expenseNarration = expenseNarration.value;
@@ -194,15 +198,35 @@ function render(){
       <td>
         <input value="${e.title||""}" readonly>
         <textarea rows="2"
-          oninput="upd(${i},'note',this.value)">${e.note||""}</textarea>
+          oninput="updateField(${i},'note',this.value)">${e.note||""}</textarea>
       </td>
-      <td>${e.category||""}</td>
+
+      <td>
+        <select onchange="updateCategory(${i},this.value)">
+          <optgroup label="चालु खर्च">
+            <option value="कच्चापदार्थ" ${e.category==="कच्चापदार्थ"?"selected":""}>कच्चापदार्थ</option>
+            <option value="कामदार" ${e.category==="कामदार"?"selected":""}>कामदार</option>
+            <option value="विविध" ${e.category==="विविध"?"selected":""}>विविध</option>
+          </optgroup>
+          <optgroup label="स्थिर खर्च">
+            <option value="पूर्वाधार निर्माण" ${e.category==="पूर्वाधार निर्माण"?"selected":""}>पूर्वाधार निर्माण</option>
+            <option value="मेशिन औजार" ${e.category==="मेशिन औजार"?"selected":""}>मेशिन औजार</option>
+          </optgroup>
+        </select>
+      </td>
+
       <td><input type="number" value="${e.qty||0}"
         oninput="calc(${i},'qty',this.value)"></td>
+
       <td><input type="number" value="${e.rate||0}"
         oninput="calc(${i},'rate',this.value)"></td>
-      <td style="text-align:right">${(e.amount||0).toFixed(2)}</td>
-      <td class="delBtn" onclick="del(${i})">✖</td>
+
+      <td class="right">${(e.amount||0).toFixed(2)}</td>
+
+      <td>
+        <span class="editBtn" onclick="editExpense(${i})">✏️</span>
+        <span class="delBtn" onclick="delExpense(${i})">✖</span>
+      </td>
     `;
     expenseBody.appendChild(tr);
   });
@@ -212,25 +236,49 @@ function render(){
 
 /* ===== CRUD ===== */
 function addExpense(){
-  const t = prompt("खर्च शीर्षक लेख्नुहोस्:");
-  if(!t) return;
+  const title = prompt("खर्च शीर्षक लेख्नुहोस्:");
+  if(!title) return;
   project.expenses.push({
-    title:t,
+    title:title,
     category:"कच्चापदार्थ",
-    qty:1, rate:0, amount:0, note:""
+    qty:1,
+    rate:0,
+    amount:0,
+    note:""
   });
   save(); render();
 }
-function upd(i,f,v){ project.expenses[i][f]=v; save(); }
+
+function editExpense(i){
+  const e = project.expenses[i];
+  const t = prompt("खर्च शीर्षक:", e.title);
+  if(t===null) return;
+  const n = prompt("नोट / कैफियत:", e.note||"");
+  e.title = t;
+  e.note = n;
+  save(); render();
+}
+
+function delExpense(i){
+  if(!confirm("यो खर्च हटाउने ?")) return;
+  project.expenses.splice(i,1);
+  save(); render();
+}
+
+function updateField(i,f,v){
+  project.expenses[i][f]=v;
+  save();
+}
+
+function updateCategory(i,v){
+  project.expenses[i].category=v;
+  save(); calcDep();
+}
+
 function calc(i,f,v){
   project.expenses[i][f]=Number(v)||0;
   const e=project.expenses[i];
   e.amount=(Number(e.qty)||0)*(Number(e.rate)||0);
-  save(); render();
-}
-function del(i){
-  if(!confirm("यो खर्च हटाउने ?")) return;
-  project.expenses.splice(i,1);
   save(); render();
 }
 
@@ -245,7 +293,7 @@ function renderSummary(){
         <td>${e.title}</td>
         <td>${e.qty}</td>
         <td>${e.rate}</td>
-        <td style="text-align:right">${(e.amount||0).toFixed(2)}</td>
+        <td class="right">${(e.amount||0).toFixed(2)}</td>
       </tr>`;
   });
   summaryTotal.innerText=tot.toFixed(2);
@@ -253,14 +301,18 @@ function renderSummary(){
 
 /* ===== DEPRECIATION ===== */
 depRate.value=project.depRate;
-depRate.oninput=()=>{ project.depRate=Number(depRate.value)||0; save(); calcDep(); };
+depRate.oninput=()=>{
+  project.depRate=Number(depRate.value)||0;
+  save(); calcDep();
+};
 
 function calcDep(){
   let fixed=0;
   project.expenses.forEach(e=>{
-    if(e.category?.includes("स्थिर")||
-       e.category?.includes("पूर्वाधार")||
-       e.category?.includes("मेशीन")){
+    if(
+      e.category==="पूर्वाधार निर्माण" ||
+      e.category==="मेशिन औजार"
+    ){
       fixed+=Number(e.amount)||0;
     }
   });
