@@ -56,6 +56,20 @@ input,select,textarea{
 }
 textarea{resize:vertical}
 
+.inline{
+  display:flex;
+  gap:6px;
+  flex-wrap:wrap;
+  align-items:center
+}
+.inline input{
+  max-width:180px
+}
+.inline button{
+  padding:6px 10px;
+  font-size:13px
+}
+
 .btn{
   padding:8px 14px;
   background:#2e7d32;
@@ -87,13 +101,19 @@ textarea{resize:vertical}
   color:#2e7d32;
   text-decoration:none
 }
+
+.footerNav{
+  display:flex;
+  justify-content:space-between;
+  width:100%
+}
 </style>
 </head>
 
 <body>
 
 <header>
-  <a href="index.html">🏠 Home</a>
+  <a href="business-detail.html">⬅️ Business Detail</a>
   <strong>📦 Production Plan</strong>
   <a href="expense-demo.html">➡️ Expense</a>
 </header>
@@ -108,9 +128,13 @@ textarea{resize:vertical}
 <!-- CATEGORY MANAGER -->
 <div class="section">
 <h3>📂 उत्पादनका प्रकार</h3>
+
 <div id="typeBox"></div>
-<input id="newType" placeholder="नयाँ प्रकार (जस्तै: फलफूल)">
-<button class="btn" onclick="addType()">➕ प्रकार थप्नुहोस्</button>
+
+<div class="inline">
+  <input id="newType" placeholder="नयाँ प्रकार">
+  <button class="btn" onclick="addType()">➕ Add</button>
+</div>
 </div>
 
 <!-- TABLE NARRATION -->
@@ -140,7 +164,11 @@ textarea{resize:vertical}
 </div>
 
 <footer>
-  <span class="small">FarmerBase BP Engine – Production Core</span>
+  <div class="footerNav">
+    <a href="business-detail.html">⬅️ Business Detail</a>
+    <span class="small">FarmerBase BP Engine – Production Core</span>
+    <a href="expense-demo.html">➡️ Expense</a>
+  </div>
 </footer>
 
 <script>
@@ -180,7 +208,7 @@ function renderTypes(){
   typeBox.innerHTML="";
   TYPES.forEach((t,i)=>{
     typeBox.innerHTML+=`
-      <div>
+      <div class="inline">
         <input value="${t}" oninput="editType(${i},this.value)">
         <span class="del" onclick="delType(${i})">✖</span>
       </div>`;
