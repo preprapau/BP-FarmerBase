@@ -83,8 +83,9 @@ textarea{resize:vertical}
 <body>
 
 <header>
+  <!-- ❌ download attribute छैन -->
   <a href="index.html" target="_blank">🏠 Home</a>
-  <strong>Production (उत्पादन विवरण)</strong>
+  <strong>उत्पादन विवरण (Production)</strong>
   <a href="expense-demo.html">➡️ Expense</a>
 </header>
 
@@ -112,7 +113,7 @@ textarea{resize:vertical}
 
 <button class="addBtn" onclick="addProduct()">➕ नयाँ उत्पादन</button>
 
-<!-- REPORT BUTTONS -->
+<!-- REPORTS : NEW TAB ONLY -->
 <div class="reportBar">
   <a href="production-report.html" target="_blank">📊 Production Summary</a>
   <a href="production-charts.html" target="_blank">🥧 Production Charts</a>
@@ -129,13 +130,22 @@ textarea{resize:vertical}
 </footer>
 
 <script>
-/* LOAD PROJECT */
+/* ===============================
+   PRODUCTION MASTER – FINAL
+   =============================== */
+
 const key = localStorage.getItem("activeProject");
-if(!key){ alert("Active योजना भेटिएन"); }
+if(!key){
+  alert("Active योजना भेटिएन । index बाट योजना सुरु गर्नुहोस्।");
+}
+
 let project = JSON.parse(localStorage.getItem(key)) || {};
 project.productionProducts = project.productionProducts || [];
 
-/* RENDER */
+function save(){
+  localStorage.setItem(key, JSON.stringify(project));
+}
+
 function render(){
   prodBody.innerHTML="";
   project.productionProducts.forEach((p,i)=>{
@@ -143,11 +153,11 @@ function render(){
     tr.innerHTML=`
 <td>
   <input value="${p.name||""}"
-    oninput="upd(${i},'name',this.value)">
+    oninput="update(${i},'name',this.value)">
 </td>
 
 <td>
-  <select onchange="upd(${i},'type',this.value)">
+  <select onchange="update(${i},'type',this.value)">
     <option ${p.type==="पशुजन्य"?"selected":""}>पशुजन्य</option>
     <option ${p.type==="तरकारी"?"selected":""}>तरकारी</option>
     <option ${p.type==="दुग्ध"?"selected":""}>दुग्ध</option>
@@ -156,27 +166,27 @@ function render(){
 </td>
 
 <td>
-  <input type="number" value="${p.qty||0}"
-    oninput="upd(${i},'qty',this.value)">
+  <input type="number" min="0"
+    value="${p.qty||0}"
+    oninput="update(${i},'qty',this.value)">
 </td>
 
 <td>
   <input value="${p.unit||""}"
-    oninput="upd(${i},'unit',this.value)">
+    oninput="update(${i},'unit',this.value)">
 </td>
 
 <td>
   <textarea rows="2"
-    oninput="upd(${i},'note',this.value)">${p.note||""}</textarea>
+    oninput="update(${i},'note',this.value)">${p.note||""}</textarea>
 </td>
 
-<td class="delBtn" onclick="del(${i})">✖</td>
+<td class="delBtn" onclick="remove(${i})">✖</td>
     `;
     prodBody.appendChild(tr);
   });
 }
 
-/* ADD */
 function addProduct(){
   project.productionProducts.push({
     id:"prod_"+Date.now(),
@@ -186,29 +196,21 @@ function addProduct(){
     unit:"",
     note:""
   });
-  save();render();
+  save(); render();
 }
 
-/* UPDATE */
-function upd(i,f,v){
-  project.productionProducts[i][f] =
-    f==="qty" ? (Number(v)||0) : v;
+function update(i,field,value){
+  project.productionProducts[i][field] =
+    field==="qty" ? Number(value)||0 : value;
   save();
 }
 
-/* DELETE */
-function del(i){
+function remove(i){
   if(!confirm("यो उत्पादन हटाउने ?")) return;
   project.productionProducts.splice(i,1);
-  save();render();
+  save(); render();
 }
 
-/* SAVE */
-function save(){
-  localStorage.setItem(key,JSON.stringify(project));
-}
-
-/* INIT */
 render();
 </script>
 
