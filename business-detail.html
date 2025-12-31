@@ -2,7 +2,7 @@
 <html lang="ne">
 <head>
 <meta charset="UTF-8">
-<title>Business Detail | FarmerBase BP Engine</title>
+<title>Business Detail | BPMS</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
@@ -20,6 +20,20 @@ body{
 }
 h2{color:#2e7d32;margin-top:0}
 
+/* ===== TOP BAR ===== */
+.topBar{
+  display:grid;
+  grid-template-columns:1fr auto 1fr;
+  align-items:center;
+  margin-bottom:12px;
+}
+.topBar .center{
+  text-align:center;
+}
+.topBar .right{
+  text-align:right;
+}
+
 /* form */
 label{font-weight:600}
 input,textarea{
@@ -29,15 +43,15 @@ input,textarea{
   font-family:inherit;
 }
 textarea{min-height:120px}
-button.add{
-  margin-top:10px;
-  background:#2e7d32;
-  color:#fff;
+button{
   border:none;
   border-radius:6px;
   padding:8px 16px;
   cursor:pointer;
+  background:#2e7d32;
+  color:#fff;
 }
+.previewBtn{background:#0277bd}
 
 /* list */
 .topic-box{
@@ -50,11 +64,7 @@ button.add{
 .topic-box h3{margin:0 0 6px 0}
 .actions button{
   margin-right:6px;
-  border:none;
-  border-radius:4px;
   padding:4px 8px;
-  color:#fff;
-  cursor:pointer;
 }
 .edit{background:#0277bd}
 .del{background:#c62828}
@@ -75,34 +85,35 @@ button.add{
   margin-bottom:8px;
 }
 
-/* nav */
+/* bottom nav */
 .nav{
   display:flex;
   justify-content:space-between;
   margin-top:30px;
-}
-.nav button{
-  padding:8px 16px;
-  border:none;
-  border-radius:6px;
-  background:#2e7d32;
-  color:#fff;
-  cursor:pointer;
 }
 </style>
 </head>
 
 <body>
 
-<div class="wrap">
+<div class="wrap" id="page">
 
-<h2>📌 व्यवसायको विस्तृत विवरण</h2>
+<!-- ===== TOP CONTROLS ===== -->
+<div class="topBar">
+  <div></div>
+  <div class="center">
+    <button class="previewBtn" onclick="togglePreview()">👁 Preview / ✏️ Edit</button>
+  </div>
+  <div class="right">
+    <button onclick="location.href='expense-demo.html'">Next ➡</button>
+  </div>
+</div>
 
 <div id="previewLabel" class="preview-label" style="display:none">
 👁 Preview Mode (Read-only)
 </div>
 
-<button onclick="togglePreview()">👁 Preview / ✏️ Edit</button>
+<h2>📌 व्यवसायको विस्तृत विवरण</h2>
 
 <!-- ===== FORM ===== -->
 <div class="form">
@@ -118,10 +129,10 @@ button.add{
 <!-- ===== LIST ===== -->
 <div id="topicList"></div>
 
-<!-- ===== NAVIGATION ===== -->
+<!-- ===== BOTTOM NAV ===== -->
 <div class="nav">
-  <button onclick="location.href='existing-status.html'">⬅ Preview</button>
-  <button onclick="location.href='production.html'">Next ➡</button>
+  <button onclick="location.href='short-info.html'">⬅ Previous</button>
+  <button onclick="location.href='expense-demo.html'">Next ➡</button>
 </div>
 
 </div>
