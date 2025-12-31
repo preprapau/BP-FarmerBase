@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+<meta charset="UTF-8">
+<title>खर्च सारांश | FarmerBase BP Engine</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+body{
+  font-family:"Noto Sans Devanagari","Kalimati",system-ui;
+  background:#fff;
+  margin:20px;
+}
+h2{
+  color:#2e7d32;
+  margin-bottom:6px;
+}
+.small{
+  font-size:13px;
+  color:#555;
+}
+table{
+  width:100%;
+  border-collapse:collapse;
+  margin-top:12px;
+}
+th, td{
+  border:1px solid #000;
+  padding:6px;
+  font-size:13px;
+}
+th{
+  background:#f0f0f0;
+  text-align:left;
+}
+.total{
+  font-weight:700;
+  background:#fafafa;
+}
+@media print{
+  button{ display:none }
+}
+</style>
+</head>
+
+<body>
+
+<button onclick="window.print()">🖨️ Print</button>
+
+<h2>💰 खर्च सारांश</h2>
+<div class="small">
+  योजना: <span id="planName"></span><br>
+  मिति: <span id="today"></span>
+</div>
+
+<table id="summaryTable">
+<thead>
+<tr>
+  <th>खर्च शीर्षक</th>
+  <th>बर्ग</th>
+  <th style="text-align:right">रकम (रु)</th>
+</tr>
+</thead>
+<tbody></tbody>
+</table>
+
+<script>
+/* ===== Load Active Project ===== */
+const key = localStorage.getItem("activeProject");
+if(!key){
+  alert("Active plan भेटिएन");
+}
+const project = JSON.parse(localStorage.getItem(key)) || {};
+const expenses = project.expenses || [];
+
+/* Meta */
+planName.innerText = project.name || "";
+today.innerText = new Date().toLocaleDateString();
+
+/* ===== Render ===== */
+let grandTotal = 0;
+const tbody = document.querySelector("#summaryTable tbody");
+
+expenses.forEach(e=>{
+  const amt = Number(e.amount) || 0;
+  grandTotal += amt;
+
+  const tr = document.createElement("tr");
+
+  tr.innerHTML = `
+    <td>${e.title || ""}</td>
+    <td>${e.category || ""}</td>
+    <td style="text-align:right">${amt.toFixed(2)}</td>
+  `;
+
+  /* 🔑 Hidden budget code for future */
+  tr.dataset.budgetCode = e.budgetCode || "";
+
+  tbody.appendChild(tr);
+});
+
+/* Total Row */
+const trTotal = document.createElement("tr");
+trTotal.className = "total";
+trTotal.innerHTML = `
+  <td colspan="2">कुल खर्च</td>
+  <td style="text-align:right">${grandTotal.toFixed(2)}</td>
+`;
+tbody.appendChild(trTotal);
+</script>
+
+</body>
+</html>
