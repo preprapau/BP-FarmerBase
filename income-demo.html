@@ -2,179 +2,250 @@
 <html lang="ne">
 <head>
 <meta charset="UTF-8">
-<title>Income & Pricing | Farmerbase BP Engine</title>
+<title>आम्दानी विवरण | FarmerBase BP Engine</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
 body{
   font-family:"Noto Sans Devanagari","Kalimati",system-ui;
-  background:#f4f7f6;margin:0
+  background:#f4f7f6;
+  margin:0;
 }
-header,footer{
+header, footer{
   background:#e8f5e9;
   padding:10px 16px;
   display:flex;
-  justify-content:space-between
+  justify-content:space-between;
+  align-items:center;
 }
-header a,footer a{
+header a, footer a{
+  text-decoration:none;
+  font-weight:700;
   color:#2e7d32;
-  font-weight:600;
-  text-decoration:none
 }
-.wrap{
+.navAero a{ margin:0 8px; }
+.container{
   max-width:1100px;
-  margin:18px auto;
-  background:#fff;
-  padding:22px;
-  border-radius:12px
+  margin:0 auto;
+  padding:20px;
 }
-h2{color:#2e7d32;margin-top:0}
-table{width:100%;border-collapse:collapse;margin-top:10px}
-th,td{border:1px solid #ccc;padding:6px;text-align:right}
-th{background:#eef5ee}
-.left{text-align:left}
-input{width:100%;padding:6px;box-sizing:border-box}
-.small{font-size:13px;color:#2e7d32}
-.sum{font-weight:700;background:#fafafa}
+h2,h3{ color:#2e7d32; margin:10px 0; }
+table{
+  width:100%;
+  border-collapse:collapse;
+  background:#fff;
+}
+th,td{
+  border:1px solid #ccc;
+  padding:6px;
+  font-size:14px;
+}
+th{ background:#eef5ee; }
+input,select{
+  width:100%;
+  padding:6px;
+  box-sizing:border-box;
+}
+.footerBox{
+  background:#fff;
+  border:1px solid #ccc;
+  padding:12px;
+  margin-top:16px;
+}
+.small{ font-size:13px;color:#555; }
 </style>
 </head>
 
 <body>
 
+<!-- ===== TOP NAV ===== -->
 <header>
-  <a href="operating-cost-engine.html">◀️ Operating Cost</a>
-  <a href="profit-loss-demo.html">Profit–Loss ▶️</a>
+  <div class="navAero">
+    <a href="expense-demo.html">⬅️ Expense</a>
+  </div>
+
+  <div>
+    <a href="index.html" target="_blank">🏠 Home</a> |
+    <a href="income-report.html" target="_blank">📈 Income Report</a>
+  </div>
+
+  <div class="navAero">
+    <a href="profit-loss.html">Profit–Loss ➡️</a>
+  </div>
 </header>
 
-<div class="wrap">
+<div class="container">
 
-<h2>💰 आम्दानी तथा मूल्य निर्धारण</h2>
+<h2>📈 आम्दानी विवरण</h2>
+<p class="small">
+उत्पादन परिमाण Production पेजबाट र युनिट लागत Expense allocation बाट स्वतः आएको हो।  
+तपाईंले नाफा (Margin) मात्र निर्धारण गर्नुहोस्।
+</p>
 
 <table>
 <thead>
 <tr>
-  <th class="left">उत्पादन</th>
+  <th>उत्पादन</th>
   <th>परिमाण</th>
-  <th>एकाइ</th>
-  <th>प्रति-एकाइ लागत</th>
-  <th>नाफा %</th>
+  <th>इकाइ</th>
+  <th>युनिट लागत (रु)</th>
+  <th>Margin प्रकार</th>
+  <th>Margin</th>
   <th>बिक्री दर</th>
-  <th>रकम</th>
+  <th>आम्दानी (रु)</th>
 </tr>
 </thead>
-<tbody id="body"></tbody>
-<tfoot>
-<tr class="sum">
-  <td colspan="6" class="left">कुल आम्दानी</td>
-  <td id="grandTotal">0</td>
-</tr>
-</tfoot>
+<tbody id="incomeBody"></tbody>
 </table>
 
-<p class="small">
-✔️ लागत Operating Cost बाट स्वतः आएको छ  
-| ✔️ नाफा % change गर्दा Auto-Save  
-| ✔️ दर चाहिँ manual edit गर्न मिल्छ
-</p>
+<div class="footerBox">
+  <strong>कुल आम्दानी : रु <span id="grandIncome">0</span></strong>
+</div>
 
 </div>
 
+<!-- ===== BOTTOM NAV ===== -->
 <footer>
-  <a href="operating-cost-engine.html">◀️ Operating Cost</a>
-  <a href="profit-loss-demo.html">Next ▶️</a>
+  <div class="navAero">
+    <a href="expense-demo.html">⬅️ Expense</a>
+  </div>
+
+  <div class="small">
+    FarmerBase BP Engine – उत्पादन लागतमा आधारित आम्दानी योजना
+  </div>
+
+  <div class="navAero">
+    <a href="profit-loss.html">Profit–Loss ➡️</a>
+  </div>
 </footer>
 
 <script>
-/* =====================================================
-   LOAD PROJECT & COST ALLOCATION
-   ===================================================== */
-const projectKey = localStorage.getItem("activeProject");
-if(!projectKey){
-  alert("पहिले Project खोल्नुहोस्");
-  location.href="index.html";
+/* ===== LOAD PROJECT ===== */
+const key = localStorage.getItem("activeProject");
+if(!key){ alert("Active योजना भेटिएन"); }
+
+let project = JSON.parse(localStorage.getItem(key)) || {};
+project.income = project.income || [];
+const products = project.productionProducts || [];
+const expenses = project.expenses || [];
+
+/* ===== ALLOCATION LOGIC (same as expense-demo) ===== */
+function allocateExpense(e){
+  const res = {};
+  const totalQty = products.reduce((s,p)=>s+(Number(p.qty)||0),0);
+
+  if(e.allocationType==="DIRECT"){
+    res[e.appliesTo[0]] = e.amount;
+    return res;
+  }
+  if(e.allocationType==="LS"){
+    e.appliesTo.forEach(pid=>{
+      const p = products.find(x=>x.id===pid);
+      res[pid] = totalQty>0 ? e.amount*(p.qty/totalQty) : 0;
+    });
+    return res;
+  }
+  if(e.allocationType==="%"){
+    e.appliesTo.forEach(pid=>{
+      const pct = e.allocationPercent?.[pid] || 0;
+      res[pid] = e.amount*(pct/100);
+    });
+    return res;
+  }
+  return res;
 }
 
-let project = JSON.parse(localStorage.getItem(projectKey)) || {};
-project.income = project.income || {};
-let income = project.income;
+/* ===== UNIT COST ===== */
+function computeUnitCost(){
+  const costMap = {};
+  products.forEach(p=>costMap[p.id]=0);
 
-const allocation = project.costAllocation || {};
-
-/* =====================================================
-   RENDER TABLE
-   ===================================================== */
-function renderIncome(){
-  body.innerHTML = "";
-  let total = 0;
-
-  Object.keys(allocation).forEach(pid=>{
-    const p = allocation[pid];
-
-    // init income row if missing
-    if(!income[pid]){
-      income[pid] = {
-        margin: 20,      // default margin %
-        rate: 0,
-        override: false
-      };
-    }
-
-    const row = income[pid];
-    const unitCost = p.unitCost || 0;
-
-    // auto rate if not overridden
-    if(!row.override){
-      row.rate = unitCost * (1 + row.margin/100);
-    }
-
-    const amount = p.qty * row.rate;
-    total += amount;
-
-    body.innerHTML += `
-    <tr>
-      <td class="left">${p.name}</td>
-      <td>${p.qty}</td>
-      <td>${p.unit}</td>
-      <td>${unitCost.toFixed(2)}</td>
-      <td>
-        <input type="number" value="${row.margin}"
-          oninput="updateMargin('${pid}',this.value)">
-      </td>
-      <td>
-        <input type="number" value="${row.rate.toFixed(2)}"
-          oninput="updateRate('${pid}',this.value)">
-      </td>
-      <td>${amount.toFixed(2)}</td>
-    </tr>
-    `;
+  expenses.forEach(e=>{
+    const alloc = allocateExpense(e);
+    Object.keys(alloc).forEach(pid=>{
+      costMap[pid]+=alloc[pid];
+    });
   });
 
-  grandTotal.innerText = total.toFixed(2);
+  const unitCost = {};
+  products.forEach(p=>{
+    unitCost[p.id] = p.qty>0 ? costMap[p.id]/p.qty : 0;
+  });
+  return unitCost;
+}
 
-  project.income = income;
+/* ===== RENDER ===== */
+function render(){
+  incomeBody.innerHTML="";
+  let total = 0;
+
+  const unitCostMap = computeUnitCost();
+
+  products.forEach(p=>{
+    if(p.qty<=0) return;
+
+    let row = project.income.find(x=>x.productId===p.id);
+    if(!row){
+      row = { productId:p.id, marginType:"%", marginValue:20 };
+      project.income.push(row);
+    }
+
+    const uc = unitCostMap[p.id] || 0;
+    let sellRate = 0;
+
+    if(row.marginType==="%"){
+      sellRate = uc * (1 + (row.marginValue/100));
+    }else{
+      sellRate = uc + (row.marginValue||0);
+    }
+
+    const incomeAmt = sellRate * p.qty;
+    total += incomeAmt;
+
+    const tr=document.createElement("tr");
+    tr.innerHTML=`
+      <td>${p.name}</td>
+      <td>${p.qty}</td>
+      <td>${p.unit}</td>
+      <td>${uc.toFixed(2)}</td>
+      <td>
+        <select onchange="setMarginType('${p.id}',this.value)">
+          <option value="%" ${row.marginType==="%"?"selected":""}>%</option>
+          <option value="LS" ${row.marginType==="LS"?"selected":""}>रु</option>
+        </select>
+      </td>
+      <td>
+        <input type="number" value="${row.marginValue}"
+          onchange="setMarginValue('${p.id}',this.value)">
+      </td>
+      <td>${sellRate.toFixed(2)}</td>
+      <td>${incomeAmt.toFixed(2)}</td>
+    `;
+    incomeBody.appendChild(tr);
+  });
+
+  grandIncome.innerText = total.toFixed(2);
   project.totalIncome = total;
-  localStorage.setItem(projectKey, JSON.stringify(project));
+  save();
 }
 
-/* =====================================================
-   UPDATE HANDLERS
-   ===================================================== */
-function updateMargin(pid,val){
-  income[pid].margin = Number(val)||0;
-  income[pid].override = false; // back to auto
-  renderIncome();
+/* ===== UPDATE ===== */
+function setMarginType(pid,v){
+  project.income.find(x=>x.productId===pid).marginType=v;
+  render();
+}
+function setMarginValue(pid,v){
+  project.income.find(x=>x.productId===pid).marginValue=Number(v)||0;
+  render();
 }
 
-function updateRate(pid,val){
-  income[pid].rate = Number(val)||0;
-  income[pid].override = true; // manual override
-  renderIncome();
+/* ===== SAVE ===== */
+function save(){
+  localStorage.setItem(key,JSON.stringify(project));
 }
 
-/* =====================================================
-   INIT
-   ===================================================== */
-renderIncome();
+/* INIT */
+render();
 </script>
 
 </body>
