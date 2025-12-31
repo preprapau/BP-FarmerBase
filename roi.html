@@ -2,13 +2,14 @@
 <html lang="ne">
 <head>
 <meta charset="UTF-8">
-<title>ROI / 5-Year Projection | Farmerbase BP Engine</title>
+<title>ROI | FarmerBase BP Engine</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
 body{
   font-family:"Noto Sans Devanagari","Kalimati",system-ui;
-  background:#f4f7f6;margin:0
+  background:#f4f7f6;
+  margin:0;
 }
 header,footer{
   background:#e8f5e9;
@@ -16,198 +17,119 @@ header,footer{
   display:flex;
   justify-content:space-between;
   align-items:center;
-  font-size:14px
 }
 header a,footer a{
   text-decoration:none;
+  font-weight:700;
   color:#2e7d32;
-  font-weight:600
 }
-.wrap{
-  max-width:1100px;
-  margin:18px auto;
-  background:#fff;
-  padding:22px;
-  border-radius:12px
+.container{
+  max-width:900px;
+  margin:0 auto;
+  padding:20px;
 }
-h2{color:#2e7d32;margin-top:0}
-h3{color:#1565c0;margin-bottom:6px}
-
+h2{color:#2e7d32}
 table{
   width:100%;
   border-collapse:collapse;
-  margin-top:10px
+  background:#fff;
 }
 th,td{
   border:1px solid #ccc;
-  padding:6px;
-  text-align:right
+  padding:8px;
 }
-th{background:#eef5ee}
-.left{text-align:left}
-.sum{background:#fafafa;font-weight:700}
-
-input{
-  padding:6px;
-  width:100%;
-  box-sizing:border-box
+th{text-align:left;background:#eef5ee}
+td{text-align:right}
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+  gap:12px;
+  margin-top:20px;
 }
-.note{font-size:13px;color:#555}
+.grid a{
+  background:#fff;
+  border:2px solid #2e7d32;
+  padding:14px;
+  text-align:center;
+  font-weight:700;
+  text-decoration:none;
+  color:#2e7d32;
+}
+.small{font-size:13px;color:#555}
 </style>
 </head>
 
 <body>
 
-<!-- 🔝 TOP NAV -->
 <header>
-  <a href="index.html">🏠 Back to Home</a>
-  <div>
-    <a href="profit-loss-demo.html">◀️ Profit–Loss</a> |
-    <a href="full-proposal.html">Full Proposal ▶️</a>
-  </div>
+  <a href="profit-loss.html">⬅️ Profit–Loss</a>
+  <a href="index.html" target="_blank">🏠 Home</a>
+  <span></span>
 </header>
 
-<div class="wrap">
+<div class="container">
 
-<h2>📈 ROI र ५ वर्षे Projection</h2>
-
-<!-- ================= BASE SUMMARY ================= -->
-<h3>🔢 आधार (Year–1)</h3>
-
-<table>
-<tr><th class="left">विवरण</th><th>रकम</th></tr>
-<tr><td class="left">कुल आम्दानी</td><td id="income1">0</td></tr>
-<tr><td class="left">कुल चालु खर्च</td><td id="expense1">0</td></tr>
-<tr class="sum"><td class="left">शुद्ध नाफा (Year–1)</td><td id="profit1">0</td></tr>
-<tr><td class="left">स्थिर लगानी (Capital)</td><td id="capital">0</td></tr>
-<tr class="sum"><td class="left">ROI (%)</td><td id="roi">0%</td></tr>
-</table>
-
-<hr>
-
-<!-- ================= GROWTH INPUT ================= -->
-<h3>📊 वार्षिक वृद्धिदर (Editable)</h3>
-
-<table>
-<tr>
-  <th class="left">विवरण</th>
-  <th>वृद्धिदर % (प्रति वर्ष)</th>
-</tr>
-<tr>
-  <td class="left">आम्दानी वृद्धिदर</td>
-  <td><input id="incomeGrowth" value="10"></td>
-</tr>
-<tr>
-  <td class="left">खर्च वृद्धिदर</td>
-  <td><input id="expenseGrowth" value="5"></td>
-</tr>
-</table>
-
-<p class="note">
-✔️ यो दर परिवर्तन गर्दा Projection स्वतः बदलिन्छ<br>
-✔️ अनुदान / बैंक प्रस्तावका लागि उपयोगी
+<h2>📊 लगानी प्रतिफल (ROI)</h2>
+<p class="small">
+Income, Expense र Profit–Loss पेजका आधारमा स्वतः गणना गरिएको परिणाम।
 </p>
 
-<hr>
-
-<!-- ================= 5 YEAR PROJECTION ================= -->
-<h3>📅 ५ वर्षे Projection</h3>
-
 <table>
-<thead>
 <tr>
-  <th>वर्ष</th>
-  <th>आम्दानी</th>
-  <th>खर्च</th>
-  <th>नाफा</th>
-  <th>संचित नाफा</th>
+  <th>प्रारम्भिक लगानी (रु)</th>
+  <td id="investment">0</td>
 </tr>
-</thead>
-<tbody id="projBody"></tbody>
+<tr>
+  <th>वार्षिक शुद्ध नाफा (रु)</th>
+  <td id="netProfit">0</td>
+</tr>
+<tr>
+  <th>ROI (%)</th>
+  <td id="roiPercent">0</td>
+</tr>
+<tr>
+  <th>Payback Period (वर्ष)</th>
+  <td id="payback">0</td>
+</tr>
 </table>
+
+<div class="grid">
+  <a href="roi-cashflow.html" target="_blank">📈 5-Year Cashflow</a>
+  <a href="roi-indicators.html" target="_blank">📊 ROI Indicators</a>
+  <a href="roi-charts.html" target="_blank">🥧 Charts</a>
+  <a href="roi-breakeven.html" target="_blank">🧮 Break-Even</a>
+  <a href="roi-loan.html" target="_blank">🏦 Loan Feasibility</a>
+  <a href="roi-narrative.html" target="_blank">📝 ROI Narrative</a>
+</div>
 
 </div>
 
-<!-- 🔻 BOTTOM NAV -->
 <footer>
-  <a href="profit-loss-demo.html">◀️ Previous</a>
-  <a href="index.html">🏠 Home</a>
-  <a href="full-proposal.html">Next ▶️</a>
+  <span class="small">
+    FarmerBase BP Engine – ROI Summary & Analysis Hub
+  </span>
 </footer>
 
 <script>
-/* ================= LOAD PROJECT ================= */
-let key = localStorage.getItem("activeProject");
-if(!key){
-  alert("पहिले Project खोल्नुहोस्");
-  location.href="index.html";
-}
-let project = JSON.parse(localStorage.getItem(key)) || {};
+const key = localStorage.getItem("activeProject");
+if(!key){ alert("Active योजना भेटिएन"); }
+const project = JSON.parse(localStorage.getItem(key))||{};
 
-/* ================= CALCULATE BASE ================= */
-let income=0, expense=0, capital=0;
+const investment =
+  (project.expenses||[])
+  .filter(e=>e.category==="पूर्वाधार निर्माण"||e.category==="मेशिन औजार")
+  .reduce((s,e)=>s+(Number(e.amount)||0),0);
 
-(project.incomeData||[]).forEach(i=>{
-  income += Number(i.amount)||0;
-});
+const netProfit = Number(project.netProfit)||0;
 
-(project.expenseData||[]).forEach(e=>{
-  if(e.mainCat==="चालु खर्च"){
-    expense += Number(e.amount)||0;
-  }
-  if(e.mainCat==="स्थिर खर्च"){
-    capital += Number(e.amount)||0;
-  }
-});
+const roi = investment>0 ? (netProfit/investment)*100 : 0;
+const payback = netProfit>0 ? (investment/netProfit) : 0;
 
-let profit = income - expense;
-let roi = capital>0 ? (profit/capital)*100 : 0;
-
-/* DISPLAY BASE */
-income1.innerText = Math.round(income);
-expense1.innerText = Math.round(expense);
-profit1.innerText = Math.round(profit);
-capital.innerText = Math.round(capital);
-roi.innerText = roi.toFixed(2) + "%";
-
-/* ================= PROJECTION ================= */
-function project5Y(){
-  projBody.innerHTML="";
-  let ig = Number(incomeGrowth.value)||0;
-  let eg = Number(expenseGrowth.value)||0;
-
-  let curIncome = income;
-  let curExpense = expense;
-  let cumProfit = 0;
-
-  for(let y=1;y<=5;y++){
-    if(y>1){
-      curIncome = curIncome * (1 + ig/100);
-      curExpense = curExpense * (1 + eg/100);
-    }
-    let p = curIncome - curExpense;
-    cumProfit += p;
-
-    projBody.innerHTML+=`
-      <tr>
-        <td>${y}</td>
-        <td>${Math.round(curIncome)}</td>
-        <td>${Math.round(curExpense)}</td>
-        <td>${Math.round(p)}</td>
-        <td>${Math.round(cumProfit)}</td>
-      </tr>
-    `;
-  }
-}
-
-/* EVENTS */
-incomeGrowth.oninput = project5Y;
-expenseGrowth.oninput = project5Y;
-
-/* INIT */
-project5Y();
+investment && (document.getElementById("investment").innerText=investment.toFixed(2));
+document.getElementById("netProfit").innerText=netProfit.toFixed(2);
+document.getElementById("roiPercent").innerText=roi.toFixed(2);
+document.getElementById("payback").innerText=payback.toFixed(2);
 </script>
 
 </body>
 </html>
-
