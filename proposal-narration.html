@@ -2,175 +2,214 @@
 <html lang="ne">
 <head>
 <meta charset="UTF-8">
-<title>Proposal Narration | Farmerbase BP Engine</title>
+<title>Proposal Narration | BP-FarmerBase</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
 body{
-  font-family:"Noto Sans Devanagari","Kalimati",system-ui;
-  background:#f4f7f6;margin:0
-}
-header,footer{
-  background:#e8f5e9;
-  padding:10px 16px;
-  display:flex;
-  justify-content:space-between
-}
-header a,footer a{
-  color:#2e7d32;
-  font-weight:600;
-  text-decoration:none
+  font-family:"Noto Sans Devanagari","Kalimati","Mangal","Nirmala UI",system-ui;
+  background:#f4f7f6;
+  margin:0;
 }
 .wrap{
-  max-width:1000px;
-  margin:18px auto;
+  max-width:950px;
+  margin:25px auto;
   background:#fff;
-  padding:24px;
-  border-radius:12px
+  padding:25px;
+  border-radius:10px;
 }
-h2,h3{color:#2e7d32;margin-top:0}
-.section{
-  margin-bottom:20px
+h2{color:#2e7d32;margin-top:0}
+.small{font-size:13px;color:#555}
+
+/* ===== TOP BAR ===== */
+.topBar{
+  display:grid;
+  grid-template-columns:1fr auto 1fr;
+  align-items:center;
+  margin-bottom:12px;
 }
-.box{
-  border:1px solid #ccc;
-  padding:14px;
-  border-radius:8px;
-  background:#fafafa;
-  line-height:1.6
+.topBar .left{text-align:left}
+.topBar .center{text-align:center}
+.topBar .right{text-align:right}
+
+/* textarea */
+textarea{
+  width:100%;
+  min-height:260px;
+  padding:12px;
+  font-family:inherit;
+  line-height:1.7;
 }
-.lang{
-  font-size:13px;
-  color:#2e7d32;
-  margin-bottom:6px
-}
+
+/* buttons */
 button{
-  padding:10px 16px;
+  border:none;
+  border-radius:6px;
+  padding:8px 16px;
+  cursor:pointer;
   background:#2e7d32;
   color:#fff;
-  border:none;
-  border-radius:8px;
-  cursor:pointer
 }
-.small{font-size:13px;color:#2e7d32}
+.previewBtn{background:#0277bd}
+.autoBtn{background:#455a64;margin-top:10px}
+
+/* preview */
+.preview textarea{
+  pointer-events:none;
+  background:#f3f3f3;
+}
+.previewNote{
+  background:#fff3cd;
+  padding:6px 10px;
+  border-radius:6px;
+  font-size:13px;
+  margin-bottom:10px;
+}
+
+/* bottom nav */
+.nav{
+  display:flex;
+  justify-content:space-between;
+  margin-top:30px;
+}
 </style>
 </head>
 
 <body>
 
-<header>
-  <a href="projection-5year.html">◀️ 5-Year Projection</a>
-  <a href="index.html">🏠 Home</a>
-</header>
+<div class="wrap" id="page">
 
-<div class="wrap">
+<!-- ===== TOP CONTROLS ===== -->
+<div class="topBar">
+  <div class="left">
+    <button onclick="location.href='business-detail.html'">⬅ Business Detail</button>
+  </div>
 
-<h2>📄 Proposal Narration (Auto-Generated)</h2>
+  <div class="center">
+    <button class="previewBtn" onclick="togglePreview()">👁 Preview / ✏️ Edit</button>
+  </div>
 
-<!-- ================= NEPALI ================= -->
-<div class="section">
-  <div class="lang">नेपाली (Nepali)</div>
-  <div class="box" id="nepText"></div>
+  <div class="right">
+    <button onclick="location.href='executive-summary.html'">Next ➡</button>
+  </div>
 </div>
 
-<!-- ================= ENGLISH ================= -->
-<div class="section">
-  <div class="lang">English</div>
-  <div class="box" id="engText"></div>
+<div id="previewNote" class="previewNote" style="display:none">
+👁 Preview Mode (Read-only)
 </div>
 
-<div style="text-align:center;margin-top:16px">
-  <button onclick="window.print()">🖨️ Print / Save PDF</button>
-</div>
-
+<h2>📄 Proposal Narration (स्वचालित विवरण)</h2>
 <p class="small">
-✔️ सबै विवरण स्वचालित रूपमा गणनामा आधारित  
-| ✔️ Editing आवश्यक छैन (तर copy गरेर परिमार्जन गर्न सक्नुहुन्छ)
+यो narration Short-Info, Existing-Status, Short-Analysis र Sustainability बाट
+स्वतः तयार गरिएको हो। आवश्यक परे सच्याउन सक्नुहुन्छ।
 </p>
 
+<textarea id="narrationText"></textarea>
+
+<button class="autoBtn" onclick="generateNarration()">⚡ Auto-Generate / Refresh</button>
+
+<!-- ===== BOTTOM NAV ===== -->
+<div class="nav">
+  <button onclick="location.href='business-detail.html'">⬅ Previous</button>
+  <button onclick="location.href='executive-summary.html'">Next ➡</button>
 </div>
 
-<footer>
-  <a href="projection-5year.html">◀️ Back</a>
-  <a href="index.html">🏠 Home</a>
-</footer>
+</div>
 
 <script>
-/* =====================================================
-   LOAD PROJECT DATA
-   ===================================================== */
-const projectKey = localStorage.getItem("activeProject");
-if(!projectKey){
-  alert("पहिले Project खोल्नुहोस्");
+/* ===== LOAD PROJECT ===== */
+const key = localStorage.getItem("activeProject");
+if(!key){
+  alert("पहिले Project सुरु गर्नुहोस्");
   location.href="index.html";
 }
+const project = JSON.parse(localStorage.getItem(key));
 
-const project = JSON.parse(localStorage.getItem(projectKey)) || {};
-const pl = project.profitLoss || {};
-const roi = project.roi || {};
-const proj5 = project.projection5y || {};
-const costAlloc = project.costAllocation || {};
+project.proposalNarration ??= "";
 
-/* =====================================================
-   HELPER
-   ===================================================== */
-function money(n){
-  return "रु " + (Number(n)||0).toFixed(2);
+/* ===== AUTO GENERATOR ===== */
+function generateNarration(){
+  const s = project.shortInfo || {};
+  const ex = project.existingStatus || {};
+  const works = ex.works || [];
+  const checklist = ex.checklist || [];
+  const checked = checklist.filter(c=>c.checked);
+  const analysis = project.shortAnalysis || "";
+  const sus = project.sustainability || {};
+
+  let text = "";
+
+  /* Intro */
+  text += `${s.bp_name || "प्रस्तावित व्यवसाय"} `;
+  if(s.bp_location)
+    text += `${s.bp_location} क्षेत्रमा सञ्चालन हुने `;
+  text += "कृषि/उद्यम सम्बन्धी व्यवसायिक प्रस्ताव हो। ";
+
+  if(s.bp_products)
+    text += `यसको मुख्य व्यवसायिक प्रकृति ${s.bp_products} रहेको छ।\n\n`;
+
+  /* Existing status */
+  if(works.length){
+    text += `संस्थाले हालसम्म ${works.length} प्रकारका कार्य तथा अनुभवहरू हासिल गरिसकेको छ। `;
+  }
+  if(checked.length){
+    text += `${checked.length} किसिमका आधारभूत पूर्वाधार तथा सुविधा उपलब्ध छन्।\n\n`;
+  }
+
+  /* Analysis */
+  if(analysis){
+    text += analysis + "\n\n";
+  }
+
+  /* Sustainability */
+  if(sus.strengths?.length){
+    text += `सबल पक्षहरू: ${sus.strengths.join(", ")}।\n`;
+  }
+  if(sus.weaknesses?.length){
+    text += `सुधार गर्नुपर्ने पक्ष: ${sus.weaknesses.join(", ")}।\n`;
+  }
+  if(sus.opportunities?.length){
+    text += `अवसरहरू: ${sus.opportunities.join(", ")}।\n`;
+  }
+  if(sus.solutions?.length){
+    text += `समाधान/रणनीति: ${sus.solutions.join(", ")}।\n\n`;
+  }
+
+  /* Conclusion */
+  text += "समग्रमा, प्रस्तुत व्यवसाय प्रस्ताव स्थानीय स्रोत, अनुभव र सम्भावनामा आधारित भएकाले ";
+  text += "उचित लगानी, व्यवस्थापन तथा प्रविधि उपयोगका साथ दीगो, नाफामुखी र रोजगारी सिर्जना गर्ने ";
+  text += "उच्च सम्भावना राख्दछ।";
+
+  narrationText.value = text;
+  project.proposalNarration = text;
+  save();
 }
 
-/* =====================================================
-   BUILD PRODUCT LIST
-   ===================================================== */
-let productList = Object.values(costAlloc)
-  .map(p => `${p.name} (${p.qty} ${p.unit})`)
-  .join(", ");
+/* ===== AUTOSAVE ===== */
+narrationText.addEventListener("input",()=>{
+  project.proposalNarration = narrationText.value;
+  save();
+});
 
-/* =====================================================
-   NEPALI TEXT
-   ===================================================== */
-nepText.innerHTML = `
-यस प्रस्तावित व्यवसाय अन्तर्गत ${productList} उत्पादन गर्ने योजना रहेको छ।
-यस व्यवसायका लागि कुल स्थिर लगानी ${money(pl.fixedCost)} रहेको छ।
-व्यवसाय सञ्चालन क्रममा वार्षिक चालु खर्च ${money(pl.operatingCost)} अनुमान गरिएको छ।
+function save(){
+  project.lastEdited = new Date().toLocaleString("ne-NP");
+  localStorage.setItem(key,JSON.stringify(project));
+}
 
-यस योजनाबाट वार्षिक कुल आम्दानी ${money(pl.totalIncome)} हुने प्रक्षेपण गरिएको छ।
-ह्रासकट्टी पश्चात कर-पूर्व नाफा ${money(pl.profitBeforeTax)} रहेको छ।
-आम्दानी कर कट्टा गरी वार्षिक खुद नाफा ${money(pl.netProfit)} हुने देखिन्छ।
+/* ===== LOAD EXISTING ===== */
+if(project.proposalNarration){
+  narrationText.value = project.proposalNarration;
+}else{
+  generateNarration();
+}
 
-उक्त लगानीका आधारमा वार्षिक ROI ${roi.roiPercent ? roi.roiPercent.toFixed(2) : "0"}% रहने
-र लगानी फिर्ता अवधि करिब ${roi.paybackYears ? roi.paybackYears.toFixed(2) : "—"} वर्ष हुने देखिन्छ।
-
-५ वर्षको अवधिमा औसत ${proj5.growthRate || 0}% वार्षिक वृद्धिदरका आधारमा
-कुल नाफा ${money(proj5.total5YearProfit)} हुने प्रक्षेपण गरिएको छ।
-यसरी उक्त व्यवसाय आर्थिक रूपमा सम्भाव्य, दिगो तथा लाभदायक देखिन्छ।
-`;
-
-/* =====================================================
-   ENGLISH TEXT
-   ===================================================== */
-engText.innerHTML = `
-Under this proposed business plan, production of ${productList} has been planned.
-The total fixed investment required for this business is NPR ${Number(pl.fixedCost||0).toFixed(2)}.
-The estimated annual operating cost is NPR ${Number(pl.operatingCost||0).toFixed(2)}.
-
-Based on the financial projection, the estimated annual total income is
-NPR ${Number(pl.totalIncome||0).toFixed(2)}.
-After accounting for depreciation, the profit before tax is
-NPR ${Number(pl.profitBeforeTax||0).toFixed(2)}.
-After income tax, the annual net profit is estimated at
-NPR ${Number(pl.netProfit||0).toFixed(2)}.
-
-Based on the above figures, the expected annual ROI is
-${roi.roiPercent ? roi.roiPercent.toFixed(2) : "0"}%,
-with an estimated payback period of
-${roi.paybackYears ? roi.paybackYears.toFixed(2) : "—"} years.
-
-Over a five-year period, assuming an average annual growth rate of
-${proj5.growthRate || 0}%,
-the total projected profit is estimated at
-NPR ${Number(proj5.total5YearProfit||0).toFixed(2)}.
-Hence, the proposed business is financially viable, sustainable, and profitable.
-`;
+/* ===== PREVIEW ===== */
+let preview=false;
+function togglePreview(){
+  preview=!preview;
+  page.classList.toggle("preview",preview);
+  previewNote.style.display = preview ? "block":"none";
+}
 </script>
 
 </body>
