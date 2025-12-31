@@ -2,7 +2,7 @@
 <html lang="ne">
 <head>
 <meta charset="UTF-8">
-<title>5-Year Projection | Farmerbase BP Engine</title>
+<title>5-Year Projection | FarmerBase BP Engine</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
@@ -14,166 +14,188 @@ header,footer{
   background:#e8f5e9;
   padding:10px 16px;
   display:flex;
-  justify-content:space-between
+  justify-content:space-between;
+  align-items:center
 }
 header a,footer a{
-  color:#2e7d32;
-  font-weight:600;
-  text-decoration:none
+  text-decoration:none;
+  font-weight:700;
+  color:#2e7d32
 }
-.wrap{
-  max-width:1100px;
-  margin:18px auto;
+.container{
+  max-width:1200px;
+  margin:auto;
+  padding:20px
+}
+h2,h3{color:#2e7d32;margin:8px 0}
+.small{font-size:13px;color:#555}
+
+.section{
   background:#fff;
-  padding:22px;
-  border-radius:12px
+  padding:16px;
+  border-radius:12px;
+  margin-bottom:16px
 }
-h2{color:#2e7d32;margin-top:0}
-table{width:100%;border-collapse:collapse;margin-top:10px}
+
+table{
+  width:100%;
+  border-collapse:collapse
+}
 th,td{
   border:1px solid #ccc;
-  padding:8px;
-  text-align:right;
+  padding:6px;
   font-size:14px
 }
 th{background:#eef5ee}
-.left{text-align:left}
-.sum{font-weight:700;background:#fafafa}
-input{
-  width:80px;
-  padding:4px;
-  text-align:right
+.right{text-align:right}
+
+.highlight{
+  background:#e8f5e9;
+  font-weight:700
 }
-.note{font-size:13px;color:#2e7d32}
+
+.footerNav{
+  display:flex;
+  justify-content:space-between;
+  width:100%
+}
+
+@media print{
+  header, footer{display:none}
+  body{background:#fff}
+}
 </style>
 </head>
 
 <body>
 
+<!-- TOP NAV -->
 <header>
-  <a href="roi.html">◀️ ROI</a>
-  <a href="index.html">🏠 Home</a>
+  <a href="income-allocation.html">⬅️ Income Allocation</a>
+  <strong>📅 5-Year Projection</strong>
+  <a href="financial-ratios.html">➡️ Financial Ratios</a>
 </header>
 
-<div class="wrap">
+<div class="container">
 
-<h2>📈 5-Year Financial Projection</h2>
-
-<p class="note">
-वार्षिक नाफा वृद्धि दर (%):
-<input type="number" id="growthRate" value="5" oninput="recalc()"> %
+<h2>५ वर्षे वित्तीय प्रक्षेपण (Projection)</h2>
+<p class="small">
+ℹ️ Year-1 वास्तविक डाटा हो।  
+Year-2 देखि Growth Assumptions लागू गरिएको छ।
 </p>
+
+<!-- PROJECTION TABLE -->
+<div class="section">
+<h3>📊 आम्दानी, खर्च र नगद प्रवाह</h3>
 
 <table>
 <thead>
 <tr>
-  <th class="left">वर्ष</th>
-  <th>कर-पूर्व नाफा</th>
-  <th>ह्रासकट्टी</th>
-  <th>आम्दानी कर</th>
-  <th>कर-पछिको नाफा</th>
-  <th>कुल नाफा (जम्मा)</th>
-  <th>ROI %</th>
+  <th>वर्ष</th>
+  <th class="right">आम्दानी (रु)</th>
+  <th class="right">खर्च (रु)</th>
+  <th class="right">शुद्ध नगद प्रवाह</th>
 </tr>
 </thead>
-<tbody id="body"></tbody>
+<tbody id="rows"></tbody>
 <tfoot>
-<tr class="sum">
-  <td class="left">5 वर्षको कुल नाफा</td>
-  <td colspan="6" id="total5y">0</td>
+<tr class="highlight">
+  <th>५ वर्षे जम्मा</th>
+  <th class="right" id="sumIncome">0</th>
+  <th class="right" id="sumExpense">0</th>
+  <th class="right" id="sumCash">0</th>
 </tr>
 </tfoot>
 </table>
+</div>
 
-<p class="note">
-✔️ Year-1 actual data बाट projection  
-| ✔️ Straight-line depreciation  
-| ✔️ Tax automatically applied
+<!-- CASH FLOW NOTE -->
+<div class="section">
+<h3>📝 टिप्पणी</h3>
+<p class="small">
+यो प्रक्षेपण Growth Assumptions पेजमा प्रविष्ट गरिएको
+वृद्धि प्रतिशतको आधारमा तयार गरिएको हो।
 </p>
+</div>
 
 </div>
 
+<!-- FOOTER -->
 <footer>
-  <a href="roi.html">◀️ Back</a>
-  <a href="index.html">🏠 Home</a>
+  <div class="footerNav">
+    <a href="income-allocation.html">⬅️ Income Allocation</a>
+    <span class="small">FarmerBase BP Engine – 5-Year Projection</span>
+    <a href="financial-ratios.html">➡️ Financial Ratios</a>
+  </div>
 </footer>
 
 <script>
-/* =====================================================
-   LOAD PROJECT DATA
-   ===================================================== */
-const projectKey = localStorage.getItem("activeProject");
-if(!projectKey){
-  alert("पहिले Project खोल्नुहोस्");
-  location.href="index.html";
-}
+/* ===============================
+   5-YEAR PROJECTION – FINAL
+   =============================== */
 
-const project = JSON.parse(localStorage.getItem(projectKey)) || {};
-const pl = project.profitLoss || {};
-const roiBase = project.roi || {};
+const key = localStorage.getItem("activeProject");
+if(!key){ alert("Active योजना भेटिएन"); }
 
-/* Base values from Year-1 */
-const baseNetProfit = Number(pl.netProfit) || 0;
-const depreciation = Number(pl.depreciation) || 0;
-const taxRate = Number(pl.taxRate) || 0;
-const fixedInvestment = Number(pl.fixedCost) || 0;
+const project = JSON.parse(localStorage.getItem(key)) || {};
 
-/* =====================================================
-   RECALC FUNCTION
-   ===================================================== */
-function recalc(){
+// -------- Year-1 Base --------
+let baseIncome = 0;
+(project.income||[]).forEach(i=>{
+  baseIncome += (i.sellingRate||0) * (i.qty||0);
+});
 
-  const growth = Number(growthRate.value) || 0;
+let baseExpense = 0;
+(project.expenses||[]).forEach(e=>{
+  baseExpense += e.amount||0);
+});
 
-  body.innerHTML = "";
-  let cumulative = 0;
-  let total5 = 0;
+// -------- Growth --------
+const G = project.growthAssumptions || {
+  mode:"same",
+  same:{revenue:0,expense:0},
+  years:[]
+};
 
-  for(let y=1; y<=5; y++){
+let income = baseIncome;
+let expense = baseExpense;
 
-    const factor = Math.pow(1 + growth/100, y-1);
+let totalInc=0,totalExp=0,totalCash=0;
 
-    const netProfit = baseNetProfit * factor;
-    const profitBeforeTax = netProfit + depreciation;
-    const tax = profitBeforeTax > 0
-      ? profitBeforeTax * taxRate / 100
-      : 0;
+for(let y=1;y<=5;y++){
+  let gRev=0,gExp=0;
 
-    const finalNet = profitBeforeTax - tax;
-
-    cumulative += finalNet;
-    total5 += finalNet;
-
-    const roiPercent = fixedInvestment > 0
-      ? (cumulative / fixedInvestment) * 100
-      : 0;
-
-    body.innerHTML += `
-    <tr>
-      <td class="left">Year ${y}</td>
-      <td>${profitBeforeTax.toFixed(2)}</td>
-      <td>${depreciation.toFixed(2)}</td>
-      <td>${tax.toFixed(2)}</td>
-      <td>${finalNet.toFixed(2)}</td>
-      <td>${cumulative.toFixed(2)}</td>
-      <td>${roiPercent.toFixed(2)}</td>
-    </tr>`;
+  if(y>1){
+    if(G.mode==="same"){
+      gRev = G.same.revenue||0;
+      gExp = G.same.expense||0;
+    }else{
+      const row = G.years[y-2]||{};
+      gRev = row.revenue||0;
+      gExp = row.expense||0;
+    }
+    income = income * (1 + gRev/100);
+    expense = expense * (1 + gExp/100);
   }
 
-  total5y.innerText = total5.toFixed(2);
+  const cash = income - expense;
 
-  /* Save for proposal */
-  project.projection5y = {
-    growthRate: growth,
-    total5YearProfit: total5
-  };
-  localStorage.setItem(projectKey, JSON.stringify(project));
+  totalInc += income;
+  totalExp += expense;
+  totalCash += cash;
+
+  rows.innerHTML += `
+  <tr>
+    <td>Year ${y}</td>
+    <td class="right">${income.toLocaleString()}</td>
+    <td class="right">${expense.toLocaleString()}</td>
+    <td class="right">${cash.toLocaleString()}</td>
+  </tr>`;
 }
 
-/* =====================================================
-   INIT
-   ===================================================== */
-recalc();
+sumIncome.innerText = totalInc.toLocaleString();
+sumExpense.innerText = totalExp.toLocaleString();
+sumCash.innerText = totalCash.toLocaleString();
 </script>
 
 </body>
