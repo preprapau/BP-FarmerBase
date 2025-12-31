@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Production Plan | FarmerBase BP Engine</title>
+
+<style>
+body{
+  font-family:"Noto Sans Devanagari","Kalimati",system-ui;
+  background:#f4f7f6;margin:0
+}
+header,footer{
+  background:#e8f5e9;
+  padding:10px 16px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center
+}
+header a,footer a{
+  text-decoration:none;
+  font-weight:700;
+  color:#2e7d32
+}
+.container{
+  max-width:1200px;
+  margin:auto;
+  padding:20px
+}
+h2{color:#2e7d32;margin-bottom:6px}
+.small{font-size:13px;color:#555}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  background:#fff;
+  margin-top:12px
+}
+th,td{
+  border:1px solid #ccc;
+  padding:6px;
+  font-size:14px
+}
+th{background:#eef5ee}
+input,select,textarea{
+  width:100%;
+  padding:6px;
+  box-sizing:border-box
+}
+textarea{resize:vertical}
+
+.btn{
+  padding:8px 14px;
+  background:#2e7d32;
+  color:#fff;
+  border:none;
+  cursor:pointer;
+  margin-top:10px
+}
+.del{color:#c62828;font-weight:700;cursor:pointer}
+.totalBox{
+  margin-top:14px;
+  font-size:16px;
+  font-weight:700;
+  color:#2e7d32
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <a href="index.html">🏠 Home</a>
+  <strong>📦 Production Plan</strong>
+  <a href="income.html">➡️ Income</a>
+</header>
+
+<div class="container">
+
+<h2>उत्पादन योजना (Production Plan)</h2>
+<p class="small">
+के उत्पादन गर्ने, कति, कति दरमा — यही डाटाले Income र ROI तय गर्छ।
+</p>
+
+<table>
+<thead>
+<tr>
+  <th>उत्पादन</th>
+  <th>प्रकार</th>
+  <th>इकाई</th>
+  <th>दर</th>
+  <th>परिमाण</th>
+  <th>रकम</th>
+  <th>Narration</th>
+  <th>❌</th>
+</tr>
+</thead>
+<tbody id="tbody"></tbody>
+</table>
+
+<button class="btn" onclick="addRow()">➕ नयाँ उत्पादन थप्नुहोस्</button>
+
+<div class="totalBox">
+  कुल उत्पादन मूल्य: रु <span id="grandTotal">0</span>
+</div>
+
+</div>
+
+<footer>
+  <span class="small">FarmerBase BP Engine – Production First</span>
+</footer>
+
+<script>
+/* ===============================
+   PRODUCTION PLAN – SINGLE PAGE
+   =============================== */
+
+let production = JSON.parse(localStorage.getItem("PRODUCTION_PLAN")) || [];
+
+function save(){
+  localStorage.setItem("PRODUCTION_PLAN",JSON.stringify(production));
+  render();
+}
+
+function render(){
+  tbody.innerHTML="";
+  let total=0;
+
+  production.forEach((p,i)=>{
+    p.amount = (Number(p.rate)||0) * (Number(p.qty)||0);
+    total += p.amount;
+
+    tbody.innerHTML+=`
+<tr>
+<td><input value="${p.name||""}" oninput="edit(${i},'name',this.value)"></td>
+
+<td>
+<select onchange="edit(${i},'type',this.value)">
+<option ${p.type==="पशु"?"selected":""}>पशु</option>
+<option ${p.type==="तरकारी"?"selected":""}>तरकारी</option>
+<option ${p.type==="दुग्ध"?"selected":""}>दुग्ध</option>
+<option ${p.type==="अन्य"?"selected":""}>अन्य</option>
+</select>
+</td>
+
+<td><input value="${p.unit||""}" oninput="edit(${i},'unit',this.value)"></td>
+<td><input type="number" value="${p.rate||0}" oninput="edit(${i},'rate',this.value)"></td>
+<td><input type="number" value="${p.qty||0}" oninput="edit(${i},'qty',this.value)"></td>
+<td>रु ${p.amount.toLocaleString()}</td>
+<td>
+<textarea rows="2" oninput="edit(${i},'note',this.value)">
+${p.note||""}</textarea>
+</td>
+<td class="del" onclick="remove(${i})">✖</td>
+</tr>`;
+  });
+
+  grandTotal.innerText = total.toLocaleString();
+}
+
+function addRow(){
+  production.push({
+    id:Date.now(),
+    name:"",
+    type:"तरकारी",
+    unit:"",
+    rate:0,
+    qty:0,
+    note:""
+  });
+  save();
+}
+
+function edit(i,f,v){
+  production[i][f] =
+    (f==="rate"||f==="qty") ? Number(v)||0 : v;
+  save();
+}
+
+function remove(i){
+  if(!confirm("यो उत्पादन हटाउने ?")) return;
+  production.splice(i,1);
+  save();
+}
+
+render();
+</script>
+
+</body>
+</html>
