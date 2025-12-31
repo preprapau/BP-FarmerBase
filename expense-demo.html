@@ -2,7 +2,7 @@
 <html lang="ne">
 <head>
 <meta charset="UTF-8">
-<title>खर्च विवरण | FarmerBase BP Engine</title>
+<title>Expense | FarmerBase BP Engine</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
@@ -23,49 +23,69 @@ header a,footer a{
   font-weight:700;
   color:#2e7d32;
 }
-.navAero a{margin:0 8px}
 .container{
   max-width:1200px;
   margin:0 auto;
   padding:20px;
 }
-h2,h3{color:#2e7d32;margin:10px 0}
+h2,h3{color:#2e7d32;margin:8px 0}
+.small{font-size:13px;color:#555}
+
+.section{
+  background:#fff;
+  padding:14px;
+  border-radius:10px;
+  margin-bottom:14px;
+}
+
 table{
   width:100%;
   border-collapse:collapse;
-  background:#fff;
 }
 th,td{
   border:1px solid #ccc;
   padding:6px;
   font-size:14px;
-  vertical-align:top;
 }
 th{background:#eef5ee}
+.right{text-align:right}
+
 input,select,textarea{
   width:100%;
   padding:6px;
   box-sizing:border-box;
 }
-textarea{resize:vertical}
-.addBtn{
-  margin:10px 0;
-  padding:8px 14px;
+
+.inline{
+  display:flex;
+  gap:6px;
+  flex-wrap:wrap;
+  align-items:center;
+}
+
+.btn{
+  padding:6px 12px;
   background:#2e7d32;
   color:#fff;
   border:none;
   cursor:pointer;
 }
-.editBtn{color:#1565c0;cursor:pointer;font-weight:700}
-.delBtn{color:#c62828;cursor:pointer;font-weight:700}
-.small{font-size:13px;color:#555}
-.right{text-align:right}
-.allocBox{font-size:13px;margin-top:6px}
-.footerBox{
-  background:#fff;
-  border:1px solid #ccc;
-  padding:12px;
-  margin-top:16px;
+
+.del{
+  color:#c62828;
+  cursor:pointer;
+  font-weight:700;
+}
+
+.footerNav{
+  display:flex;
+  justify-content:space-between;
+  width:100%;
+}
+
+@media print{
+  header, footer, button{display:none}
+  body{background:#fff}
 }
 </style>
 </head>
@@ -74,277 +94,142 @@ textarea{resize:vertical}
 
 <!-- TOP NAV -->
 <header>
-  <div class="navAero">
-    <a href="production.html">⬅️ Production</a>
-  </div>
-  <div>
-    <a href="index.html" target="_blank">🏠 Home</a> |
-    <a href="expense-report.html" target="_blank">📊 Expense Report</a>
-  </div>
-  <div class="navAero">
-    <a href="income-demo.html">Income ➡️</a>
-  </div>
+  <a href="production.html">⬅️ Production</a>
+  <strong>💸 Expense</strong>
+  <a href="production-cost-summary.html">➡️ Cost Summary</a>
 </header>
 
 <div class="container">
 
-<h2>💰 खर्च विवरण (वार्षिक)</h2>
+<h2>खर्च विवरण (Expense Entry)</h2>
+<p class="small">
+उत्पादनसँग सम्बन्धित सम्पूर्ण खर्च यहाँ प्रविष्ट गर्नुहोस्।
+</p>
 
-<label><strong>✍️ खर्च सम्बन्धी विवरण</strong></label>
-<textarea id="expenseNarration" rows="3"></textarea>
+<!-- ADD EXPENSE -->
+<div class="section">
+<h3>➕ नयाँ खर्च थप्नुहोस्</h3>
+
+<div class="inline">
+  <input id="eHead" placeholder="खर्च शीर्षक (दाना, मजदुरी…)">
+  <input type="number" id="eAmount" placeholder="रकम">
+  <select id="eCategory">
+    <option>चालु खर्च</option>
+    <option>पूर्वाधार निर्माण</option>
+    <option>मेशिन औजार</option>
+    <option>अन्य</option>
+  </select>
+
+  <select id="eAllocation">
+    <option value="LS">सबै उत्पादन (LS)</option>
+    <option value="DIRECT">एक उत्पादन</option>
+    <option value="%">प्रतिशत अनुसार</option>
+  </select>
+
+  <button class="btn" onclick="addExpense()">Add</button>
+</div>
+
+<p class="small">
+ℹ️ खर्च कसरी उत्पादनमा बाँड्ने भन्ने कुरा Allocation Type ले निर्धारण गर्छ।
+</p>
+</div>
+
+<!-- EXPENSE TABLE -->
+<div class="section">
+<h3>📋 खर्च सूची</h3>
 
 <table>
 <thead>
 <tr>
-  <th style="width:22%">खर्च शीर्षक / नोट</th>
-  <th style="width:14%">बर्ग</th>
-  <th style="width:8%">परिमाण</th>
-  <th style="width:10%">दर</th>
-  <th style="width:12%" class="right">रकम</th>
-  <th style="width:24%">उत्पादनमा बाँडफाँट</th>
-  <th style="width:10%">Action</th>
+  <th>खर्च शीर्षक</th>
+  <th>श्रेणी</th>
+  <th>Allocation</th>
+  <th class="right">रकम (रु)</th>
+  <th></th>
 </tr>
 </thead>
-<tbody id="expenseBody"></tbody>
+<tbody id="tbody"></tbody>
+<tr>
+  <th colspan="3">कुल खर्च</th>
+  <th class="right" id="totalExpense">0</th>
+  <th></th>
+</tr>
 </table>
-
-<button class="addBtn" onclick="addExpense()">➕ नयाँ खर्च</button>
-
-<!-- SUMMARY -->
-<div class="footerBox">
-  <h3>📊 खर्च सारांश</h3>
-  <table>
-    <thead>
-      <tr>
-        <th>शीर्षक</th>
-        <th>परिमाण</th>
-        <th>दर</th>
-        <th class="right">रकम</th>
-      </tr>
-    </thead>
-    <tbody id="summaryBody"></tbody>
-    <tfoot>
-      <tr>
-        <th colspan="3">कुल खर्च</th>
-        <th class="right" id="summaryTotal">0</th>
-      </tr>
-    </tfoot>
-  </table>
-</div>
-
-<!-- DEPRECIATION -->
-<div class="footerBox">
-  <h3>📉 ह्रासकट्टी (Depreciation)</h3>
-  <table>
-    <tr>
-      <th style="width:40%">ह्रासकट्टी दर (%)</th>
-      <th>वार्षिक ह्रासकट्टी रकम</th>
-    </tr>
-    <tr>
-      <td><input type="number" id="depRate" value="10"></td>
-      <td id="depAmount">0</td>
-    </tr>
-  </table>
 </div>
 
 </div>
 
 <!-- BOTTOM NAV -->
 <footer>
-  <div class="navAero">
+  <div class="footerNav">
     <a href="production.html">⬅️ Production</a>
-  </div>
-  <div class="small">
-    FarmerBase BP Engine – लागत बाँडफाँटसहित खर्च प्रणाली
-  </div>
-  <div class="navAero">
-    <a href="income-demo.html">Income ➡️</a>
+    <span class="small">FarmerBase BP Engine – Expense Module</span>
+    <a href="production-cost-summary.html">➡️ Cost Summary</a>
   </div>
 </footer>
 
 <script>
-/* LOAD PROJECT */
+/* ===============================
+   EXPENSE DEMO – FINAL
+   =============================== */
+
 const key = localStorage.getItem("activeProject");
 if(!key){ alert("Active योजना भेटिएन"); }
-let project = JSON.parse(localStorage.getItem(key)) || {};
+
+const project = JSON.parse(localStorage.getItem(key)) || {};
 project.expenses = project.expenses || [];
-project.depRate = project.depRate || 10;
-const products = project.productionProducts || [];
+const expenses = project.expenses;
 
-/* NARRATION */
-expenseNarration.value = project.expenseNarration ||
-"यस व्यवसाय सञ्चालनका लागि आवश्यक चालु तथा स्थिर खर्चहरू यथार्थपरक रूपमा अनुमान गरिएको छ।";
-expenseNarration.oninput=()=>{
-  project.expenseNarration=expenseNarration.value;
-  save();
-};
-
-/* RENDER */
-function render(){
-  expenseBody.innerHTML="";
-  project.expenses.forEach((e,i)=>{
-    const tr=document.createElement("tr");
-    tr.innerHTML=`
-<td>
-  <input value="${e.title||""}" readonly>
-  <textarea rows="2" oninput="upd(${i},'note',this.value)">${e.note||""}</textarea>
-</td>
-
-<td>
-  <select onchange="upd(${i},'category',this.value)">
-    <optgroup label="चालु खर्च">
-      <option ${e.category==="कच्चापदार्थ"?"selected":""}>कच्चापदार्थ</option>
-      <option ${e.category==="कामदार"?"selected":""}>कामदार</option>
-      <option ${e.category==="विविध"?"selected":""}>विविध</option>
-    </optgroup>
-    <optgroup label="स्थिर खर्च">
-      <option ${e.category==="पूर्वाधार निर्माण"?"selected":""}>पूर्वाधार निर्माण</option>
-      <option ${e.category==="मेशिन औजार"?"selected":""}>मेशिन औजार</option>
-    </optgroup>
-  </select>
-</td>
-
-<td><input type="number" value="${e.qty||0}" oninput="calc(${i},'qty',this.value)"></td>
-<td><input type="number" value="${e.rate||0}" oninput="calc(${i},'rate',this.value)"></td>
-<td class="right">${(e.amount||0).toFixed(2)}</td>
-
-<td>
-  <select onchange="setAllocType(${i},this.value)">
-    <option value="LS" ${e.allocationType==="LS"?"selected":""}>LS (सबै)</option>
-    <option value="%" ${e.allocationType==="%"?"selected":""}>%</option>
-    <option value="DIRECT" ${e.allocationType==="DIRECT"?"selected":""}>Direct</option>
-  </select>
-  <div class="allocBox">${renderAllocUI(i)}</div>
-</td>
-
-<td>
-  <span class="editBtn" onclick="editExpense(${i})">✏️</span>
-  <span class="delBtn" onclick="delExpense(${i})">✖</span>
-</td>
-    `;
-    expenseBody.appendChild(tr);
-  });
-  renderSummary();
-  calcDep();
-}
-
-/* ADD */
-function addExpense(){
-  const t = prompt("खर्च शीर्षक लेख्नुहोस्:");
-  if(!t) return;
-  project.expenses.push({
-    title:t,
-    category:"कच्चापदार्थ",
-    qty:1,rate:0,amount:0,note:"",
-    allocationType:"LS",
-    appliesTo:["ALL"],
-    allocationPercent:{}
-  });
-  save();render();
-}
-
-/* EDIT / DELETE */
-function editExpense(i){
-  const e=project.expenses[i];
-  const t=prompt("खर्च शीर्षक:",e.title);
-  if(t===null) return;
-  const n=prompt("नोट:",e.note||"");
-  e.title=t; e.note=n;
-  save();render();
-}
-function delExpense(i){
-  if(!confirm("यो खर्च हटाउने ?")) return;
-  project.expenses.splice(i,1);
-  save();render();
-}
-
-/* UPDATE */
-function upd(i,f,v){project.expenses[i][f]=v;save()}
-function calc(i,f,v){
-  project.expenses[i][f]=Number(v)||0;
-  const e=project.expenses[i];
-  e.amount=(Number(e.qty)||0)*(Number(e.rate)||0);
-  save();render();
-}
-
-/* ALLOCATION */
-function setAllocType(i,v){
-  const e=project.expenses[i];
-  e.allocationType=v;
-  if(v==="LS"){ e.appliesTo=["ALL"]; e.allocationPercent={}; }
-  if(v==="DIRECT"){ e.appliesTo=[products[0]?.id]; }
-  if(v==="%"){ e.appliesTo=products.map(p=>p.id); }
-  save();render();
-}
-function renderAllocUI(i){
-  const e=project.expenses[i];
-  if(products.length===0) return "उत्पादन छैन";
-  if(e.allocationType==="LS") return "✔️ सबै उत्पादनमा परिमाण अनुसार";
-
-  let html="";
-  products.forEach(p=>{
-    if(e.allocationType==="DIRECT"){
-      html+=`
-<label>
-<input type="radio" name="d${i}"
-${e.appliesTo[0]===p.id?"checked":""}
-onchange="setDirect(${i},'${p.id}')"> ${p.name}
-</label><br>`;
-    }else{
-      const v=e.allocationPercent[p.id]||0;
-      html+=`${p.name}
-<input type="number" style="width:60px"
-value="${v}"
-oninput="setPercent(${i},'${p.id}',this.value)"> %<br>`;
-    }
-  });
-  return html;
-}
-function setDirect(i,pid){
-  project.expenses[i].appliesTo=[pid];
-  save();
-}
-function setPercent(i,pid,val){
-  project.expenses[i].allocationPercent[p.id]=Number(val)||0;
-  save();
-}
-
-/* SUMMARY */
-function renderSummary(){
-  summaryBody.innerHTML="";
-  let tot=0;
-  project.expenses.forEach(e=>{
-    tot+=Number(e.amount)||0;
-    summaryBody.innerHTML+=`
-<tr>
-<td>${e.title}</td>
-<td>${e.qty}</td>
-<td>${e.rate}</td>
-<td class="right">${(e.amount||0).toFixed(2)}</td>
-</tr>`;
-  });
-  summaryTotal.innerText=tot.toFixed(2);
-}
-
-/* DEPRECIATION */
-depRate.value=project.depRate;
-depRate.oninput=()=>{project.depRate=Number(depRate.value)||0;save();calcDep()}
-function calcDep(){
-  let fixed=0;
-  project.expenses.forEach(e=>{
-    if(e.category==="पूर्वाधार निर्माण"||e.category==="मेशिन औजार"){
-      fixed+=Number(e.amount)||0;
-    }
-  });
-  depAmount.innerText=(fixed*(project.depRate/100)).toFixed(2);
-}
-
-/* SAVE */
+/* -------- SAVE -------- */
 function save(){
-  localStorage.setItem(key,JSON.stringify(project));
+  localStorage.setItem(key, JSON.stringify(project));
+  render();
 }
 
-/* INIT */
+/* -------- ADD -------- */
+function addExpense(){
+  if(!eHead.value || !eAmount.value) return;
+
+  expenses.push({
+    id:Date.now(),
+    head:eHead.value,
+    amount:+eAmount.value||0,
+    category:eCategory.value,
+    allocationType:eAllocation.value
+  });
+
+  eHead.value="";
+  eAmount.value="";
+  save();
+}
+
+/* -------- DELETE -------- */
+function remove(i){
+  if(!confirm("यो खर्च हटाउने ?")) return;
+  expenses.splice(i,1);
+  save();
+}
+
+/* -------- RENDER -------- */
+function render(){
+  tbody.innerHTML="";
+  let sum=0;
+
+  expenses.forEach((e,i)=>{
+    sum+=e.amount||0;
+    tbody.innerHTML+=`
+    <tr>
+      <td>${e.head}</td>
+      <td>${e.category}</td>
+      <td>${e.allocationType}</td>
+      <td class="right">${e.amount.toLocaleString()}</td>
+      <td class="del" onclick="remove(${i})">✖</td>
+    </tr>`;
+  });
+
+  totalExpense.innerText=sum.toLocaleString();
+}
+
 render();
 </script>
 
