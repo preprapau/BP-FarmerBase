@@ -2,64 +2,69 @@
 <html lang="ne">
 <head>
 <meta charset="UTF-8">
-<title>Sustainability Analysis | FarmerBase BP Engine</title>
+<title>Short Analysis | BPMS</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
 body{
-  font-family:"Noto Sans Devanagari","Kalimati","Mangal",system-ui;
+  font-family:"Noto Sans Devanagari","Kalimati","Mangal","Nirmala UI",system-ui;
   background:#f4f7f6;
   margin:0;
 }
 .wrap{
-  max-width:1200px;
+  max-width:900px;
   margin:25px auto;
-  padding:20px;
+  background:#fff;
+  padding:25px;
+  border-radius:10px;
 }
 h2{color:#2e7d32;margin-top:0}
 .small{font-size:13px;color:#555}
 
-.grid{
+/* ===== TOP BAR ===== */
+.topBar{
   display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:16px;
+  grid-template-columns:1fr auto 1fr;
+  align-items:center;
+  margin-bottom:12px;
 }
+.topBar .left{text-align:left}
+.topBar .center{text-align:center}
+.topBar .right{text-align:right}
 
-.box{
-  background:#fff;
-  border-radius:10px;
-  padding:15px;
-}
-.box h3{
-  margin-top:0;
-  color:#2e7d32;
-}
-
-input{
+/* textarea */
+textarea{
   width:100%;
-  padding:8px;
-  margin-top:6px;
+  min-height:160px;
+  padding:10px;
+  font-family:inherit;
 }
+
+/* buttons */
 button{
-  margin-top:6px;
-  background:#2e7d32;
-  color:#fff;
   border:none;
   border-radius:6px;
-  padding:6px 12px;
+  padding:8px 16px;
   cursor:pointer;
+  background:#2e7d32;
+  color:#fff;
 }
-.del{background:#c62828}
+.previewBtn{background:#0277bd}
 
-ul{padding-left:18px}
-li{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  margin:4px 0;
+/* preview */
+.preview textarea{
+  pointer-events:none;
+  background:#f3f3f3;
+}
+.previewNote{
+  background:#fff3cd;
+  padding:6px 10px;
+  border-radius:6px;
+  font-size:13px;
+  margin-bottom:10px;
 }
 
-/* nav */
+/* bottom nav */
 .nav{
   display:flex;
   justify-content:space-between;
@@ -70,108 +75,79 @@ li{
 
 <body>
 
-<div class="wrap">
+<div class="wrap" id="page">
 
-<h2>♻️ व्यवसायको दीगोपन विश्लेषण (Sustainability Analysis)</h2>
+<!-- ===== TOP CONTROLS ===== -->
+<div class="topBar">
+  <div class="left">
+    <button onclick="goPrev()">⬅ Existing Status</button>
+  </div>
+
+  <div class="center">
+    <button class="previewBtn" onclick="togglePreview()">👁 Preview / ✏️ Edit</button>
+  </div>
+
+  <div class="right">
+    <button onclick="goNext()">Next ➡</button>
+  </div>
+</div>
+
+<div id="previewNote" class="previewNote" style="display:none">
+👁 Preview Mode (Read-only)
+</div>
+
+<h2>🧠 Short Analysis (छोटो विश्लेषण)</h2>
 <p class="small">
-यस उपकरणमार्फत व्यवसायका सबल पक्ष, सुधार गर्नुपर्ने पक्ष, अवसर र समाधानलाई
-स्पष्ट रूपमा छुट्याएर विश्लेषण गर्न सकिन्छ।
+व्यवसायको वर्तमान अवस्था, चुनौती, सम्भावना र निष्कर्षलाई
+3–5 वाक्यमा स्पष्ट रूपमा प्रस्तुत गर्नुहोस्।
 </p>
 
-<div class="grid">
+<textarea id="analysisText"
+  placeholder="यहाँ छोटो विश्लेषण लेख्नुहोस्..."></textarea>
 
-<!-- STRENGTH -->
-<div class="box">
-<h3>🟢 सबल पक्ष (Strengths)</h3>
-<input id="sInput" placeholder="सबल पक्ष लेख्नुहोस्">
-<button onclick="addItem('strengths', sInput)">➕ Add</button>
-<ul id="strengths"></ul>
-</div>
-
-<!-- WEAKNESS -->
-<div class="box">
-<h3>🟡 सुधार गर्नुपर्ने पक्ष (Weaknesses)</h3>
-<input id="wInput" placeholder="सुधार गर्नुपर्ने पक्ष लेख्नुहोस्">
-<button onclick="addItem('weaknesses', wInput)">➕ Add</button>
-<ul id="weaknesses"></ul>
-</div>
-
-<!-- OPPORTUNITY -->
-<div class="box">
-<h3>🔵 अवसरहरू (Opportunities)</h3>
-<input id="oInput" placeholder="अवसर लेख्नुहोस्">
-<button onclick="addItem('opportunities', oInput)">➕ Add</button>
-<ul id="opportunities"></ul>
-</div>
-
-<!-- SOLUTION -->
-<div class="box">
-<h3>🔧 समाधान / रणनीति (Solutions)</h3>
-<input id="solInput" placeholder="समाधान वा रणनीति लेख्नुहोस्">
-<button onclick="addItem('solutions', solInput)">➕ Add</button>
-<ul id="solutions"></ul>
-</div>
-
-</div>
-
-<!-- NAV -->
+<!-- ===== BOTTOM NAV ===== -->
 <div class="nav">
-  <button onclick="location.href='short-analysis.html'">⬅ Previous</button>
-  <button onclick="location.href='business-detail.html'">Next ➡</button>
+  <button onclick="goPrev()">⬅ Previous</button>
+  <button onclick="goNext()">Next ➡</button>
 </div>
 
 </div>
 
 <script>
-/* ================= SUSTAINABILITY ANALYSIS – AUTOSAVE ================= */
-
+/* ===== SAFETY LOAD ===== */
 const key = localStorage.getItem("activeProject");
 if(!key){
-  alert("पहिले Project सुरु गर्नुहोस्");
+  alert("पहिले Home बाट Project सुरु गर्नुहोस्");
   location.href="index.html";
 }
+const project = JSON.parse(localStorage.getItem(key));
+project.shortAnalysis ??= "";
 
-const project = JSON.parse(localStorage.getItem(key)) || {};
-project.sustainability = project.sustainability || {
-  strengths:[],
-  weaknesses:[],
-  opportunities:[],
-  solutions:[]
-};
+/* ===== LOAD ===== */
+analysisText.value = project.shortAnalysis;
 
-function save(){
-  localStorage.setItem(key, JSON.stringify(project));
-  render();
+/* ===== AUTOSAVE ===== */
+analysisText.addEventListener("input",()=>{
+  project.shortAnalysis = analysisText.value;
+  project.lastEdited = new Date().toLocaleString("ne-NP");
+  localStorage.setItem(key,JSON.stringify(project));
+});
+
+/* ===== NAVIGATION (FIXED & SAFE) ===== */
+function goPrev(){
+  location.href = "existing-status.html";
+}
+function goNext(){
+  location.href = "business-detail.html";
 }
 
-function addItem(type,input){
-  if(!input.value.trim()) return;
-  project.sustainability[type].push(input.value.trim());
-  input.value="";
-  save();
+/* ===== PREVIEW ===== */
+let preview=false;
+function togglePreview(){
+  preview=!preview;
+  page.classList.toggle("preview",preview);
+  previewNote.style.display = preview ? "block":"none";
 }
-
-function delItem(type,i){
-  project.sustainability[type].splice(i,1);
-  save();
-}
-
-function render(){
-  ["strengths","weaknesses","opportunities","solutions"].forEach(type=>{
-    const ul=document.getElementById(type);
-    ul.innerHTML="";
-    project.sustainability[type].forEach((t,i)=>{
-      ul.innerHTML+=`
-        <li>
-          <span>${t}</span>
-          <button class="del" onclick="delItem('${type}',${i})">✖</button>
-        </li>
-      `;
-    });
-  });
-}
-
-render();
 </script>
 
 </body>
