@@ -2,17 +2,17 @@
 <html lang="ne">
 <head>
 <meta charset="UTF-8">
-<title>Existing Status | FarmerBase BP Engine</title>
+<title>Existing Status | BPMS</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
 body{
-  font-family:"Noto Sans Devanagari","Kalimati","Mangal",system-ui;
+  font-family:"Noto Sans Devanagari","Kalimati","Mangal","Nirmala UI",system-ui,Arial;
   background:#f4f7f6;
   margin:0;
 }
 .wrap{
-  max-width:950px;
+  max-width:1000px;
   margin:25px auto;
   background:#fff;
   padding:25px;
@@ -21,27 +21,28 @@ body{
 h2,h3{color:#2e7d32;margin-top:0}
 .small{font-size:13px;color:#555}
 
+/* form */
 label{font-weight:600}
 input,textarea{
   width:100%;
   padding:8px;
   margin-top:6px;
-  margin-bottom:12px;
   font-family:inherit;
 }
-textarea{min-height:90px}
+textarea{min-height:80px}
 
 button{
-  background:#2e7d32;
-  color:#fff;
   border:none;
   border-radius:6px;
-  padding:6px 14px;
+  padding:6px 12px;
   cursor:pointer;
+  background:#2e7d32;
+  color:#fff;
 }
 .del{background:#c62828}
 .edit{background:#0277bd}
 
+/* cards */
 .card{
   background:#f9fdf9;
   border:1px solid #dceddc;
@@ -49,16 +50,13 @@ button{
   padding:12px;
   margin-top:12px;
 }
-.card img{
-  max-width:100%;
-  border-radius:6px;
-  margin-top:8px;
-}
+.card h4{margin:0 0 6px 0}
 
-.checklistBox{
+/* checklist */
+.checkBox{
   background:#f6f6f6;
-  padding:12px;
   border-radius:8px;
+  padding:12px;
   margin-top:10px;
 }
 .checkItem{
@@ -71,6 +69,7 @@ button{
   font-weight:normal;
 }
 
+/* nav */
 .nav{
   display:flex;
   justify-content:space-between;
@@ -85,76 +84,82 @@ button{
 
 <h2>📂 Existing Status (हालसम्मको अवस्था)</h2>
 <p class="small">
-यसअघि गरिएका कार्यहरू र हालको पूर्वाधार/अवस्था यहाँ व्यवस्थापन गर्नुहोस्।
+संस्थाले यसअघि गरेका कामहरू, अनुभव तथा हाल उपलब्ध पूर्वाधार/अवस्था यहाँ उल्लेख गर्नुहोस्।
 </p>
 
-<!-- ================= EXISTING WORK ================= -->
+<!-- ================= EXISTING WORKS ================= -->
 <h3>🔹 यसअघि गरिएका कार्यहरू</h3>
 
 <label>विषय (Topic)</label>
-<input id="workTopic" placeholder="जस्तै: कृषि तालिम, सडक निर्माण">
+<input id="workTopic" placeholder="जस्तै: कृषि तालिम, पूर्वाधार निर्माण">
 
-<label>विवरण (Content)</label>
-<textarea id="workContent" placeholder="के काम गरियो, कहिले, कसरी, कति जनाले लाभ लिए..."></textarea>
+<label>विवरण</label>
+<textarea id="workContent" placeholder="के काम गरियो, कहिले, कसरी..."></textarea>
 
 <label>Photo URL (optional)</label>
 <input id="workPhoto" placeholder="https://example.com/photo.jpg">
 
-<button onclick="addWork()">➕ Add</button>
+<button onclick="addWork()">➕ Add Work</button>
 
 <div id="workList"></div>
 
 <hr>
 
 <!-- ================= CHECKLIST ================= -->
-<h3>✅ पूर्वाधार / अवस्था Checklist</h3>
+<h3>✅ वर्तमान अवस्था / पूर्वाधार Checklist</h3>
 
 <label>नयाँ Checklist Item</label>
 <input id="checkText" placeholder="जस्तै: फर्मसम्म मोटरबाटो छ">
 
 <button onclick="addCheck()">➕ Add Checklist</button>
 
-<div class="checklistBox" id="checkList"></div>
+<div class="checkBox" id="checkList"></div>
 
 <!-- ================= NAV ================= -->
 <div class="nav">
   <button onclick="location.href='short-info.html'">⬅ Previous</button>
-  <button onclick="location.href='business-detail.html'">Next ➡</button>
+  <button onclick="location.href='short-analysis.html'">Next ➡</button>
 </div>
 
 </div>
 
 <script>
-/* ================= EXISTING STATUS – FULL AUTOSAVE ================= */
-
-const key = localStorage.getItem("activeProject");
+/* ===== LOAD PROJECT ===== */
+let key = localStorage.getItem("activeProject");
 if(!key){
-  alert("पहिले Project सुरु गर्नुहोस्");
+  alert("पहिले Home बाट Project खोल्नुहोस्");
   location.href="index.html";
 }
+let project = JSON.parse(localStorage.getItem(key));
 
-const project = JSON.parse(localStorage.getItem(key)) || {};
-
-// init structure
 project.existingStatus = project.existingStatus || {
-  works: [],
-  checklist: []
+  works:[],
+  checklist:[]
 };
 
-/* ---------- EXISTING WORK ---------- */
+/* ===== EXISTING WORKS ===== */
 function addWork(){
   if(!workTopic.value || !workContent.value){
     alert("विषय र विवरण अनिवार्य छ");
     return;
   }
   project.existingStatus.works.push({
-    topic: workTopic.value,
-    content: workContent.value,
-    photo: workPhoto.value
+    topic:workTopic.value,
+    content:workContent.value,
+    photo:workPhoto.value
   });
   workTopic.value="";
   workContent.value="";
   workPhoto.value="";
+  save(renderWorks);
+}
+
+function editWork(i){
+  let w = project.existingStatus.works[i];
+  workTopic.value=w.topic;
+  workContent.value=w.content;
+  workPhoto.value=w.photo;
+  project.existingStatus.works.splice(i,1);
   save(renderWorks);
 }
 
@@ -176,20 +181,21 @@ function renderWorks(){
       <div class="card">
         <h4>${i+1}. ${w.topic}</h4>
         <p>${w.content.replace(/\\n/g,"<br>")}</p>
-        ${w.photo ? `<img src="${w.photo}">` : ""}
+        ${w.photo?`<img src="${w.photo}" style="max-width:100%;border-radius:6px">`:""}
         <br>
+        <button class="edit" onclick="editWork(${i})">✏️ Edit</button>
         <button class="del" onclick="deleteWork(${i})">🗑 Delete</button>
       </div>
     `;
   });
 }
 
-/* ---------- CHECKLIST ---------- */
+/* ===== CHECKLIST ===== */
 function addCheck(){
   if(!checkText.value) return;
   project.existingStatus.checklist.push({
-    text: checkText.value,
-    checked: false
+    text:checkText.value,
+    checked:false
   });
   checkText.value="";
   save(renderChecklist);
@@ -202,9 +208,10 @@ function toggleCheck(i){
 }
 
 function editCheck(i){
-  const n = prompt("Checklist सच्याउनुहोस्", project.existingStatus.checklist[i].text);
+  let n = prompt("Checklist सच्याउनुहोस्",
+    project.existingStatus.checklist[i].text);
   if(n){
-    project.existingStatus.checklist[i].text = n;
+    project.existingStatus.checklist[i].text=n;
     save(renderChecklist);
   }
 }
@@ -239,13 +246,14 @@ function renderChecklist(){
   });
 }
 
-/* ---------- SAVE ---------- */
+/* ===== SAVE ===== */
 function save(cb){
-  localStorage.setItem(key, JSON.stringify(project));
+  project.lastEdited=new Date().toLocaleString("ne-NP");
+  localStorage.setItem(key,JSON.stringify(project));
   if(cb) cb();
 }
 
-/* init render */
+/* init */
 renderWorks();
 renderChecklist();
 </script>
