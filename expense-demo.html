@@ -29,15 +29,18 @@ header a{
   padding:20px;
 }
 h2{
-  margin-top:0;
+  margin:10px 0;
+  color:#2e7d32;
+}
+h3{
+  margin:16px 0 6px;
   color:#2e7d32;
 }
 textarea{
   width:100%;
   box-sizing:border-box;
-  padding:10px;
+  padding:8px;
   font-size:14px;
-  margin:6px 0 12px;
 }
 table{
   width:100%;
@@ -67,10 +70,21 @@ input,select{
   border:none;
   cursor:pointer;
 }
-.note{
-  font-size:13px;
-  color:#2e7d32;
-  margin-top:8px;
+.deleteBtn{
+  color:#c62828;
+  cursor:pointer;
+  font-weight:700;
+  text-align:center;
+}
+.noteText{
+  font-size:12px;
+  color:#555;
+}
+.footerBox{
+  background:#fff;
+  border:1px solid #ccc;
+  padding:12px;
+  margin-top:16px;
 }
 </style>
 </head>
@@ -86,10 +100,9 @@ input,select{
 
 <h2>💰 खर्च विवरण (वार्षिक)</h2>
 
-<!-- ===== EXPENSE NARRATION ===== -->
-<label><strong>✍️ खर्च सम्बन्धी विवरण (Editable)</strong></label>
-<textarea id="expenseNarration" rows="4"
-  placeholder="यहाँ खर्च सम्बन्धी संक्षिप्त विवरण लेख्नुहोस्..."></textarea>
+<!-- ===== OVERALL NARRATION ===== -->
+<label><strong>✍️ खर्च सम्बन्धी समग्र विवरण</strong></label>
+<textarea id="expenseNarration" rows="3"></textarea>
 
 <!-- ===== EXPENSE TABLE ===== -->
 <table>
@@ -97,7 +110,9 @@ input,select{
 <tr>
   <th>खर्च शीर्षक</th>
   <th>बर्ग</th>
-  <th style="text-align:right">रकम (रु)</th>
+  <th>रकम (रु)</th>
+  <th>Note</th>
+  <th>❌</th>
 </tr>
 </thead>
 <tbody id="expenseBody"></tbody>
@@ -105,66 +120,92 @@ input,select{
 
 <button class="addBtn" onclick="addExpense()">➕ नयाँ खर्च</button>
 
-<p class="note">✔️ सबै विवरण स्वतः सुरक्षित हुन्छ (Auto-Save)</p>
+<!-- ===== FUNDING SOURCE ===== -->
+<div class="footerBox">
+<h3>💼 लगानीको स्रोत बाँडफाँट</h3>
+
+<table>
+<tr>
+  <th>स्रोत</th>
+  <th>रकम (रु)</th>
+</tr>
+<tr>
+  <td>आफ्नै पूँजी</td>
+  <td><input type="number" oninput="updateFunding('own',this.value)"></td>
+</tr>
+<tr>
+  <td>ऋण / कर्जा</td>
+  <td><input type="number" oninput="updateFunding('loan',this.value)"></td>
+</tr>
+<tr>
+  <td>अनुदान</td>
+  <td><input type="number" oninput="updateFunding('grant',this.value)"></td>
+</tr>
+</table>
+</div>
+
+<!-- ===== DEPRECIATION ===== -->
+<div class="footerBox">
+<h3>📉 ह्रासकट्टी (Depreciation)</h3>
+<p class="noteText">
+स्थिर खर्च (पूर्वाधार, मेशीन आदि) मा वार्षिक ह्रासकट्टी लागू हुन्छ।
+</p>
+<table>
+<tr>
+  <th>ह्रासकट्टी दर (%)</th>
+  <th>वार्षिक ह्रासकट्टी रकम (रु)</th>
+</tr>
+<tr>
+  <td>
+    <input type="number" value="10" oninput="updateDepRate(this.value)">
+  </td>
+  <td id="deprAmount">0</td>
+</tr>
+</table>
+</div>
 
 </div>
 
 <script>
 /* ===== Load Project ===== */
 const key = localStorage.getItem("activeProject");
-if(!key){
-  alert("Active योजना भेटिएन");
-}
+if(!key){ alert("Active योजना भेटिएन"); }
 let project = JSON.parse(localStorage.getItem(key)) || {};
+
 project.expenses = project.expenses || [];
+project.funding = project.funding || {own:0,loan:0,grant:0};
+project.deprRate = project.deprRate || 10;
 
 /* ===== Default Narration ===== */
 if(!project.expenseNarration){
   project.expenseNarration =
-    "यस व्यवसाय सञ्चालनका लागि आवश्यक चालु तथा स्थिर खर्चहरू यथार्थपरक रूपमा अनुमान गरिएको छ। " +
-    "खर्चहरू व्यवसायको प्रकृति, उत्पादन क्षमता र बजार अवस्थालाई ध्यानमा राखी निर्धारण गरिएको हो।";
-  saveProject();
+    "यस व्यवसाय सञ्चालनका लागि आवश्यक चालु तथा स्थिर खर्चहरू यथार्थपरक रूपमा अनुमान गरिएको छ।";
 }
 expenseNarration.value = project.expenseNarration;
-
-/* ===== Narration Save ===== */
-expenseNarration.addEventListener("input",()=>{
+expenseNarration.oninput = ()=>{
   project.expenseNarration = expenseNarration.value;
-  saveProject();
-});
+  save();
+};
 
-/* ===== Budget Code Generator ===== */
+/* ===== Budget Code ===== */
 function generateBudgetCode(category){
-  let prefix="OP-OTH";
-  if(category.includes("कच्चा")) prefix="OP-RAW";
-  else if(category.includes("मजदुरी")) prefix="OP-LAB";
-  else if(category.includes("पूर्वाधार")) prefix="FX-INF";
-  else if(category.includes("मेशीन")) prefix="FX-MAC";
-  return prefix+"-"+Date.now().toString().slice(-4);
+  if(category.includes("पूर्वाधार")) return "FX-INF-"+Date.now().toString().slice(-4);
+  if(category.includes("मेशीन")) return "FX-MAC-"+Date.now().toString().slice(-4);
+  return "OP-OTH-"+Date.now().toString().slice(-4);
 }
 
-/* ===== Ensure Budget Codes ===== */
-function ensureBudgetCodes(){
-  project.expenses.forEach(e=>{
-    if(!e.budgetCode){
-      e.budgetCode = generateBudgetCode(e.category||"");
-    }
-  });
-  saveProject();
-}
-
-/* ===== Render ===== */
-function renderExpenses(){
+/* ===== Render Expenses ===== */
+function render(){
   expenseBody.innerHTML="";
   project.expenses.forEach((e,i)=>{
     const tr=document.createElement("tr");
     tr.innerHTML=`
       <td>
         <input value="${e.title||""}"
-          oninput="updateExpense(${i},'title',this.value)">
+          oninput="upd(${i},'title',this.value)">
       </td>
       <td>
-        <select onchange="updateExpense(${i},'category',this.value)">
+        <select onchange="upd(${i},'category',this.value)">
           <optgroup label="🔵 स्थिर खर्च">
             <option ${e.category==="पूर्वाधार निर्माण"?"selected":""}>पूर्वाधार निर्माण</option>
             <option ${e.category==="मेशीन औजार"?"selected":""}>मेशीन औजार</option>
@@ -180,12 +221,18 @@ function renderExpenses(){
       </td>
       <td>
         <input type="number" value="${e.amount||0}"
-          style="text-align:right"
-          oninput="updateExpense(${i},'amount',this.value)">
+          oninput="upd(${i},'amount',this.value)">
       </td>
+      <td>
+        <textarea rows="2"
+          oninput="upd(${i},'note',this.value)">${e.note||"यस खर्चको संक्षिप्त विवरण"}</textarea>
+      </td>
+      <td class="deleteBtn" onclick="del(${i})">✖</td>
     `;
     expenseBody.appendChild(tr);
   });
+
+  calcDepreciation();
 }
 
 /* ===== CRUD ===== */
@@ -194,25 +241,50 @@ function addExpense(){
     title:"",
     category:"कच्चापदार्थ",
     amount:0,
+    note:"यस खर्चको संक्षिप्त विवरण",
     budgetCode:generateBudgetCode("कच्चापदार्थ")
   });
-  saveProject();
-  renderExpenses();
+  save(); render();
+}
+function upd(i,f,v){
+  project.expenses[i][f] = f==="amount"?Number(v):v;
+  save(); render();
+}
+function del(i){
+  if(!confirm("यो खर्च हटाउने ?")) return;
+  project.expenses.splice(i,1);
+  save(); render();
 }
 
-function updateExpense(i,f,v){
-  project.expenses[i][f]=f==="amount"?Number(v):v;
-  saveProject();
+/* ===== Funding ===== */
+function updateFunding(k,v){
+  project.funding[k]=Number(v)||0;
+  save();
+}
+
+/* ===== Depreciation ===== */
+function updateDepRate(v){
+  project.deprRate = Number(v)||0;
+  save(); calcDepreciation();
+}
+function calcDepreciation(){
+  let fixedTotal=0;
+  project.expenses.forEach(e=>{
+    if(e.category.includes("स्थिर") || e.category.includes("पूर्वाधार") || e.category.includes("मेशीन")){
+      fixedTotal += Number(e.amount)||0;
+    }
+  });
+  const dep = fixedTotal * (project.deprRate/100);
+  deprAmount.innerText = dep.toFixed(2);
 }
 
 /* ===== Save ===== */
-function saveProject(){
+function save(){
   localStorage.setItem(key,JSON.stringify(project));
 }
 
 /* Init */
-ensureBudgetCodes();
-renderExpenses();
+render();
 </script>
 
 </body>
