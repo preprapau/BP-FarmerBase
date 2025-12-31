@@ -2,233 +2,306 @@
 <html lang="ne">
 <head>
 <meta charset="UTF-8">
-<title>Full Business Proposal | Farmerbase BP Engine</title>
+<title>Full Proposal | FarmerBase BP Engine</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
-@media print{
-  header,footer,.noprint{display:none}
-  body{background:#fff}
-}
+/* ================= SCREEN BASE ================= */
 body{
-  font-family:"Noto Sans Devanagari","Kalimati",system-ui;
-  background:#f4f7f6;margin:0;line-height:1.6
-}
-header,footer{
-  background:#e8f5e9;
-  padding:10px 16px;
-  display:flex;
-  justify-content:space-between
-}
-header a,footer a{
-  color:#2e7d32;
-  font-weight:600;
-  text-decoration:none
+  font-family:"Noto Sans Devanagari","Kalimati","Mangal","Nirmala UI",system-ui;
+  background:#eaeaea;
+  margin:0;
 }
 .page{
-  max-width:900px;
-  margin:18px auto;
+  max-width:210mm;           /* A4 width */
+  margin:20px auto;
   background:#fff;
-  padding:32px;
-  border-radius:12px
+  padding:25mm 20mm;         /* Print-safe margins */
 }
-h1,h2,h3{
-  color:#2e7d32;
-  margin-top:24px
+h1,h2,h3{color:#2e7d32;margin-top:0}
+.small{font-size:13px;color:#555}
+
+/* ===== SCREEN TOP BAR (hidden in print) ===== */
+.topBar{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:12px;
 }
-hr{border:none;border-top:1px solid #ccc;margin:24px 0}
+.topBar button{
+  padding:6px 14px;
+  border:none;
+  border-radius:6px;
+  background:#2e7d32;
+  color:#fff;
+  cursor:pointer;
+}
+
+/* ===== TABLE (generic) ===== */
 table{
   width:100%;
   border-collapse:collapse;
-  margin-top:10px
+  margin-top:10px;
 }
 th,td{
-  border:1px solid #ccc;
-  padding:8px;
-  text-align:right
+  border:1px solid #444;
+  padding:6px;
+  font-size:13px;
 }
-th{background:#eef5ee}
-.left{text-align:left}
-.center{text-align:center}
-.sum{font-weight:700;background:#fafafa}
-.small{font-size:13px;color:#555}
+th{background:#f1f8e9}
+.total-row{
+  font-weight:bold;
+  background:#e8f5e9;
+}
+
+/* ===== PRINT RULES (CRITICAL) ===== */
+@media print{
+  body{background:#fff}
+  .topBar{display:none}
+
+  @page{ margin:20mm; }
+
+  /* Repeat headers/footers on page breaks */
+  thead{ display:table-header-group; }
+  tfoot{ display:table-footer-group; }
+
+  /* Avoid awkward splits */
+  tr{ page-break-inside:avoid; break-inside:avoid; }
+  h1,h2,h3{ page-break-after:avoid; }
+  section{ page-break-inside:avoid; }
+  .no-break{ page-break-inside:avoid; }
+
+  /* Footer page number (browser-limited but bank-acceptable) */
+  footer{
+    position:fixed;
+    bottom:10mm;
+    right:20mm;
+    font-size:12px;
+  }
+}
+
+/* Utility */
+.hr{border-top:1px solid #ddd;margin:14px 0}
 </style>
 </head>
 
 <body>
 
-<header class="noprint">
-  <a href="proposal-narration.html">◀️ Back</a>
-  <a href="#" onclick="window.print()">🖨️ Print / Save PDF</a>
-</header>
+<div class="page" id="page">
 
-<div class="page">
+<!-- ===== SCREEN NAV (ONLY FOR VIEW) ===== -->
+<div class="topBar">
+  <button onclick="location.href='executive-summary.html'">⬅ Back</button>
+  <button onclick="window.print()">🖨 Print / PDF</button>
+</div>
 
-<h1 class="center">व्यवसायिक प्रस्ताव (Business Proposal)</h1>
-<p class="center small">
-Farmerbase BP Engine द्वारा स्वचालित रूपमा तयार गरिएको
-</p>
+<!-- ================= COVER ================= -->
+<section>
+  <h1>व्यवसायिक प्रस्ताव (Business Proposal)</h1>
+  <p class="small" id="coverInfo"></p>
+</section>
 
-<hr>
+<div class="hr"></div>
 
-<h2>१. प्रस्तावको सारांश (Executive Summary)</h2>
-<p id="execSummary"></p>
+<!-- ================= TOC ================= -->
+<section class="no-break">
+  <h2>Table of Contents</h2>
+  <ol>
+    <li>Executive Summary</li>
+    <li>Existing Status</li>
+    <li>Short Analysis</li>
+    <li>Business Detail</li>
+    <li>Production Plan (Summary)</li>
+    <li>Cost & Expense Summary</li>
+    <li>Income & Profit Summary</li>
+    <li>Financial Projection & ROI</li>
+    <li>Growth Assumptions</li>
+    <li>Financial Ratios</li>
+    <li>Income Allocation</li>
+    <li>Proposal Narration</li>
+    <li>Annex (A/B/C)</li>
+  </ol>
+</section>
 
-<hr>
+<div class="hr"></div>
 
-<h2>२. उत्पादन विवरण (Production Details)</h2>
-<table>
-<thead>
-<tr>
-  <th class="left">उत्पादन</th>
-  <th>परिमाण</th>
-  <th>एकाइ</th>
-</tr>
-</thead>
-<tbody id="prodBody"></tbody>
-</table>
+<!-- ================= 1. EXECUTIVE SUMMARY ================= -->
+<section>
+  <h2>1. Executive Summary</h2>
+  <div id="execSummary"></div>
+</section>
 
-<hr>
+<!-- ================= 2. EXISTING STATUS ================= -->
+<section>
+  <h2>2. Existing Status</h2>
+  <div id="existingStatus"></div>
+</section>
 
-<h2>३. खर्च विवरण (Cost Structure)</h2>
-<table>
-<tr>
-  <th class="left">विवरण</th>
-  <th>रकम</th>
-</tr>
-<tr>
-  <td class="left">चालु खर्च</td>
-  <td id="operatingCost">0</td>
-</tr>
-<tr>
-  <td class="left">स्थिर खर्च / लगानी</td>
-  <td id="fixedCost">0</td>
-</tr>
-</table>
+<!-- ================= 3. SHORT ANALYSIS ================= -->
+<section>
+  <h2>3. Short Analysis</h2>
+  <p id="shortAnalysis"></p>
+</section>
 
-<hr>
+<!-- ================= 4. BUSINESS DETAIL ================= -->
+<section>
+  <h2>4. Business Detail</h2>
+  <div id="businessDetail"></div>
+</section>
 
-<h2>४. आम्दानी तथा नाफा (Income & Profit)</h2>
-<table>
-<tr>
-  <td class="left">कुल आम्दानी</td>
-  <td id="totalIncome">0</td>
-</tr>
-<tr>
-  <td class="left">कर-पूर्व नाफा</td>
-  <td id="profitBeforeTax">0</td>
-</tr>
-<tr>
-  <td class="left">कर-पछिको खुद नाफा</td>
-  <td id="netProfit">0</td>
-</tr>
-</table>
+<!-- ================= 5. PRODUCTION (SUMMARY) ================= -->
+<section>
+  <h2>5. Production Plan (Summary)</h2>
+  <p class="small">
+    विस्तृत उत्पादन तालिका Annex–A मा समावेश गरिएको छ।
+  </p>
+  <div id="productionSummary"></div>
+</section>
 
-<hr>
+<!-- ================= 6. COST & EXPENSE (SUMMARY) ================= -->
+<section>
+  <h2>6. Cost & Expense Summary</h2>
+  <p class="small">
+    विस्तृत खर्च तथा लागत तालिका Annex–A मा उपलब्ध छ।
+  </p>
+  <div id="costSummary"></div>
+</section>
 
-<h2>५. लगानी प्रतिफल (ROI)</h2>
-<table>
-<tr>
-  <td class="left">ROI (%)</td>
-  <td id="roiPercent">0</td>
-</tr>
-<tr>
-  <td class="left">लगानी फिर्ता अवधि (वर्ष)</td>
-  <td id="payback">0</td>
-</tr>
-</table>
+<!-- ================= 7. INCOME (SUMMARY) ================= -->
+<section>
+  <h2>7. Income & Profit Summary</h2>
+  <p class="small">
+    मूल्य निर्धारण र आम्दानी विवरण Annex–A मा समावेश गरिएको छ।
+  </p>
+  <div id="incomeSummary"></div>
+</section>
 
-<hr>
+<!-- ================= 8. ROI / PROJECTION (SUMMARY) ================= -->
+<section>
+  <h2>8. Financial Projection & ROI</h2>
+  <p class="small">
+    Profit–Loss, Cash Flow, ROI/Break-even को विस्तृत तालिका Annex–A मा छ।
+  </p>
+  <div id="roiSummary"></div>
+</section>
 
-<h2>६. ५-वर्षे वित्तीय प्रक्षेपण (5-Year Projection)</h2>
-<p>
-औसत वार्षिक वृद्धिदरका आधारमा ५ वर्षमा कुल
-<strong id="profit5y"></strong> नाफा हुने प्रक्षेपण गरिएको छ।
-</p>
+<!-- ================= 9. GROWTH ASSUMPTIONS ================= -->
+<section>
+  <h2>9. Growth Assumptions</h2>
+  <div id="growthData"></div>
+</section>
 
-<hr>
+<!-- ================= 10. FINANCIAL RATIOS ================= -->
+<section>
+  <h2>10. Financial Ratios</h2>
+  <div id="ratioData"></div>
+</section>
 
-<h2>७. निष्कर्ष (Conclusion)</h2>
-<p>
-उपरोक्त विश्लेषणका आधारमा प्रस्तुत व्यवसाय आर्थिक रूपमा
-सम्भाव्य, दिगो तथा लाभदायक देखिन्छ।
-यस प्रस्तावका आधारमा आवश्यक वित्तीय सहयोग / लगानी प्रदान
-गरिदिनुहुन अनुरोध गर्दछौँ।
-</p>
+<!-- ================= 11. INCOME ALLOCATION ================= -->
+<section>
+  <h2>11. Income Allocation</h2>
+  <div id="allocationData"></div>
+</section>
 
-<hr>
+<!-- ================= 12. PROPOSAL NARRATION ================= -->
+<section>
+  <h2>12. Proposal Narration</h2>
+  <p id="proposalNarration"></p>
+</section>
 
-<p class="small">
-Prepared by Farmerbase BP Engine | Auto-generated Business Plan
-</p>
+<!-- ================= ANNEX NOTE ================= -->
+<section class="no-break">
+  <h2>Annex</h2>
+  <p class="small">
+    विस्तृत तालिका, प्रमाण तथा नीतिगत विवरणहरू Annex–A (Financial Tables),
+    Annex–B (Existing Status & Evidence) र Annex–C (Assumptions & Policies)
+    मा प्रस्तुत गरिएको छ।
+  </p>
+</section>
+
+<!-- ================= SIGNATURE ================= -->
+<section style="page-break-before:always">
+  <h2>Signature & Approval</h2>
+  <table style="width:100%;border:none">
+    <tr>
+      <td style="border:none">
+        .................................<br>
+        प्रस्तावकको हस्ताक्षर<br>
+        नाम:<br>
+        मिति:
+      </td>
+      <td style="border:none;text-align:right">
+        .................................<br>
+        संस्था प्रमुख / मुहर<br>
+        नाम:<br>
+        मिति:
+      </td>
+    </tr>
+  </table>
+</section>
+
+<footer>Page</footer>
 
 </div>
 
-<footer class="noprint">
-  <a href="index.html">🏠 Home</a>
-</footer>
-
 <script>
-/* =====================================================
-   LOAD PROJECT DATA
-   ===================================================== */
+/* ================= LOAD PROJECT ================= */
 const key = localStorage.getItem("activeProject");
 if(!key){
-  alert("Project भेटिएन");
+  alert("Project not found");
   location.href="index.html";
 }
+const p = JSON.parse(localStorage.getItem(key)) || {};
 
-const project = JSON.parse(localStorage.getItem(key)) || {};
-const pl = project.profitLoss || {};
-const roi = project.roi || {};
-const proj5 = project.projection5y || {};
-const alloc = project.costAllocation || {};
+/* ================= COVER ================= */
+const si = p.shortInfo || {};
+document.getElementById("coverInfo").innerText =
+`${si.bp_name || "—"} | ${si.bp_location || "—"}
+प्रस्तावकर्ता: ${si.bp_org || "—"}`;
 
-/* =====================================================
-   HELPERS
-   ===================================================== */
-function money(n){
-  return "रु " + (Number(n)||0).toFixed(2);
+/* ================= CONTENT MAP ================= */
+document.getElementById("execSummary").innerText = p.executiveSummary || "";
+document.getElementById("shortAnalysis").innerText = p.shortAnalysis || "";
+document.getElementById("proposalNarration").innerText = p.proposalNarration || "";
+
+/* Existing Status (concise) */
+if(p.existingStatus?.works?.length){
+  document.getElementById("existingStatus").innerHTML =
+    p.existingStatus.works.map((w,i)=>`${i+1}. ${w.topic} — ${w.content}`).join("<br>");
+}else{
+  document.getElementById("existingStatus").innerHTML = "<i>विवरण उपलब्ध छैन</i>";
 }
 
-/* =====================================================
-   EXECUTIVE SUMMARY
-   ===================================================== */
-execSummary.innerText = `
-यस प्रस्तावित व्यवसायका लागि कुल स्थिर लगानी ${money(pl.fixedCost)} आवश्यक रहेको छ।
-वार्षिक चालु खर्च ${money(pl.operatingCost)} अनुमान गरिएको छ।
-यस योजनाबाट वार्षिक कुल आम्दानी ${money(pl.totalIncome)} र
-कर-पछिको खुद नाफा ${money(pl.netProfit)} हुने प्रक्षेपण गरिएको छ।
-`;
+/* Business Detail (concise) */
+if(Array.isArray(p.businessDetail) && p.businessDetail.length){
+  document.getElementById("businessDetail").innerHTML =
+    p.businessDetail.map((b,i)=>`${i+1}. ${b.topic}: ${b.content}`).join("<br>");
+}else{
+  document.getElementById("businessDetail").innerHTML = "<i>विवरण उपलब्ध छैन</i>";
+}
 
-/* =====================================================
-   PRODUCTION TABLE
-   ===================================================== */
-prodBody.innerHTML = "";
-Object.values(alloc).forEach(p=>{
-  prodBody.innerHTML += `
-  <tr>
-    <td class="left">${p.name}</td>
-    <td>${p.qty}</td>
-    <td>${p.unit}</td>
-  </tr>`;
-});
+/* Lightweight summaries (heavy tables go to Annex–A) */
+document.getElementById("productionSummary").innerText =
+  "उत्पादनको प्रकार, परिमाण र एकाइ अनुसार योजना बनाइएको छ।";
 
-/* =====================================================
-   COST / PROFIT / ROI
-   ===================================================== */
-operatingCost.innerText = money(pl.operatingCost);
-fixedCost.innerText = money(pl.fixedCost);
-totalIncome.innerText = money(pl.totalIncome);
-profitBeforeTax.innerText = money(pl.profitBeforeTax);
-netProfit.innerText = money(pl.netProfit);
+document.getElementById("costSummary").innerText =
+  "सञ्चालन तथा उत्पादन लागत संरचना व्यवस्थित गरिएको छ।";
 
-roiPercent.innerText =
-  roi.roiPercent ? roi.roiPercent.toFixed(2)+" %" : "0 %";
-payback.innerText =
-  roi.paybackYears ? roi.paybackYears.toFixed(2) : "—";
+document.getElementById("incomeSummary").innerText =
+  "मूल्य निर्धारण र नाफा प्रतिशतका आधारमा आम्दानी प्रक्षेपण गरिएको छ।";
 
-profit5y.innerText = money(proj5.total5YearProfit);
+document.getElementById("roiSummary").innerText =
+  "वित्तीय प्रक्षेपणअनुसार ROI तथा Break-even सम्भाव्य देखिन्छ।";
+
+/* Growth / Ratios / Allocation (print-friendly text) */
+document.getElementById("growthData").innerText =
+  JSON.stringify(p.growthAssumptions || {}, null, 2);
+
+document.getElementById("ratioData").innerText =
+  JSON.stringify(p.financialRatios || {}, null, 2);
+
+document.getElementById("allocationData").innerText =
+  JSON.stringify(p.incomeAllocation || {}, null, 2);
 </script>
 
 </body>
