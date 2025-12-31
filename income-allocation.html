@@ -8,25 +8,24 @@
 <style>
 body{
   font-family:"Noto Sans Devanagari","Kalimati",system-ui;
-  background:#f4f7f6;
-  margin:0;
+  background:#f4f7f6;margin:0
 }
 header,footer{
   background:#e8f5e9;
   padding:10px 16px;
   display:flex;
   justify-content:space-between;
-  align-items:center;
+  align-items:center
 }
 header a,footer a{
   text-decoration:none;
   font-weight:700;
-  color:#2e7d32;
+  color:#2e7d32
 }
 .container{
   max-width:1100px;
-  margin:0 auto;
-  padding:20px;
+  margin:auto;
+  padding:20px
 }
 h2,h3{color:#2e7d32;margin:8px 0}
 .small{font-size:13px;color:#555}
@@ -35,25 +34,25 @@ h2,h3{color:#2e7d32;margin:8px 0}
   background:#fff;
   padding:16px;
   border-radius:12px;
-  margin-bottom:16px;
+  margin-bottom:16px
 }
 
 table{
   width:100%;
-  border-collapse:collapse;
+  border-collapse:collapse
 }
 th,td{
   border:1px solid #ccc;
   padding:6px;
-  font-size:14px;
+  font-size:14px
 }
 th{background:#eef5ee}
 .right{text-align:right}
 
-input{
+input,textarea{
   width:100%;
   padding:6px;
-  box-sizing:border-box;
+  box-sizing:border-box
 }
 
 .btn{
@@ -61,18 +60,16 @@ input{
   background:#2e7d32;
   color:#fff;
   border:none;
-  cursor:pointer;
+  cursor:pointer
 }
-
 .del{
   color:#c62828;
   cursor:pointer;
-  font-weight:700;
+  font-weight:700
 }
-
 .highlight{
   background:#e8f5e9;
-  font-weight:700;
+  font-weight:700
 }
 
 .totalBox{
@@ -81,13 +78,13 @@ input{
   border-radius:12px;
   font-size:18px;
   font-weight:700;
-  text-align:center;
+  text-align:center
 }
 
 .footerNav{
   display:flex;
   justify-content:space-between;
-  width:100%;
+  width:100%
 }
 
 @media print{
@@ -101,28 +98,27 @@ input{
 
 <!-- TOP NAV -->
 <header>
-  <a href="income-demo.html">⬅️ Income</a>
+  <a href="profit-loss.html">⬅️ Profit–Loss</a>
   <strong>🔁 आम्दानी बाँडफाँट</strong>
-  <a href="profit-loss.html">➡️ Profit–Loss</a>
+  <a href="roi.html">➡️ ROI</a>
 </header>
 
 <div class="container">
 
 <h2>व्यवसायको आम्दानी बाँडफाँट</h2>
 <p class="small">
-ℹ️ कुल आम्दानीलाई विभिन्न उद्देश्य अनुसार प्रतिशतका आधारमा बाँडफाँट गरिएको छ।
-शीर्षक थप्न, हटाउन वा प्रतिशत सच्याउन सकिन्छ।
+ℹ️ Profit–Loss बाट प्राप्त <b>कुल आम्दानी</b> लाई
+विभिन्न उद्देश्य अनुसार प्रतिशतका आधारमा बाँडफाँट गरिएको छ।
 </p>
 
 <!-- NARRATION -->
 <div class="section">
-<h3>📝 बाँडफाँट सम्बन्धी विवरण (Narration)</h3>
+<h3>📝 बाँडफाँट नीति / Narration</h3>
 <textarea id="narration" rows="3"
-  placeholder="यहाँ आम्दानी बाँडफाँट सम्बन्धी नीति / उद्देश्य लेख्नुहोस्..."
-  style="width:100%;padding:8px"></textarea>
+ placeholder="आम्दानी बाँडफाँटको नीति, उद्देश्य वा सहकारी/संस्थागत व्यवस्था लेख्नुहोस्…"></textarea>
 </div>
 
-<!-- ALLOCATION TABLE -->
+<!-- TABLE -->
 <div class="section">
 <h3>📊 बाँडफाँट विवरण</h3>
 
@@ -157,37 +153,42 @@ input{
 
 </div>
 
-<!-- BOTTOM NAV -->
+<!-- FOOTER -->
 <footer>
   <div class="footerNav">
-    <a href="income-demo.html">⬅️ Income</a>
+    <a href="profit-loss.html">⬅️ Profit–Loss</a>
     <span class="small">FarmerBase BP Engine – Income Allocation</span>
-    <a href="profit-loss.html">➡️ Profit–Loss</a>
+    <a href="roi.html">➡️ ROI</a>
   </div>
 </footer>
 
 <script>
 /* ===============================
-   INCOME ALLOCATION – FINAL
+   INCOME ALLOCATION – FIXED
    =============================== */
 
 const key = localStorage.getItem("activeProject");
 if(!key){ alert("Active योजना भेटिएन"); }
 
 const project = JSON.parse(localStorage.getItem(key)) || {};
-project.incomeAllocation = project.incomeAllocation || {
-  narration:"",
-  rows:[
-    {title:"पुनः लगानी", percent:40},
-    {title:"वातावरण / सामुदायिक विकास", percent:20},
-    {title:"कामदार विकास कोष", percent:20},
-    {title:"व्यक्तिगत आम्दानी", percent:20}
-  ]
-};
+
+/* --- force init & persist --- */
+if(!project.incomeAllocation){
+  project.incomeAllocation = {
+    narration:"",
+    rows:[
+      {title:"पुनः लगानी", percent:40},
+      {title:"वातावरण / सामुदायिक विकास", percent:20},
+      {title:"कामदार विकास कोष", percent:20},
+      {title:"व्यक्तिगत आम्दानी", percent:20}
+    ]
+  };
+  localStorage.setItem(key, JSON.stringify(project));
+}
 
 const rows = project.incomeAllocation.rows;
 
-/* --- total income from income-demo --- */
+/* --- income total from income-demo --- */
 function getIncomeTotal(){
   const inc = project.income || [];
   let sum = 0;
@@ -197,7 +198,7 @@ function getIncomeTotal(){
   return sum;
 }
 
-/* --- save --- */
+/* --- save always --- */
 function save(){
   project.incomeAllocation.narration = narration.value;
   localStorage.setItem(key, JSON.stringify(project));
@@ -216,8 +217,8 @@ function addRow(){
   save();
 }
 
-/* --- delete row --- */
-function del(i){
+/* --- delete --- */
+function delRow(i){
   if(!confirm("यो शीर्षक हटाउने ?")) return;
   rows.splice(i,1);
   save();
@@ -234,7 +235,7 @@ function render(){
     totalP += r.percent||0;
     totalA += amt;
 
-    tbody.innerHTML += `
+    tbody.innerHTML+=`
     <tr>
       <td>
         <input value="${r.title}"
@@ -245,7 +246,7 @@ function render(){
           oninput="rows[${i}].percent=+this.value||0;save()">
       </td>
       <td class="right">${amt.toLocaleString()}</td>
-      <td class="del" onclick="del(${i})">✖</td>
+      <td class="del" onclick="delRow(${i})">✖</td>
     </tr>`;
   });
 
