@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+<meta charset="UTF-8">
+<title>आम्दानी बाँडफाँट | FarmerBase BP Engine</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+body{
+  font-family:"Noto Sans Devanagari","Kalimati",system-ui;
+  background:#f4f7f6;
+  margin:0;
+}
+header,footer{
+  background:#e8f5e9;
+  padding:10px 16px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+header a,footer a{
+  text-decoration:none;
+  font-weight:700;
+  color:#2e7d32;
+}
+.container{
+  max-width:1100px;
+  margin:0 auto;
+  padding:20px;
+}
+h2,h3{color:#2e7d32;margin:8px 0}
+.small{font-size:13px;color:#555}
+
+.section{
+  background:#fff;
+  padding:16px;
+  border-radius:12px;
+  margin-bottom:16px;
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+}
+th,td{
+  border:1px solid #ccc;
+  padding:6px;
+  font-size:14px;
+}
+th{background:#eef5ee}
+.right{text-align:right}
+
+input{
+  width:100%;
+  padding:6px;
+  box-sizing:border-box;
+}
+
+.btn{
+  padding:6px 12px;
+  background:#2e7d32;
+  color:#fff;
+  border:none;
+  cursor:pointer;
+}
+
+.del{
+  color:#c62828;
+  cursor:pointer;
+  font-weight:700;
+}
+
+.highlight{
+  background:#e8f5e9;
+  font-weight:700;
+}
+
+.totalBox{
+  background:#e8f5e9;
+  padding:14px;
+  border-radius:12px;
+  font-size:18px;
+  font-weight:700;
+  text-align:center;
+}
+
+.footerNav{
+  display:flex;
+  justify-content:space-between;
+  width:100%;
+}
+
+@media print{
+  header, footer, button{display:none}
+  body{background:#fff}
+}
+</style>
+</head>
+
+<body>
+
+<!-- TOP NAV -->
+<header>
+  <a href="income-demo.html">⬅️ Income</a>
+  <strong>🔁 आम्दानी बाँडफाँट</strong>
+  <a href="profit-loss.html">➡️ Profit–Loss</a>
+</header>
+
+<div class="container">
+
+<h2>व्यवसायको आम्दानी बाँडफाँट</h2>
+<p class="small">
+ℹ️ कुल आम्दानीलाई विभिन्न उद्देश्य अनुसार प्रतिशतका आधारमा बाँडफाँट गरिएको छ।
+शीर्षक थप्न, हटाउन वा प्रतिशत सच्याउन सकिन्छ।
+</p>
+
+<!-- NARRATION -->
+<div class="section">
+<h3>📝 बाँडफाँट सम्बन्धी विवरण (Narration)</h3>
+<textarea id="narration" rows="3"
+  placeholder="यहाँ आम्दानी बाँडफाँट सम्बन्धी नीति / उद्देश्य लेख्नुहोस्..."
+  style="width:100%;padding:8px"></textarea>
+</div>
+
+<!-- ALLOCATION TABLE -->
+<div class="section">
+<h3>📊 बाँडफाँट विवरण</h3>
+
+<table>
+<thead>
+<tr>
+  <th>शीर्षक</th>
+  <th class="right">प्रतिशत (%)</th>
+  <th class="right">रकम (रु)</th>
+  <th></th>
+</tr>
+</thead>
+<tbody id="tbody"></tbody>
+<tr class="highlight">
+  <th>जम्मा</th>
+  <th class="right" id="totalPercent">0 %</th>
+  <th class="right" id="totalAmount">0</th>
+  <th></th>
+</tr>
+</table>
+
+<div style="margin-top:10px">
+  <input id="newTitle" placeholder="नयाँ शीर्षक (जस्तै: पुनः लगानी)">
+  <input type="number" id="newPercent" placeholder="प्रतिशत">
+  <button class="btn" onclick="addRow()">➕ Add</button>
+</div>
+</div>
+
+<div class="totalBox">
+कुल आम्दानी : रु <span id="incomeTotal">0</span>
+</div>
+
+</div>
+
+<!-- BOTTOM NAV -->
+<footer>
+  <div class="footerNav">
+    <a href="income-demo.html">⬅️ Income</a>
+    <span class="small">FarmerBase BP Engine – Income Allocation</span>
+    <a href="profit-loss.html">➡️ Profit–Loss</a>
+  </div>
+</footer>
+
+<script>
+/* ===============================
+   INCOME ALLOCATION – FINAL
+   =============================== */
+
+const key = localStorage.getItem("activeProject");
+if(!key){ alert("Active योजना भेटिएन"); }
+
+const project = JSON.parse(localStorage.getItem(key)) || {};
+project.incomeAllocation = project.incomeAllocation || {
+  narration:"",
+  rows:[
+    {title:"पुनः लगानी", percent:40},
+    {title:"वातावरण / सामुदायिक विकास", percent:20},
+    {title:"कामदार विकास कोष", percent:20},
+    {title:"व्यक्तिगत आम्दानी", percent:20}
+  ]
+};
+
+const rows = project.incomeAllocation.rows;
+
+/* --- total income from income-demo --- */
+function getIncomeTotal(){
+  const inc = project.income || [];
+  let sum = 0;
+  inc.forEach(i=>{
+    sum += (i.sellingRate||0) * (i.qty||0);
+  });
+  return sum;
+}
+
+/* --- save --- */
+function save(){
+  project.incomeAllocation.narration = narration.value;
+  localStorage.setItem(key, JSON.stringify(project));
+  render();
+}
+
+/* --- add row --- */
+function addRow(){
+  if(!newTitle.value || !newPercent.value) return;
+  rows.push({
+    title:newTitle.value,
+    percent:+newPercent.value||0
+  });
+  newTitle.value="";
+  newPercent.value="";
+  save();
+}
+
+/* --- delete row --- */
+function del(i){
+  if(!confirm("यो शीर्षक हटाउने ?")) return;
+  rows.splice(i,1);
+  save();
+}
+
+/* --- render --- */
+function render(){
+  tbody.innerHTML="";
+  let totalP=0,totalA=0;
+  const income = getIncomeTotal();
+
+  rows.forEach((r,i)=>{
+    const amt = income * (r.percent||0)/100;
+    totalP += r.percent||0;
+    totalA += amt;
+
+    tbody.innerHTML += `
+    <tr>
+      <td>
+        <input value="${r.title}"
+          oninput="rows[${i}].title=this.value;save()">
+      </td>
+      <td class="right">
+        <input type="number" value="${r.percent}"
+          oninput="rows[${i}].percent=+this.value||0;save()">
+      </td>
+      <td class="right">${amt.toLocaleString()}</td>
+      <td class="del" onclick="del(${i})">✖</td>
+    </tr>`;
+  });
+
+  totalPercent.innerText = totalP + " %";
+  totalAmount.innerText = totalA.toLocaleString();
+  incomeTotal.innerText = income.toLocaleString();
+}
+
+/* --- init --- */
+narration.value = project.incomeAllocation.narration || "";
+narration.oninput = save;
+
+render();
+</script>
+
+</body>
+</html>
