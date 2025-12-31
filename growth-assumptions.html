@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+<meta charset="UTF-8">
+<title>Growth Assumptions | FarmerBase BP Engine</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+body{
+  font-family:"Noto Sans Devanagari","Kalimati",system-ui;
+  background:#f4f7f6;margin:0
+}
+header,footer{
+  background:#e8f5e9;
+  padding:10px 16px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center
+}
+header a,footer a{
+  text-decoration:none;
+  font-weight:700;
+  color:#2e7d32
+}
+.container{
+  max-width:1100px;
+  margin:auto;
+  padding:20px
+}
+h2,h3{color:#2e7d32;margin:8px 0}
+.small{font-size:13px;color:#555}
+
+.section{
+  background:#fff;
+  padding:16px;
+  border-radius:12px;
+  margin-bottom:16px
+}
+
+table{
+  width:100%;
+  border-collapse:collapse
+}
+th,td{
+  border:1px solid #ccc;
+  padding:6px;
+  font-size:14px
+}
+th{background:#eef5ee}
+.right{text-align:right}
+
+input[type="number"]{
+  width:100%;
+  padding:6px;
+  box-sizing:border-box
+}
+
+.modeBox{
+  display:flex;
+  gap:20px;
+  margin:10px 0
+}
+
+.modeBox label{
+  font-weight:700;
+  cursor:pointer
+}
+
+.hidden{display:none}
+
+.footerNav{
+  display:flex;
+  justify-content:space-between;
+  width:100%
+}
+
+@media print{
+  header, footer{display:none}
+  body{background:#fff}
+}
+</style>
+</head>
+
+<body>
+
+<!-- TOP NAV -->
+<header>
+  <a href="roi.html">⬅️ ROI</a>
+  <strong>📈 Growth Assumptions</strong>
+  <a href="financial-ratios.html">➡️ Financial Ratios</a>
+</header>
+
+<div class="container">
+
+<h2>वार्षिक वृद्धि अनुमान (Growth Assumptions)</h2>
+<p class="small">
+ℹ️ Year-1 वास्तविक डाटामा आधारित हुन्छ।  
+Year-2 देखि Growth % लागू हुन्छ।
+</p>
+
+<!-- MODE SELECT -->
+<div class="section">
+<h3>🔘 Growth Mode चयन गर्नुहोस्</h3>
+<div class="modeBox">
+  <label>
+    <input type="radio" name="mode" value="same"> सबै वर्ष एकै %
+  </label>
+  <label>
+    <input type="radio" name="mode" value="yearwise"> हरेक वर्ष फरक %
+  </label>
+</div>
+</div>
+
+<!-- SAME MODE -->
+<div class="section" id="sameBox">
+<h3>📌 सबै वर्षका लागि समान Growth %</h3>
+<table>
+<tr><th>सूचक</th><th class="right">%</th></tr>
+<tr>
+  <td>आम्दानी वृद्धि</td>
+  <td class="right"><input type="number" id="sameRevenue"></td>
+</tr>
+<tr>
+  <td>खर्च वृद्धि</td>
+  <td class="right"><input type="number" id="sameExpense"></td>
+</tr>
+<tr>
+  <td>उत्पादन वृद्धि</td>
+  <td class="right"><input type="number" id="sameProduction"></td>
+</tr>
+<tr>
+  <td>महँगी (Inflation)</td>
+  <td class="right"><input type="number" id="sameInflation"></td>
+</tr>
+</table>
+</div>
+
+<!-- YEARWISE MODE -->
+<div class="section hidden" id="yearBox">
+<h3>📅 हरेक वर्ष फरक Growth %</h3>
+<table>
+<thead>
+<tr>
+  <th>Year</th>
+  <th class="right">Revenue %</th>
+  <th class="right">Expense %</th>
+  <th class="right">Production %</th>
+  <th class="right">Inflation %</th>
+</tr>
+</thead>
+<tbody id="yearRows"></tbody>
+</table>
+</div>
+
+<!-- DISCOUNT -->
+<div class="section">
+<h3>🏦 Discount Rate (NPV / IRR)</h3>
+<input type="number" id="discountRate" placeholder="Discount Rate %">
+</div>
+
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footerNav">
+    <a href="roi.html">⬅️ ROI</a>
+    <span class="small">FarmerBase BP Engine – Growth Layer</span>
+    <a href="financial-ratios.html">➡️ Financial Ratios</a>
+  </div>
+</footer>
+
+<script>
+/* ===============================
+   GROWTH ASSUMPTIONS – FINAL
+   =============================== */
+
+const key = localStorage.getItem("activeProject");
+if(!key){ alert("Active योजना भेटिएन"); }
+
+const project = JSON.parse(localStorage.getItem(key)) || {};
+
+/* --- init --- */
+if(!project.growthAssumptions){
+  project.growthAssumptions = {
+    mode:"same",
+    same:{revenue:8, expense:5, production:6, inflation:4},
+    years:[
+      {year:2,revenue:8,expense:5,production:6,inflation:4},
+      {year:3,revenue:7,expense:5,production:5,inflation:4},
+      {year:4,revenue:6,expense:4,production:4,inflation:4},
+      {year:5,revenue:5,expense:4,production:3,inflation:4}
+    ],
+    discountRate:10
+  };
+  localStorage.setItem(key,JSON.stringify(project));
+}
+
+const G = project.growthAssumptions;
+
+/* --- mode render --- */
+document.querySelectorAll('input[name="mode"]').forEach(r=>{
+  r.checked = r.value===G.mode;
+  r.onchange = ()=>{
+    G.mode = r.value;
+    save();
+  };
+});
+
+/* --- same --- */
+sameRevenue.value = G.same.revenue;
+sameExpense.value = G.same.expense;
+sameProduction.value = G.same.production;
+sameInflation.value = G.same.inflation;
+
+[sameRevenue,sameExpense,sameProduction,sameInflation].forEach((el,i)=>{
+  el.oninput = ()=>{
+    const keys=["revenue","expense","production","inflation"];
+    G.same[keys[i]] = +el.value||0;
+    save(false);
+  };
+});
+
+/* --- yearwise --- */
+function renderYears(){
+  yearRows.innerHTML="";
+  G.years.forEach((y,i)=>{
+    yearRows.innerHTML+=`
+    <tr>
+      <td>Y${y.year-1} → Y${y.year}</td>
+      <td class="right"><input type="number" value="${y.revenue}"
+        oninput="G.years[${i}].revenue=+this.value||0;save(false)"></td>
+      <td class="right"><input type="number" value="${y.expense}"
+        oninput="G.years[${i}].expense=+this.value||0;save(false)"></td>
+      <td class="right"><input type="number" value="${y.production}"
+        oninput="G.years[${i}].production=+this.value||0;save(false)"></td>
+      <td class="right"><input type="number" value="${y.inflation}"
+        oninput="G.years[${i}].inflation=+this.value||0;save(false)"></td>
+    </tr>`;
+  });
+}
+
+/* --- discount --- */
+discountRate.value = G.discountRate;
+discountRate.oninput = ()=>{
+  G.discountRate = +discountRate.value||0;
+  save(false);
+};
+
+/* --- save --- */
+function save(refresh=true){
+  localStorage.setItem(key,JSON.stringify(project));
+  if(refresh) render();
+}
+
+/* --- render --- */
+function render(){
+  sameBox.classList.toggle("hidden",G.mode!=="same");
+  yearBox.classList.toggle("hidden",G.mode!=="yearwise");
+  renderYears();
+}
+
+render();
+</script>
+
+</body>
+</html>
