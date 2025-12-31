@@ -2,80 +2,67 @@
 <html lang="ne">
 <head>
 <meta charset="UTF-8">
-<title>Business Detail | FarmerBase BP Engine</title>
+<title>Short Info | BPMS</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
 body{
-  font-family:"Noto Sans Devanagari","Kalimati","Mangal",system-ui;
+  font-family:"Noto Sans Devanagari","Kalimati","Mangal","Nirmala UI",system-ui,Arial;
   background:#f4f7f6;
   margin:0;
 }
 .wrap{
-  max-width:950px;
+  max-width:900px;
   margin:25px auto;
   background:#fff;
   padding:25px;
   border-radius:10px;
 }
 h2{color:#2e7d32;margin-top:0}
-h3{color:#2e7d32}
 
+/* ===== TOP BAR ===== */
+.topBar{
+  display:grid;
+  grid-template-columns:1fr auto 1fr;
+  align-items:center;
+  margin-bottom:12px;
+}
+.topBar .left{text-align:left}
+.topBar .center{text-align:center}
+.topBar .right{text-align:right}
+
+/* form */
 label{font-weight:600}
 input,textarea{
   width:100%;
   padding:8px;
   margin-top:6px;
-  margin-bottom:12px;
   font-family:inherit;
 }
-textarea{min-height:120px}
+textarea{min-height:80px}
 
 button{
-  padding:8px 16px;
   border:none;
   border-radius:6px;
+  padding:8px 14px;
   cursor:pointer;
   background:#2e7d32;
   color:#fff;
 }
 .previewBtn{background:#0277bd}
-.del{background:#c62828}
-.edit{background:#0277bd}
 
-/* topic cards */
-.topic-box{
-  background:#f9fdf9;
-  border:1px solid #dceddc;
-  border-radius:8px;
-  padding:12px;
-  margin-top:12px;
-}
-.actions button{
-  margin-right:6px;
-}
-
-/* preview mode */
+/* preview */
 .preview input,
-.preview textarea,
-.preview .form,
-.preview .actions,
-.preview .addBtn{
-  display:none !important;
+.preview textarea{
+  background:#f3f3f3;
+  pointer-events:none;
 }
 .preview-label{
   background:#fff3cd;
   padding:6px 10px;
   border-radius:6px;
   font-size:13px;
-  margin-bottom:10px;
-}
-
-/* top nav */
-.topNav{
-  display:flex;
-  justify-content:space-between;
-  margin-bottom:15px;
+  margin-bottom:8px;
 }
 
 /* bottom nav */
@@ -91,128 +78,88 @@ button{
 
 <div class="wrap" id="page">
 
-<!-- ===== TOP NAV ===== -->
-<div class="topNav">
-  <button class="previewBtn" onclick="togglePreview()">👁 Preview / ✏️ Edit</button>
-  <button onclick="location.href='production.html'">Next ➡</button>
+<!-- ===== TOP CONTROLS ===== -->
+<div class="topBar">
+  <div class="left">
+    <button onclick="location.href='index.html'">⬅ Home</button>
+  </div>
+
+  <div class="center">
+    <button class="previewBtn" onclick="togglePreview()">👁 Preview / ✏️ Edit</button>
+  </div>
+
+  <div class="right">
+    <button onclick="location.href='existing-status.html'">Next ➡</button>
+  </div>
 </div>
 
 <div id="previewLabel" class="preview-label" style="display:none">
 👁 Preview Mode (Read-only)
 </div>
 
-<h2>📌 व्यवसायको विस्तृत विवरण</h2>
+<h2>✏️ व्यवसायको संक्षिप्त जानकारी</h2>
 
-<!-- ===== FORM ===== -->
-<div class="form">
-  <label>विषय (Topic)</label>
-  <input id="topicInput" placeholder="जस्तै: उत्पादन योजना, बजार विश्लेषण">
+<label>व्यवसाय / प्रस्तावनाको नाम</label>
+<input id="bp_name">
 
-  <label>विवरण (Content)</label>
-  <textarea id="contentInput" placeholder="यहाँ विस्तृत विवरण लेख्नुहोस्..."></textarea>
+<label>सञ्चालन हुने स्थान</label>
+<input id="bp_location">
 
-  <button class="addBtn" onclick="saveTopic()">💾 Save</button>
-</div>
+<label>व्यवसाय / उत्पादन प्रकृति</label>
+<textarea id="bp_products"></textarea>
 
-<!-- ===== LIST ===== -->
-<div id="topicList"></div>
+<label>सञ्चालन गर्ने संस्था / व्यक्ति</label>
+<input id="bp_org">
+
+<label>सम्पर्क नम्बर</label>
+<input id="bp_phone">
 
 <!-- ===== BOTTOM NAV ===== -->
 <div class="nav">
-  <button onclick="location.href='existing-status.html'">⬅ Previous</button>
-  <button onclick="location.href='production.html'">Next ➡</button>
+  <button onclick="location.href='index.html'">⬅ Home</button>
+  <button onclick="location.href='existing-status.html'">Next ➡</button>
 </div>
 
 </div>
 
 <script>
-/* ================= BUSINESS DETAIL – AUTOSAVE ================= */
-
-const key = localStorage.getItem("activeProject");
+/* ===== LOAD PROJECT ===== */
+let key = localStorage.getItem("activeProject");
 if(!key){
   alert("पहिले Home बाट Project खोल्नुहोस्");
   location.href="index.html";
 }
+let project = JSON.parse(localStorage.getItem(key));
+project.shortInfo = project.shortInfo || {};
 
-const project = JSON.parse(localStorage.getItem(key)) || {};
-project.businessDetail = project.businessDetail || [];
+/* ===== LOAD ===== */
+document.querySelectorAll("input,textarea").forEach(el=>{
+  if(project.shortInfo[el.id])
+    el.value = project.shortInfo[el.id];
+});
 
-let editIndex = null;
-let preview = false;
-
-/* ----- SAVE / UPDATE ----- */
-function saveTopic(){
-  const topic = topicInput.value.trim();
-  const content = contentInput.value.trim();
-  if(!topic || !content){
-    alert("विषय र विवरण दुवै आवश्यक छ");
-    return;
-  }
-
-  if(editIndex !== null){
-    project.businessDetail[editIndex] = { topic, content };
-    editIndex = null;
-  }else{
-    project.businessDetail.push({ topic, content });
-  }
-
-  topicInput.value="";
-  contentInput.value="";
-  persist();
-}
-
-/* ----- EDIT ----- */
-function editTopic(i){
-  const t = project.businessDetail[i];
-  topicInput.value = t.topic;
-  contentInput.value = t.content;
-  editIndex = i;
-}
-
-/* ----- DELETE ----- */
-function deleteTopic(i){
-  if(confirm("यो विवरण हटाउने ?")){
-    project.businessDetail.splice(i,1);
-    persist();
-  }
-}
-
-/* ----- SAVE + RENDER ----- */
-function persist(){
-  project.lastEdited = new Date().toLocaleString("ne-NP");
-  localStorage.setItem(key, JSON.stringify(project));
-  render();
-}
-
-function render(){
-  topicList.innerHTML="";
-  if(project.businessDetail.length===0){
-    topicList.innerHTML="<i>कुनै विवरण थपिएको छैन</i>";
-    return;
-  }
-
-  project.businessDetail.forEach((t,i)=>{
-    topicList.innerHTML+=`
-      <div class="topic-box">
-        <h3>${i+1}. ${t.topic}</h3>
-        <p>${t.content.replace(/\\n/g,"<br>")}</p>
-        <div class="actions">
-          <button class="edit" onclick="editTopic(${i})">✏️ Edit</button>
-          <button class="del" onclick="deleteTopic(${i})">🗑 Delete</button>
-        </div>
-      </div>
-    `;
+/* ===== AUTOSAVE ===== */
+let t;
+document.querySelectorAll("input,textarea").forEach(el=>{
+  el.addEventListener("input",()=>{
+    clearTimeout(t);
+    t=setTimeout(()=>{
+      document.querySelectorAll("input,textarea").forEach(i=>{
+        project.shortInfo[i.id]=i.value||"";
+      });
+      project.lastEdited=new Date().toLocaleString("ne-NP");
+      localStorage.setItem(key,JSON.stringify(project));
+    },600);
   });
-}
+});
 
-/* ----- PREVIEW MODE ----- */
+/* ===== PREVIEW ===== */
+let preview=false;
 function togglePreview(){
-  preview = !preview;
-  page.classList.toggle("preview", preview);
-  previewLabel.style.display = preview ? "block" : "none";
+  preview=!preview;
+  document.body.classList.toggle("preview",preview);
+  previewLabel.style.display = preview ? "block":"none";
 }
-
-render();
 </script>
 
 </body>
