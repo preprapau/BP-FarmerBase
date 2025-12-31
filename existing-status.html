@@ -12,7 +12,7 @@ body{
   margin:0;
 }
 .wrap{
-  max-width:900px;
+  max-width:950px;
   margin:25px auto;
   background:#fff;
   padding:25px;
@@ -21,7 +21,6 @@ body{
 h2,h3{color:#2e7d32;margin-top:0}
 .small{font-size:13px;color:#555}
 
-/* form */
 label{font-weight:600}
 input,textarea{
   width:100%;
@@ -37,14 +36,12 @@ button{
   color:#fff;
   border:none;
   border-radius:6px;
-  padding:8px 16px;
+  padding:6px 14px;
   cursor:pointer;
 }
-.del{
-  background:#c62828;
-}
+.del{background:#c62828}
+.edit{background:#0277bd}
 
-/* cards */
 .card{
   background:#f9fdf9;
   border:1px solid #dceddc;
@@ -58,24 +55,26 @@ button{
   margin-top:8px;
 }
 
-/* checklist */
-.checklist{
+.checklistBox{
   background:#f6f6f6;
   padding:12px;
   border-radius:8px;
   margin-top:10px;
 }
-.checklist label{
-  font-weight:normal;
-  display:block;
+.checkItem{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
   margin:4px 0;
 }
+.checkItem label{
+  font-weight:normal;
+}
 
-/* nav */
 .nav{
   display:flex;
   justify-content:space-between;
-  margin-top:25px;
+  margin-top:30px;
 }
 </style>
 </head>
@@ -84,16 +83,16 @@ button{
 
 <div class="wrap">
 
-<h2>📂 Existing Status (हालसम्म भएका कार्यहरू)</h2>
+<h2>📂 Existing Status (हालसम्मको अवस्था)</h2>
 <p class="small">
-संस्थाले/फर्मले यसअघि गरेका कामहरू, पूर्वाधार, अनुभव र अवस्थालाई यहाँ प्रस्तुत गर्नुहोस्।
+यसअघि गरिएका कार्यहरू र हालको पूर्वाधार/अवस्था यहाँ व्यवस्थापन गर्नुहोस्।
 </p>
 
-<!-- ================= EXISTING WORK SECTION ================= -->
+<!-- ================= EXISTING WORK ================= -->
 <h3>🔹 यसअघि गरिएका कार्यहरू</h3>
 
 <label>विषय (Topic)</label>
-<input id="workTopic" placeholder="जस्तै: कृषि तालिम, पूर्वाधार निर्माण">
+<input id="workTopic" placeholder="जस्तै: कृषि तालिम, सडक निर्माण">
 
 <label>विवरण (Content)</label>
 <textarea id="workContent" placeholder="के काम गरियो, कहिले, कसरी, कति जनाले लाभ लिए..."></textarea>
@@ -107,21 +106,15 @@ button{
 
 <hr>
 
-<!-- ================= CHECKLIST SECTION ================= -->
+<!-- ================= CHECKLIST ================= -->
 <h3>✅ पूर्वाधार / अवस्था Checklist</h3>
-<p class="small">
-लागू हुने सबै विकल्प छान्नुहोस् (एकभन्दा बढी हुन सक्छ)।
-</p>
 
-<div class="checklist">
-  <label><input type="checkbox" value="road"> फर्मसम्म मोटरबाटो छ</label>
-  <label><input type="checkbox" value="trail"> फर्मसम्म पैदल बाटो (ट्रेक) छ</label>
-  <label><input type="checkbox" value="electricity"> बिजुली सुविधा छ</label>
-  <label><input type="checkbox" value="water"> खानेपानी / सिँचाइ सुविधा छ</label>
-  <label><input type="checkbox" value="internet"> इन्टरनेट सुविधा छ</label>
-  <label><input type="checkbox" value="market"> नजिकै बजार पहुँच छ</label>
-  <label><input type="checkbox" value="training"> यसअघि तालिम प्राप्त</label>
-</div>
+<label>नयाँ Checklist Item</label>
+<input id="checkText" placeholder="जस्तै: फर्मसम्म मोटरबाटो छ">
+
+<button onclick="addCheck()">➕ Add Checklist</button>
+
+<div class="checklistBox" id="checkList"></div>
 
 <!-- ================= NAV ================= -->
 <div class="nav">
@@ -132,7 +125,7 @@ button{
 </div>
 
 <script>
-/* ================= EXISTING STATUS – AUTOSAVE ================= */
+/* ================= EXISTING STATUS – FULL AUTOSAVE ================= */
 
 const key = localStorage.getItem("activeProject");
 if(!key){
@@ -142,7 +135,7 @@ if(!key){
 
 const project = JSON.parse(localStorage.getItem(key)) || {};
 
-// init
+// init structure
 project.existingStatus = project.existingStatus || {
   works: [],
   checklist: []
@@ -162,20 +155,20 @@ function addWork(){
   workTopic.value="";
   workContent.value="";
   workPhoto.value="";
-  save();
+  save(renderWorks);
 }
 
 function deleteWork(i){
   if(confirm("यो विवरण हटाउने ?")){
     project.existingStatus.works.splice(i,1);
-    save();
+    save(renderWorks);
   }
 }
 
 function renderWorks(){
   workList.innerHTML="";
   if(project.existingStatus.works.length===0){
-    workList.innerHTML="<i>अहिलेसम्म कुनै विवरण थपिएको छैन</i>";
+    workList.innerHTML="<i>अहिलेसम्म कुनै विवरण छैन</i>";
     return;
   }
   project.existingStatus.works.forEach((w,i)=>{
@@ -183,7 +176,7 @@ function renderWorks(){
       <div class="card">
         <h4>${i+1}. ${w.topic}</h4>
         <p>${w.content.replace(/\\n/g,"<br>")}</p>
-        ${w.photo ? `<img src="${w.photo}" alt="photo">` : ""}
+        ${w.photo ? `<img src="${w.photo}">` : ""}
         <br>
         <button class="del" onclick="deleteWork(${i})">🗑 Delete</button>
       </div>
@@ -192,27 +185,69 @@ function renderWorks(){
 }
 
 /* ---------- CHECKLIST ---------- */
-document.querySelectorAll('.checklist input').forEach(cb=>{
-  cb.checked = project.existingStatus.checklist.includes(cb.value);
-  cb.onchange = ()=>{
-    if(cb.checked){
-      if(!project.existingStatus.checklist.includes(cb.value))
-        project.existingStatus.checklist.push(cb.value);
-    }else{
-      project.existingStatus.checklist =
-        project.existingStatus.checklist.filter(v=>v!==cb.value);
-    }
-    save(false);
-  };
-});
-
-/* ---------- SAVE ---------- */
-function save(refresh=true){
-  localStorage.setItem(key, JSON.stringify(project));
-  if(refresh) renderWorks();
+function addCheck(){
+  if(!checkText.value) return;
+  project.existingStatus.checklist.push({
+    text: checkText.value,
+    checked: false
+  });
+  checkText.value="";
+  save(renderChecklist);
 }
 
+function toggleCheck(i){
+  project.existingStatus.checklist[i].checked =
+    !project.existingStatus.checklist[i].checked;
+  save();
+}
+
+function editCheck(i){
+  const n = prompt("Checklist सच्याउनुहोस्", project.existingStatus.checklist[i].text);
+  if(n){
+    project.existingStatus.checklist[i].text = n;
+    save(renderChecklist);
+  }
+}
+
+function deleteCheck(i){
+  if(confirm("यो Checklist हटाउने ?")){
+    project.existingStatus.checklist.splice(i,1);
+    save(renderChecklist);
+  }
+}
+
+function renderChecklist(){
+  checkList.innerHTML="";
+  if(project.existingStatus.checklist.length===0){
+    checkList.innerHTML="<i>Checklist छैन</i>";
+    return;
+  }
+  project.existingStatus.checklist.forEach((c,i)=>{
+    checkList.innerHTML+=`
+      <div class="checkItem">
+        <label>
+          <input type="checkbox" ${c.checked?"checked":""}
+            onchange="toggleCheck(${i})">
+          ${c.text}
+        </label>
+        <span>
+          <button class="edit" onclick="editCheck(${i})">✏️</button>
+          <button class="del" onclick="deleteCheck(${i})">🗑</button>
+        </span>
+      </div>
+    `;
+  });
+}
+
+/* ---------- SAVE ---------- */
+function save(cb){
+  localStorage.setItem(key, JSON.stringify(project));
+  if(cb) cb();
+}
+
+/* init render */
 renderWorks();
+renderChecklist();
 </script>
 
 </body>
