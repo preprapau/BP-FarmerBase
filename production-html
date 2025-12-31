@@ -2,6 +2,7 @@
 <html lang="ne">
 <head>
 <meta charset="UTF-8">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>Production | FarmerBase BP Engine</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -83,7 +84,6 @@ textarea{resize:vertical}
 <body>
 
 <header>
-  <!-- ❌ download attribute छैन -->
   <a href="index.html" target="_blank">🏠 Home</a>
   <strong>उत्पादन विवरण (Production)</strong>
   <a href="expense-demo.html">➡️ Expense</a>
@@ -113,7 +113,6 @@ textarea{resize:vertical}
 
 <button class="addBtn" onclick="addProduct()">➕ नयाँ उत्पादन</button>
 
-<!-- REPORTS : NEW TAB ONLY -->
 <div class="reportBar">
   <a href="production-report.html" target="_blank">📊 Production Summary</a>
   <a href="production-charts.html" target="_blank">🥧 Production Charts</a>
