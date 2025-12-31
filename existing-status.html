@@ -21,7 +21,7 @@ body{
 h2,h3{color:#2e7d32;margin-top:0}
 .small{font-size:13px;color:#555}
 
-/* ===== TOP BAR ===== */
+/* TOP BAR */
 .topBar{
   display:grid;
   grid-template-columns:1fr auto 1fr;
@@ -32,10 +32,11 @@ h2,h3{color:#2e7d32;margin-top:0}
 .topBar .center{text-align:center}
 .topBar .right{text-align:right}
 
+/* buttons */
 button{
   border:none;
   border-radius:6px;
-  padding:6px 12px;
+  padding:6px 14px;
   cursor:pointer;
   background:#2e7d32;
   color:#fff;
@@ -50,7 +51,6 @@ input,textarea{
   width:100%;
   padding:8px;
   margin-top:6px;
-  font-family:inherit;
 }
 textarea{min-height:80px}
 
@@ -62,7 +62,6 @@ textarea{min-height:80px}
   padding:12px;
   margin-top:12px;
 }
-.card h4{margin:0 0 6px}
 
 /* checklist */
 .checkBox{
@@ -77,7 +76,6 @@ textarea{min-height:80px}
   align-items:center;
   margin:4px 0;
 }
-.checkItem label{font-weight:normal}
 
 /* preview */
 .preview input,
@@ -94,7 +92,7 @@ textarea{min-height:80px}
   margin-bottom:10px;
 }
 
-/* nav */
+/* bottom nav */
 .nav{
   display:flex;
   justify-content:space-between;
@@ -110,13 +108,13 @@ textarea{min-height:80px}
 <!-- ===== TOP BAR ===== -->
 <div class="topBar">
   <div class="left">
-    <button onclick="location.href='short-info.html'">⬅ Short Info</button>
+    <button onclick="goPrev()">⬅ Short Info</button>
   </div>
   <div class="center">
     <button class="previewBtn" onclick="togglePreview()">👁 Preview / ✏️ Edit</button>
   </div>
   <div class="right">
-    <button onclick="location.href='short-analysis.html'">Next ➡</button>
+    <button onclick="goNext()">Next ➡</button>
   </div>
 </div>
 
@@ -125,20 +123,17 @@ textarea{min-height:80px}
 </div>
 
 <h2>📂 Existing Status (हालसम्मको अवस्था)</h2>
-<p class="small">
-संस्थाले यसअघि गरेका कामहरू तथा हाल उपलब्ध पूर्वाधार/अवस्था यहाँ व्यवस्थित रूपमा राख्नुहोस्।
-</p>
 
-<!-- ================= A. EXISTING WORKS ================= -->
+<!-- ===== EXISTING WORKS ===== -->
 <h3>🔹 यसअघि गरिएका कामहरू</h3>
 
-<label>विषय (Topic)</label>
+<label>विषय</label>
 <input id="workTopic">
 
 <label>विवरण</label>
 <textarea id="workContent"></textarea>
 
-<label>Photo URL (optional)</label>
+<label>Photo URL</label>
 <input id="workPhoto">
 
 <button onclick="addWork()">➕ Add Work</button>
@@ -147,43 +142,47 @@ textarea{min-height:80px}
 
 <hr>
 
-<!-- ================= B. CHECKLIST ================= -->
+<!-- ===== CHECKLIST ===== -->
 <h3>✅ वर्तमान अवस्था / पूर्वाधार</h3>
 
-<label>नयाँ Checklist Item</label>
-<input id="checkText" placeholder="जस्तै: फर्मसम्म मोटरबाटो छ">
+<label>नयाँ Checklist</label>
+<input id="checkText">
 
 <button onclick="addCheck()">➕ Add Checklist</button>
 
 <div class="checkBox" id="checkList"></div>
 
-<!-- ================= NAV ================= -->
+<!-- ===== BOTTOM NAV ===== -->
 <div class="nav">
-  <button onclick="location.href='short-info.html'">⬅ Previous</button>
-  <button onclick="location.href='short-analysis.html'">Next ➡</button>
+  <button onclick="goPrev()">⬅ Previous</button>
+  <button onclick="goNext()">Next ➡</button>
 </div>
 
 </div>
 
 <script>
-/* ===== LOAD PROJECT ===== */
+/* ===== SAFETY LOAD ===== */
 const key = localStorage.getItem("activeProject");
 if(!key){
   alert("पहिले Home बाट Project सुरु गर्नुहोस्");
   location.href="index.html";
 }
 const project = JSON.parse(localStorage.getItem(key));
-
 project.existingStatus ??= { works:[], checklist:[] };
 
 let preview=false;
 
+/* ===== NAVIGATION (FIXED) ===== */
+function goPrev(){
+  location.href = "short-info.html";
+}
+function goNext(){
+  location.href = "short-analysis.html";
+}
+
 /* ===== WORKS ===== */
 function addWork(){
-  if(!workTopic.value || !workContent.value){
-    alert("विषय र विवरण अनिवार्य छ");
-    return;
-  }
+  if(!workTopic.value || !workContent.value) return alert("सबै field भर्नुहोस्");
   project.existingStatus.works.push({
     topic:workTopic.value,
     content:workContent.value,
@@ -193,37 +192,14 @@ function addWork(){
   save(renderWorks);
 }
 
-function editWork(i){
-  const w = project.existingStatus.works[i];
-  workTopic.value=w.topic;
-  workContent.value=w.content;
-  workPhoto.value=w.photo;
-  project.existingStatus.works.splice(i,1);
-  save(renderWorks);
-}
-
-function deleteWork(i){
-  if(confirm("हटाउने ?")){
-    project.existingStatus.works.splice(i,1);
-    save(renderWorks);
-  }
-}
-
 function renderWorks(){
   workList.innerHTML="";
-  if(!project.existingStatus.works.length){
-    workList.innerHTML="<i>कुनै विवरण छैन</i>";
-    return;
-  }
   project.existingStatus.works.forEach((w,i)=>{
     workList.innerHTML+=`
       <div class="card">
-        <h4>${i+1}. ${w.topic}</h4>
-        <p>${w.content.replace(/\\n/g,"<br>")}</p>
-        ${w.photo?`<img src="${w.photo}" style="max-width:100%;border-radius:6px">`:""}
-        <br>
-        <button class="edit" onclick="editWork(${i})">✏️ Edit</button>
-        <button class="del" onclick="deleteWork(${i})">🗑 Delete</button>
+        <b>${i+1}. ${w.topic}</b>
+        <p>${w.content}</p>
+        ${w.photo?`<img src="${w.photo}" style="max-width:100%">`:""}
       </div>`;
   });
 }
@@ -231,60 +207,29 @@ function renderWorks(){
 /* ===== CHECKLIST ===== */
 function addCheck(){
   if(!checkText.value) return;
-  project.existingStatus.checklist.push({
-    text:checkText.value,
-    checked:false
-  });
+  project.existingStatus.checklist.push({text:checkText.value,checked:false});
   checkText.value="";
   save(renderChecklist);
 }
-
 function toggleCheck(i){
-  project.existingStatus.checklist[i].checked =
-    !project.existingStatus.checklist[i].checked;
+  project.existingStatus.checklist[i].checked=!project.existingStatus.checklist[i].checked;
   save();
 }
-
-function editCheck(i){
-  const n = prompt("सच्याउनुहोस्",project.existingStatus.checklist[i].text);
-  if(n){
-    project.existingStatus.checklist[i].text=n;
-    save(renderChecklist);
-  }
-}
-
-function deleteCheck(i){
-  if(confirm("हटाउने ?")){
-    project.existingStatus.checklist.splice(i,1);
-    save(renderChecklist);
-  }
-}
-
 function renderChecklist(){
   checkList.innerHTML="";
-  if(!project.existingStatus.checklist.length){
-    checkList.innerHTML="<i>Checklist छैन</i>";
-    return;
-  }
   project.existingStatus.checklist.forEach((c,i)=>{
     checkList.innerHTML+=`
       <div class="checkItem">
         <label>
           <input type="checkbox" ${c.checked?"checked":""}
-           onchange="toggleCheck(${i})">
-          ${c.text}
+           onchange="toggleCheck(${i})"> ${c.text}
         </label>
-        <span>
-          <button class="edit" onclick="editCheck(${i})">✏️</button>
-          <button class="del" onclick="deleteCheck(${i})">🗑</button>
-        </span>
       </div>`;
   });
 }
 
 /* ===== SAVE ===== */
 function save(cb){
-  project.lastEdited=new Date().toLocaleString("ne-NP");
   localStorage.setItem(key,JSON.stringify(project));
   if(cb) cb();
 }
