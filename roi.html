@@ -9,126 +9,215 @@
 body{
   font-family:"Noto Sans Devanagari","Kalimati",system-ui;
   background:#f4f7f6;
-  margin:0;
+  margin:0
 }
 header,footer{
   background:#e8f5e9;
   padding:10px 16px;
   display:flex;
   justify-content:space-between;
-  align-items:center;
+  align-items:center
 }
 header a,footer a{
   text-decoration:none;
   font-weight:700;
-  color:#2e7d32;
+  color:#2e7d32
 }
 .container{
-  max-width:900px;
-  margin:0 auto;
-  padding:20px;
+  max-width:1100px;
+  margin:auto;
+  padding:20px
 }
-h2{color:#2e7d32}
+h2,h3{color:#2e7d32;margin:8px 0}
+.small{font-size:13px;color:#555}
+
+.section{
+  background:#fff;
+  padding:16px;
+  border-radius:12px;
+  margin-bottom:16px
+}
+
 table{
   width:100%;
-  border-collapse:collapse;
-  background:#fff;
+  border-collapse:collapse
 }
 th,td{
   border:1px solid #ccc;
-  padding:8px;
+  padding:6px;
+  font-size:14px
 }
-th{text-align:left;background:#eef5ee}
-td{text-align:right}
-.grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
-  gap:12px;
-  margin-top:20px;
+th{background:#eef5ee}
+.right{text-align:right}
+
+.highlight{
+  background:#e8f5e9;
+  font-weight:700
 }
-.grid a{
-  background:#fff;
-  border:2px solid #2e7d32;
-  padding:14px;
+
+.roiBox{
   text-align:center;
-  font-weight:700;
-  text-decoration:none;
-  color:#2e7d32;
+  padding:18px;
+  border-radius:14px;
+  margin-top:14px;
+  font-size:20px;
+  font-weight:700
 }
-.small{font-size:13px;color:#555}
+
+.roiPositive{
+  background:#e8f5e9;
+  color:#2e7d32
+}
+.roiWarn{
+  background:#fff8e1;
+  color:#f57f17
+}
+.roiNegative{
+  background:#fdecea;
+  color:#c62828
+}
+
+.badge{
+  display:inline-block;
+  padding:4px 12px;
+  border-radius:20px;
+  font-size:13px;
+  margin-left:6px
+}
+.badge-good{background:#2e7d32;color:#fff}
+.badge-warn{background:#f9a825;color:#000}
+.badge-bad{background:#c62828;color:#fff}
+
+.breakEven{
+  margin-top:10px;
+  font-size:15px;
+  font-weight:700
+}
+
+.footerNav{
+  display:flex;
+  justify-content:space-between;
+  width:100%
+}
+
+@media print{
+  header, footer, .badge, button{display:none}
+  body{background:#fff}
+}
 </style>
 </head>
 
 <body>
 
+<!-- TOP NAV -->
 <header>
-  <a href="profit-loss.html">⬅️ Profit–Loss</a>
-  <a href="index.html" target="_blank">🏠 Home</a>
-  <span></span>
+  <a href="income-allocation.html">⬅️ Income Allocation</a>
+  <strong>📐 ROI Analysis</strong>
+  <a href="full-proposal-print.html">➡️ Full Proposal</a>
 </header>
 
 <div class="container">
 
-<h2>📊 लगानी प्रतिफल (ROI)</h2>
+<h2>लगानी प्रतिफल विश्लेषण (ROI)</h2>
 <p class="small">
-Income, Expense र Profit–Loss पेजका आधारमा स्वतः गणना गरिएको परिणाम।
+ℹ️ यो ROI विश्लेषण Income र Expense डाटाको आधारमा
+स्वचालित रूपमा गणना गरिएको हो।
 </p>
 
+<!-- ROI TABLE -->
+<div class="section">
 <table>
 <tr>
-  <th>प्रारम्भिक लगानी (रु)</th>
-  <td id="investment">0</td>
+  <th>सूचक</th>
+  <th class="right">मान</th>
 </tr>
-<tr>
-  <th>वार्षिक शुद्ध नाफा (रु)</th>
-  <td id="netProfit">0</td>
+<tr class="highlight">
+  <th>कुल लगानी (खर्च)</th>
+  <th class="right" id="totalInvestment">0</th>
 </tr>
-<tr>
+<tr class="highlight">
+  <th>शुद्ध नाफा</th>
+  <th class="right" id="netProfit">0</th>
+</tr>
+<tr class="highlight">
   <th>ROI (%)</th>
-  <td id="roiPercent">0</td>
-</tr>
-<tr>
-  <th>Payback Period (वर्ष)</th>
-  <td id="payback">0</td>
+  <th class="right" id="roiPercent">0</th>
 </tr>
 </table>
 
-<div class="grid">
-  <a href="roi-cashflow.html" target="_blank">📈 5-Year Cashflow</a>
-  <a href="roi-indicators.html" target="_blank">📊 ROI Indicators</a>
-  <a href="roi-charts.html" target="_blank">🥧 Charts</a>
-  <a href="roi-breakeven.html" target="_blank">🧮 Break-Even</a>
-  <a href="roi-loan.html" target="_blank">🏦 Loan Feasibility</a>
-  <a href="roi-narrative.html" target="_blank">📝 ROI Narrative</a>
+<div id="roiBox" class="roiBox"></div>
 </div>
 
 </div>
 
+<!-- FOOTER -->
 <footer>
-  <span class="small">
-    FarmerBase BP Engine – ROI Summary & Analysis Hub
-  </span>
+  <div class="footerNav">
+    <a href="income-allocation.html">⬅️ Income Allocation</a>
+    <span class="small">FarmerBase BP Engine – ROI Module</span>
+    <a href="full-proposal-print.html">➡️ Full Proposal</a>
+  </div>
 </footer>
 
 <script>
+/* ===============================
+   ROI – FINAL
+   =============================== */
+
 const key = localStorage.getItem("activeProject");
 if(!key){ alert("Active योजना भेटिएन"); }
-const project = JSON.parse(localStorage.getItem(key))||{};
 
-const investment =
-  (project.expenses||[])
-  .filter(e=>e.category==="पूर्वाधार निर्माण"||e.category==="मेशिन औजार")
-  .reduce((s,e)=>s+(Number(e.amount)||0),0);
+const project = JSON.parse(localStorage.getItem(key)) || {};
 
-const netProfit = Number(project.netProfit)||0;
+/* --- totals --- */
+const expenses = project.expenses || [];
+const incomes = project.income || [];
 
-const roi = investment>0 ? (netProfit/investment)*100 : 0;
-const payback = netProfit>0 ? (investment/netProfit) : 0;
+let investment = 0;
+expenses.forEach(e=>{
+  investment += e.amount || 0;
+});
 
-investment && (document.getElementById("investment").innerText=investment.toFixed(2));
-document.getElementById("netProfit").innerText=netProfit.toFixed(2);
-document.getElementById("roiPercent").innerText=roi.toFixed(2);
-document.getElementById("payback").innerText=payback.toFixed(2);
+let incomeTotal = 0;
+incomes.forEach(i=>{
+  incomeTotal += (i.sellingRate||0) * (i.qty||0);
+});
+
+const netProfit = incomeTotal - investment;
+const roi = investment > 0 ? (netProfit / investment) * 100 : 0;
+
+/* --- display numbers --- */
+totalInvestment.innerText = investment.toLocaleString();
+netProfit.innerText = netProfit.toLocaleString();
+roiPercent.innerText = roi.toFixed(2);
+
+/* --- ROI interpretation --- */
+const box = document.getElementById("roiBox");
+
+if(roi >= 30){
+  box.className = "roiBox roiPositive";
+  box.innerHTML = `
+    🟢 ROI : ${roi.toFixed(2)} %
+    <span class="badge badge-good">उत्तम</span>
+    <div class="breakEven">✔️ लगानी फिर्ता भइसकेको अवस्था</div>
+  `;
+}
+else if(roi >= 10){
+  box.className = "roiBox roiWarn";
+  box.innerHTML = `
+    🟡 ROI : ${roi.toFixed(2)} %
+    <span class="badge badge-warn">सन्तोषजनक</span>
+    <div class="breakEven">⏳ Break-even नजिक</div>
+  `;
+}
+else{
+  box.className = "roiBox roiNegative";
+  box.innerHTML = `
+    🔴 ROI : ${roi.toFixed(2)} %
+    <span class="badge badge-bad">जोखिमपूर्ण</span>
+    <div class="breakEven">❗ Break-even नपुगेको</div>
+  `;
+}
 </script>
 
 </body>
