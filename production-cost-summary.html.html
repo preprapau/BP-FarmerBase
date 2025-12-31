@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+<meta charset="UTF-8">
+<title>उत्पादन लागत सारांश | FarmerBase BP Engine</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+body{
+  font-family:"Noto Sans Devanagari","Kalimati",system-ui;
+  background:#f4f7f6;
+  margin:0;
+}
+header,footer{
+  background:#e8f5e9;
+  padding:10px 16px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+header a,footer a{
+  text-decoration:none;
+  font-weight:700;
+  color:#2e7d32;
+}
+.navAero a{margin:0 8px}
+.container{
+  max-width:1200px;
+  margin:0 auto;
+  padding:20px;
+}
+h2,h3{color:#2e7d32;margin:10px 0}
+table{
+  width:100%;
+  border-collapse:collapse;
+  background:#fff;
+}
+th,td{
+  border:1px solid #ccc;
+  padding:6px;
+  font-size:14px;
+}
+th{background:#eef5ee}
+.right{text-align:right}
+.small{font-size:13px;color:#555}
+.footerBox{
+  background:#fff;
+  border:1px solid #ccc;
+  padding:12px;
+  margin-top:16px;
+}
+.reportBar{
+  margin-top:16px;
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+}
+.reportBar a{
+  background:#fff;
+  border:2px solid #2e7d32;
+  padding:8px 12px;
+  font-weight:700;
+  color:#2e7d32;
+  text-decoration:none;
+}
+</style>
+</head>
+
+<body>
+
+<!-- TOP NAV -->
+<header>
+  <div class="navAero">
+    <a href="expense-demo.html">⬅️ Expense</a>
+  </div>
+  <div>
+    <a href="index.html" target="_blank">🏠 Home</a>
+  </div>
+  <div class="navAero">
+    <a href="income-demo.html">➡️ Income</a>
+  </div>
+</header>
+
+<div class="container">
+
+<h2>🧮 उत्पादन लागत सारांश (Auto)</h2>
+<p class="small">
+Expense मा प्रविष्ट खर्चहरूको आधारमा उत्पादन अनुसार लागत स्वचालित रूपमा गणना गरिएको छ।
+</p>
+
+<div id="tables"></div>
+
+<!-- REPORT LINKS -->
+<div class="reportBar">
+  <a href="production-report.html" target="_blank">📦 Production Report</a>
+  <a href="production-chart.html" target="_blank">📈 Production Chart</a>
+  <a href="expense-report.html" target="_blank">💰 Expense Report</a>
+  <a href="profit-loss.html" target="_blank">📊 Profit / Loss</a>
+</div>
+
+</div>
+
+<!-- BOTTOM NAV -->
+<footer>
+  <div class="navAero">
+    <a href="expense-demo.html">⬅️ Expense</a>
+  </div>
+  <div class="small">
+    FarmerBase BP Engine – Expense आधारित उत्पादन लागत प्रणाली
+  </div>
+  <div class="navAero">
+    <a href="income-demo.html">➡️ Income</a>
+  </div>
+</footer>
+
+<script>
+/* ==================================
+   PRODUCTION COST SUMMARY (AUTO)
+   ================================== */
+
+const key = localStorage.getItem("activeProject");
+if(!key){ alert("Active योजना भेटिएन"); }
+
+const project = JSON.parse(localStorage.getItem(key)) || {};
+const expenses = project.expenses || [];
+const products = project.productionProducts || [];
+
+/* -------- helper: allocate expense -------- */
+function allocateExpenseToProduct(exp, product){
+  if(exp.allocationType==="LS"){
+    return exp.amount / products.length;
+  }
+  if(exp.allocationType==="DIRECT"){
+    return exp.appliesTo.includes(product.id) ? exp.amount : 0;
+  }
+  if(exp.allocationType==="%"){
+    const p = exp.allocationPercent[product.id] || 0;
+    return exp.amount * (p/100);
+  }
+  return 0;
+}
+
+/* -------- render -------- */
+function render(){
+  tables.innerHTML="";
+
+  if(products.length===0){
+    tables.innerHTML="<p>❗ Production मा उत्पादन छैन।</p>";
+    return;
+  }
+
+  products.forEach(prod=>{
+    let variable=0, fixed=0;
+
+    expenses.forEach(e=>{
+      const alloc = allocateExpenseToProduct(e, prod);
+
+      if(
+        e.category==="पूर्वाधार निर्माण" ||
+        e.category==="मेशिन औजार"
+      ){
+        fixed += alloc;
+      }else{
+        variable += alloc;
+      }
+    });
+
+    const total = variable + fixed;
+    const unitCost =
+      prod.qty && prod.qty>0 ? (total / prod.qty) : 0;
+
+    tables.innerHTML += `
+    <div class="footerBox">
+      <h3>${prod.name}</h3>
+      <table>
+        <tr>
+          <th>लागत प्रकार</th>
+          <th class="right">रकम</th>
+        </tr>
+        <tr>
+          <td>चालु लागत (Variable)</td>
+          <td class="right">${variable.toFixed(2)}</td>
+        </tr>
+        <tr>
+          <td>स्थिर लागत (Fixed)</td>
+          <td class="right">${fixed.toFixed(2)}</td>
+        </tr>
+        <tr>
+          <th>कुल लागत</th>
+          <th class="right">${total.toFixed(2)}</th>
+        </tr>
+        <tr>
+          <td>प्रति इकाई लागत</td>
+          <td class="right">
+            ${unitCost.toFixed(2)} / ${prod.unit||"unit"}
+          </td>
+        </tr>
+      </table>
+    </div>`;
+  });
+}
+
+render();
+</script>
+
+</body>
+</html>
