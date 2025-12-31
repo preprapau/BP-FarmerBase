@@ -1,1 +1,106 @@
-namaste
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+<meta charset="UTF-8">
+<title>5-Year Cashflow | ROI</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+body{
+  font-family:"Noto Sans Devanagari","Kalimati",system-ui;
+  background:#fff;
+  margin:20px;
+}
+h2{color:#2e7d32}
+table{
+  width:100%;
+  border-collapse:collapse;
+}
+th,td{
+  border:1px solid #000;
+  padding:6px;
+  font-size:14px;
+}
+th{background:#f0f0f0}
+.right{text-align:right}
+.highlight{background:#e8f5e9;font-weight:700}
+canvas{max-width:900px;margin:30px auto;display:block}
+button{padding:6px 12px}
+</style>
+</head>
+
+<body>
+
+<h2>📈 5-Year Cashflow Projection</h2>
+<button onclick="window.print()">🖨️ Print</button>
+
+<table>
+<thead>
+<tr>
+  <th>Year</th>
+  <th class="right">Income</th>
+  <th class="right">Operating Cost</th>
+  <th class="right">Depreciation</th>
+  <th class="right">Tax</th>
+  <th class="right">Net Cashflow</th>
+  <th class="right">Cumulative</th>
+</tr>
+</thead>
+<tbody id="cfBody"></tbody>
+</table>
+
+<canvas id="cfChart"></canvas>
+
+<script>
+const key = localStorage.getItem("activeProject");
+if(!key){ alert("Active योजना भेटिएन"); }
+const p = JSON.parse(localStorage.getItem(key))||{};
+
+const income = Number(p.totalIncome)||0;
+const expense = (p.expenses||[]).reduce((s,e)=>s+(Number(e.amount)||0),0);
+const dep = Number(p.depreciationAmount)||0;
+const tax = Number(p.taxAmount)||0;
+
+let cumulative = 0;
+const labels=[], data=[];
+
+for(let y=1;y<=5;y++){
+  const net = income - expense - dep - tax;
+  cumulative += net;
+
+  labels.push("Year "+y);
+  data.push(cumulative);
+
+  const tr=document.createElement("tr");
+  tr.innerHTML=`
+    <td>Year ${y}</td>
+    <td class="right">${income.toFixed(2)}</td>
+    <td class="right">${expense.toFixed(2)}</td>
+    <td class="right">${dep.toFixed(2)}</td>
+    <td class="right">${tax.toFixed(2)}</td>
+    <td class="right">${net.toFixed(2)}</td>
+    <td class="right ${cumulative>=0?"highlight":""}">
+      ${cumulative.toFixed(2)}
+    </td>
+  `;
+  cfBody.appendChild(tr);
+}
+
+new Chart(document.getElementById("cfChart"),{
+  type:"line",
+  data:{
+    labels:labels,
+    datasets:[{
+      label:"Cumulative Cashflow",
+      data:data,
+      borderWidth:2,
+      fill:false
+    }]
+  }
+});
+</script>
+
+</body>
+</html>
