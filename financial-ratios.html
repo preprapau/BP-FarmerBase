@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+<meta charset="UTF-8">
+<title>Financial Ratios | FarmerBase BP Engine</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+body{
+  font-family:"Noto Sans Devanagari","Kalimati",system-ui;
+  background:#f4f7f6;margin:0
+}
+header,footer{
+  background:#e8f5e9;
+  padding:10px 16px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center
+}
+header a,footer a{
+  text-decoration:none;
+  font-weight:700;
+  color:#2e7d32
+}
+.container{
+  max-width:1200px;
+  margin:auto;
+  padding:20px
+}
+h2,h3{color:#2e7d32;margin:8px 0}
+.small{font-size:13px;color:#555}
+
+.section{
+  background:#fff;
+  padding:16px;
+  border-radius:12px;
+  margin-bottom:16px
+}
+
+table{
+  width:100%;
+  border-collapse:collapse
+}
+th,td{
+  border:1px solid #ccc;
+  padding:6px;
+  font-size:14px
+}
+th{background:#eef5ee}
+.right{text-align:right}
+
+.badge{
+  display:inline-block;
+  padding:4px 12px;
+  border-radius:20px;
+  font-size:13px;
+  margin-left:6px
+}
+.good{background:#2e7d32;color:#fff}
+.warn{background:#f9a825;color:#000}
+.bad{background:#c62828;color:#fff}
+
+.footerNav{
+  display:flex;
+  justify-content:space-between;
+  width:100%
+}
+
+@media print{
+  header, footer{display:none}
+  body{background:#fff}
+}
+</style>
+</head>
+
+<body>
+
+<!-- TOP NAV -->
+<header>
+  <a href="growth-assumptions.html">⬅️ Growth</a>
+  <strong>📊 Financial Ratios</strong>
+  <a href="full-proposal-print.html">➡️ Full Proposal</a>
+</header>
+
+<div class="container">
+
+<h2>Advanced Financial Ratios</h2>
+<p class="small">
+ℹ️ यी सबै सूचकहरू Year-1 डाटा र Growth Assumptions को आधारमा
+स्वचालित रूपमा गणना गरिएका हुन्।
+</p>
+
+<!-- BASIC TOTALS -->
+<div class="section">
+<h3>🔢 आधारभूत तथ्याङ्क</h3>
+<table>
+<tr><th>सूचक</th><th class="right">मान</th></tr>
+<tr><td>कुल लगानी (Expense)</td><td class="right" id="tInvestment">0</td></tr>
+<tr><td>कुल आम्दानी</td><td class="right" id="tIncome">0</td></tr>
+<tr><td>शुद्ध नाफा</td><td class="right" id="tProfit">0</td></tr>
+</table>
+</div>
+
+<!-- RATIOS -->
+<div class="section">
+<h3>📈 प्रमुख वित्तीय अनुपात</h3>
+<table>
+<tr>
+  <th>सूचक</th>
+  <th class="right">मान</th>
+  <th>स्थिति</th>
+</tr>
+
+<tr>
+  <td>Operating Margin (%)</td>
+  <td class="right" id="operatingMargin">0</td>
+  <td id="opStatus"></td>
+</tr>
+
+<tr>
+  <td>Debt–Equity Ratio</td>
+  <td class="right" id="deRatio">N/A</td>
+  <td id="deStatus"></td>
+</tr>
+
+<tr>
+  <td>Interest Coverage Ratio</td>
+  <td class="right" id="icr">N/A</td>
+  <td id="icrStatus"></td>
+</tr>
+
+<tr>
+  <td>Cash Flow Adequacy Ratio</td>
+  <td class="right" id="cfa">0</td>
+  <td id="cfaStatus"></td>
+</tr>
+
+<tr>
+  <td>Dividend / Profit Distribution Ratio</td>
+  <td class="right" id="divRatio">0</td>
+  <td id="divStatus"></td>
+</tr>
+
+<tr class="highlight">
+  <th>IRR (%)</th>
+  <th class="right" id="irr">0</th>
+  <th id="irrStatus"></th>
+</tr>
+
+<tr class="highlight">
+  <th>NPV (रु)</th>
+  <th class="right" id="npv">0</th>
+  <th id="npvStatus"></th>
+</tr>
+
+</table>
+</div>
+
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footerNav">
+    <a href="growth-assumptions.html">⬅️ Growth</a>
+    <span class="small">FarmerBase BP Engine – Financial Analysis</span>
+    <a href="full-proposal-print.html">➡️ Full Proposal</a>
+  </div>
+</footer>
+
+<script>
+/* ===============================
+   FINANCIAL RATIOS – FINAL
+   =============================== */
+
+const key = localStorage.getItem("activeProject");
+if(!key){ alert("Active योजना भेटिएन"); }
+
+const project = JSON.parse(localStorage.getItem(key)) || {};
+
+// ---------- Year-1 totals ----------
+const expenses = project.expenses || [];
+const incomeRows = project.income || [];
+
+let totalExpense = 0;
+expenses.forEach(e=> totalExpense += e.amount||0);
+
+let totalIncome = 0;
+incomeRows.forEach(i=>{
+  totalIncome += (i.sellingRate||0) * (i.qty||0);
+});
+
+const netProfit = totalIncome - totalExpense;
+
+// display basics
+tInvestment.innerText = totalExpense.toLocaleString();
+tIncome.innerText = totalIncome.toLocaleString();
+tProfit.innerText = netProfit.toLocaleString();
+
+// ---------- Operating Margin ----------
+const operatingMargin = totalIncome>0
+  ? (netProfit / totalIncome) * 100 : 0;
+
+operatingMargin.innerText = operatingMargin.toFixed(2);
+opStatus.innerHTML =
+  operatingMargin>=20 ? `<span class="badge good">उत्तम</span>` :
+  operatingMargin>=10 ? `<span class="badge warn">ठीक</span>` :
+  `<span class="badge bad">कमजोर</span>`;
+
+// ---------- Debt–Equity (assumed) ----------
+const totalDebt = project.debtTotal || 0;
+const equity = project.equityTotal || (totalExpense-totalDebt);
+
+const de = equity>0 ? totalDebt/equity : 0;
+deRatio.innerText = equity>0 ? de.toFixed(2) : "N/A";
+deStatus.innerHTML =
+  de<=1 ? `<span class="badge good">Balanced</span>` :
+  de<=2 ? `<span class="badge warn">Risk</span>` :
+  `<span class="badge bad">High Risk</span>`;
+
+// ---------- Interest Coverage ----------
+const interest = project.interestExpense || 0;
+const ebit = netProfit + interest;
+const icrVal = interest>0 ? ebit/interest : 0;
+
+icr.innerText = interest>0 ? icrVal.toFixed(2) : "N/A";
+icrStatus.innerHTML =
+  icrVal>=2 ? `<span class="badge good">Safe</span>` :
+  icrVal>=1 ? `<span class="badge warn">Caution</span>` :
+  `<span class="badge bad">Danger</span>`;
+
+// ---------- Cash Flow Adequacy ----------
+const capex = project.capexTotal || 0;
+const dividends = (project.incomeAllocation?.rows||[])
+  .reduce((s,r)=> r.title.includes("व्यक्तिगत") ? s : s,0);
+
+const cfaVal = (netProfit)/(capex+interest+dividends || 1);
+cfa.innerText = cfaVal.toFixed(2);
+cfaStatus.innerHTML =
+  cfaVal>=1 ? `<span class="badge good">Safe</span>` :
+  `<span class="badge bad">Stress</span>`;
+
+// ---------- Dividend Ratio ----------
+const net = netProfit||1;
+const dist = (project.incomeAllocation?.rows||[])
+  .reduce((s,r)=> s+(r.percent||0),0);
+
+const divR = dist;
+divRatio.innerText = divR.toFixed(2)+" %";
+divStatus.innerHTML =
+  divR<=60 ? `<span class="badge good">Sustainable</span>` :
+  `<span class="badge warn">High Payout</span>`;
+
+// ---------- IRR / NPV (simplified projection) ----------
+const G = project.growthAssumptions || {};
+const rate = (G.discountRate||10)/100;
+
+let cashFlows = [-totalExpense];
+let rev = totalIncome;
+let exp = totalExpense;
+
+for(let y=1;y<=5;y++){
+  const g = G.mode==="same"
+    ? G.same.revenue
+    : (G.years[y-1]?.revenue||0);
+  rev = rev*(1+g/100);
+  exp = exp*(1+(G.mode==="same"?G.same.expense:(G.years[y-1]?.expense||0))/100);
+  cashFlows.push(rev-exp);
+}
+
+// NPV
+let npvVal = 0;
+cashFlows.forEach((cf,i)=>{
+  npvVal += cf/Math.pow(1+rate,i);
+});
+npv.innerText = npvVal.toLocaleString();
+npvStatus.innerHTML =
+  npvVal>0 ? `<span class="badge good">Accept</span>` :
+  `<span class="badge bad">Reject</span>`;
+
+// IRR (approx)
+function calcIRR(cfs){
+  let r=0.1;
+  for(let i=0;i<100;i++){
+    let f=0,df=0;
+    for(let t=0;t<cfs.length;t++){
+      f+=cfs[t]/Math.pow(1+r,t);
+      df+=-t*cfs[t]/Math.pow(1+r,t+1);
+    }
+    r = r - f/df;
+  }
+  return r*100;
+}
+const irrVal = calcIRR(cashFlows);
+irr.innerText = irrVal.toFixed(2);
+irrStatus.innerHTML =
+  irrVal>=15 ? `<span class="badge good">Strong</span>` :
+  irrVal>=10 ? `<span class="badge warn">Average</span>` :
+  `<span class="badge bad">Weak</span>`;
+</script>
+
+</body>
+</html>
