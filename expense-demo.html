@@ -51,6 +51,7 @@ input,select,textarea{
   padding:6px;
   font-size:14px;
 }
+textarea{ resize:vertical }
 .addBtn{
   margin:10px 0;
   padding:8px 14px;
@@ -71,10 +72,7 @@ input,select,textarea{
   padding:12px;
   margin-top:16px;
 }
-.small{
-  font-size:13px;
-  color:#555;
-}
+.small{ font-size:13px;color:#555 }
 </style>
 </head>
 
@@ -135,18 +133,14 @@ input,select,textarea{
 <!-- ===== DEPRECIATION ===== -->
 <div class="footerBox">
   <h3>📉 ह्रासकट्टी (Depreciation)</h3>
-  <div class="small">
-    स्थिर खर्च (पूर्वाधार / मेशीन) मा मात्र लागू हुन्छ।
-  </div>
+  <div class="small">स्थिर खर्च (पूर्वाधार / मेशीन) मा मात्र लागू हुन्छ</div>
   <table>
     <tr>
       <th>ह्रासकट्टी दर (%)</th>
       <th>वार्षिक ह्रासकट्टी रकम (रु)</th>
     </tr>
     <tr>
-      <td>
-        <input type="number" id="depRate" value="10">
-      </td>
+      <td><input type="number" id="depRate" value="10"></td>
       <td id="depAmount">0</td>
     </tr>
   </table>
@@ -155,7 +149,7 @@ input,select,textarea{
 </div>
 
 <script>
-/* ===== LOAD PROJECT ===== */
+/* ================= LOAD PROJECT ================= */
 const key = localStorage.getItem("activeProject");
 if(!key){ alert("Active योजना भेटिएन"); }
 
@@ -163,7 +157,7 @@ let project = JSON.parse(localStorage.getItem(key)) || {};
 project.expenses = project.expenses || [];
 project.depRate = project.depRate || 10;
 
-/* ===== DEFAULT NARRATION ===== */
+/* ================= DEFAULT NARRATION ================= */
 if(!project.expenseNarration){
   project.expenseNarration =
     "यस व्यवसाय सञ्चालनका लागि आवश्यक चालु तथा स्थिर खर्चहरू यथार्थपरक रूपमा अनुमान गरिएको छ।";
@@ -174,22 +168,21 @@ expenseNarration.oninput = ()=>{
   save();
 };
 
-/* ===== BUDGET CODE ===== */
+/* ================= BUDGET CODE ================= */
 function generateBudgetCode(category){
   if(category.includes("पूर्वाधार")) return "FX-INF-"+Date.now().toString().slice(-4);
   if(category.includes("मेशीन")) return "FX-MAC-"+Date.now().toString().slice(-4);
   return "OP-OTH-"+Date.now().toString().slice(-4);
 }
 
-/* ===== RENDER ===== */
+/* ================= RENDER ================= */
 function render(){
   expenseBody.innerHTML="";
   project.expenses.forEach((e,i)=>{
     const tr=document.createElement("tr");
     tr.innerHTML=`
       <td>
-        <input value="${e.title||""}"
-          oninput="upd(${i},'title',this.value)">
+        <input value="${e.title||""}" readonly>
         <textarea rows="2"
           oninput="upd(${i},'note',this.value)">${e.note||"यस खर्चको संक्षिप्त विवरण"}</textarea>
       </td>
@@ -208,28 +201,26 @@ function render(){
           </optgroup>
         </select>
       </td>
-      <td>
-        <input type="number" value="${e.qty||0}"
-          oninput="updateCalc(${i},'qty',this.value)">
-      </td>
-      <td>
-        <input type="number" value="${e.rate||0}"
-          oninput="updateCalc(${i},'rate',this.value)">
-      </td>
+      <td><input type="number" value="${e.qty||0}"
+        oninput="calc(${i},'qty',this.value)"></td>
+      <td><input type="number" value="${e.rate||0}"
+        oninput="calc(${i},'rate',this.value)"></td>
       <td style="text-align:right">${(e.amount||0).toFixed(2)}</td>
       <td class="delBtn" onclick="del(${i})">✖</td>
     `;
     expenseBody.appendChild(tr);
   });
-
   renderSummary();
   calcDepreciation();
 }
 
-/* ===== CRUD ===== */
+/* ================= CRUD ================= */
 function addExpense(){
+  const title = prompt("खर्च शीर्षक लेख्नुहोस्:");
+  if(!title) return;
+
   project.expenses.push({
-    title:"",
+    title:title,
     category:"कच्चापदार्थ",
     qty:1,
     rate:0,
@@ -245,7 +236,7 @@ function upd(i,f,v){
   save();
 }
 
-function updateCalc(i,f,v){
+function calc(i,f,v){
   project.expenses[i][f]=Number(v)||0;
   const q=Number(project.expenses[i].qty)||0;
   const r=Number(project.expenses[i].rate)||0;
@@ -259,69 +250,62 @@ function del(i){
   save(); render();
 }
 
-/* ===== SUMMARY ===== */
+/* ================= SUMMARY ================= */
 function renderSummary(){
-  const body=document.getElementById("summaryBody");
-  const totalEl=document.getElementById("summaryTotal");
-  body.innerHTML="";
-  let grand=0, lastCat="";
-
+  summaryBody.innerHTML="";
+  let total=0, lastCat="";
   project.expenses.forEach(e=>{
     const amt=Number(e.amount)||0;
-    grand+=amt;
-
+    total+=amt;
     if(e.category!==lastCat){
       const r=document.createElement("tr");
       r.innerHTML=`<td colspan="4" style="background:#eef5ee;font-weight:700">
         ◼ ${e.category}</td>`;
-      body.appendChild(r);
+      summaryBody.appendChild(r);
       lastCat=e.category;
     }
-
     const tr=document.createElement("tr");
     tr.dataset.budgetCode=e.budgetCode||"";
     tr.innerHTML=`
-      <td>${e.title||""}</td>
-      <td>${e.qty||0}</td>
-      <td>${e.rate||0}</td>
+      <td>${e.title}</td>
+      <td>${e.qty}</td>
+      <td>${e.rate}</td>
       <td style="text-align:right">${amt.toFixed(2)}</td>`;
-    body.appendChild(tr);
+    summaryBody.appendChild(tr);
   });
-
-  totalEl.innerText=grand.toFixed(2);
+  summaryTotal.innerText=total.toFixed(2);
 }
 
-/* ===== DEPRECIATION ===== */
+/* ================= DEPRECIATION ================= */
 depRate.oninput=()=>{
   project.depRate=Number(depRate.value)||0;
   save(); calcDepreciation();
 };
-
 function calcDepreciation(){
   let fixed=0;
   project.expenses.forEach(e=>{
-    if(e.category.includes("स्थिर") || e.category.includes("पूर्वाधार") || e.category.includes("मेशीन")){
+    if(e.category.includes("स्थिर")||e.category.includes("पूर्वाधार")||e.category.includes("मेशीन")){
       fixed+=Number(e.amount)||0;
     }
   });
-  const dep=fixed*(project.depRate/100);
-  depAmount.innerText=dep.toFixed(2);
+  depAmount.innerText=(fixed*(project.depRate/100)).toFixed(2);
 }
 
-/* ===== PRODUCTION COST LOGIC (READY) ===== */
+/* ================= PRODUCTION COST LOGIC (READY) ================= */
 /*
-  Unit Production Cost = Total Operating Cost / Total Production Units
+  Production page must provide:
+  project.productionProducts = [
+    { id:"cauliflower", name:"काउली", qty:6000 },
+    { id:"potato", name:"आलु", qty:4000 }
+  ];
 
-  This value will be pulled in:
-  - Income page (pricing + margin)
-  - Profit–Loss
-  - ROI
-
-  Example:
-  project.unitCost = operatingCost / productionQty;
+  Unit cost per product =
+   (Operating Cost + Annual Depreciation)
+    × (product.qty / totalQty)
+    ÷ product.qty
 */
 
-/* ===== SAVE ===== */
+/* ================= SAVE ================= */
 function save(){
   localStorage.setItem(key,JSON.stringify(project));
 }
