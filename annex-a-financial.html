@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+<meta charset="UTF-8">
+<title>Annex–A : Financial Tables</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+body{
+  font-family:"Noto Sans Devanagari","Kalimati","Mangal","Nirmala UI",system-ui;
+  background:#eaeaea;
+  margin:0;
+}
+.page{
+  max-width:210mm;
+  margin:20px auto;
+  background:#fff;
+  padding:25mm 20mm;
+}
+h1,h2{color:#2e7d32;margin-top:0}
+.small{font-size:13px;color:#555}
+
+/* tables */
+table{
+  width:100%;
+  border-collapse:collapse;
+  margin-top:10px;
+}
+th,td{
+  border:1px solid #444;
+  padding:6px;
+  font-size:13px;
+}
+th{background:#f1f8e9}
+.total-row{
+  font-weight:bold;
+  background:#e8f5e9;
+}
+
+/* print rules */
+@media print{
+  body{background:#fff}
+  thead{display:table-header-group}
+  tr{page-break-inside:avoid}
+  h1,h2{page-break-after:avoid}
+}
+</style>
+</head>
+
+<body>
+
+<div class="page">
+
+<h1>📎 Annex–A : Financial Tables</h1>
+<p class="small">
+यस Annex मा व्यवसायको विस्तृत वित्तीय तालिका समावेश गरिएको छ।
+</p>
+
+<hr>
+
+<h2>A1. Production Plan</h2>
+<div id="productionTable"></div>
+
+<h2>A2. Production Cost Summary</h2>
+<div id="costTable"></div>
+
+<h2>A3. Expense Breakdown</h2>
+<div id="expenseTable"></div>
+
+<h2>A4. Income Summary</h2>
+<div id="incomeTable"></div>
+
+<h2>A5. Profit – Loss</h2>
+<div id="plTable"></div>
+
+<h2>A6. Cash Flow</h2>
+<div id="cashflowTable"></div>
+
+<h2>A7. ROI / Break-even</h2>
+<div id="roiTable"></div>
+
+<h2>A8. Financial Ratios</h2>
+<div id="ratioTable"></div>
+
+</div>
+
+<script>
+const key = localStorage.getItem("activeProject");
+if(!key){
+  alert("Project not found");
+  location.href="index.html";
+}
+const p = JSON.parse(localStorage.getItem(key));
+
+/* NOTE:
+   यहाँ तपाईंका existing pages (production, expense, income, roi)
+   बाट already बनेका HTML table strings reuse गर्न सकिन्छ।
+   अहिले placeholder simple mapping गरिएको छ।
+*/
+
+productionTable.innerText = JSON.stringify(p.productionProducts||{},null,2);
+costTable.innerText = JSON.stringify(p.productionCostSummary||{},null,2);
+expenseTable.innerText = JSON.stringify(p.expenses||{},null,2);
+incomeTable.innerText = JSON.stringify(p.incomeSummary||{},null,2);
+plTable.innerText = JSON.stringify(p.profitLoss||{},null,2);
+cashflowTable.innerText = JSON.stringify(p.cashFlow||{},null,2);
+roiTable.innerText = JSON.stringify(p.roi||{},null,2);
+ratioTable.innerText = JSON.stringify(p.financialRatios||{},null,2);
+</script>
+
+</body>
+</html>
