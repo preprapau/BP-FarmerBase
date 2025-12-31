@@ -27,6 +27,9 @@ h2{color:#2e7d32;margin-top:0}
   align-items:center;
   margin-bottom:12px;
 }
+.topBar .left{
+  text-align:left;
+}
 .topBar .center{
   text-align:center;
 }
@@ -46,7 +49,7 @@ textarea{min-height:120px}
 button{
   border:none;
   border-radius:6px;
-  padding:8px 16px;
+  padding:8px 14px;
   cursor:pointer;
   background:#2e7d32;
   color:#fff;
@@ -100,10 +103,14 @@ button{
 
 <!-- ===== TOP CONTROLS ===== -->
 <div class="topBar">
-  <div></div>
+  <div class="left">
+    <button onclick="location.href='short-analysis.html'">⬅ Short Analysis</button>
+  </div>
+
   <div class="center">
     <button class="previewBtn" onclick="togglePreview()">👁 Preview / ✏️ Edit</button>
   </div>
+
   <div class="right">
     <button onclick="location.href='expense-demo.html'">Next ➡</button>
   </div>
@@ -131,7 +138,7 @@ button{
 
 <!-- ===== BOTTOM NAV ===== -->
 <div class="nav">
-  <button onclick="location.href='short-info.html'">⬅ Previous</button>
+  <button onclick="location.href='short-analysis.html'">⬅ Previous</button>
   <button onclick="location.href='expense-demo.html'">Next ➡</button>
 </div>
 
