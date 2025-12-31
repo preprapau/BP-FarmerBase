@@ -1,1 +1,219 @@
-Coming soon 
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+<meta charset="UTF-8">
+<title>Existing Status | FarmerBase BP Engine</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+body{
+  font-family:"Noto Sans Devanagari","Kalimati","Mangal",system-ui;
+  background:#f4f7f6;
+  margin:0;
+}
+.wrap{
+  max-width:900px;
+  margin:25px auto;
+  background:#fff;
+  padding:25px;
+  border-radius:10px;
+}
+h2,h3{color:#2e7d32;margin-top:0}
+.small{font-size:13px;color:#555}
+
+/* form */
+label{font-weight:600}
+input,textarea{
+  width:100%;
+  padding:8px;
+  margin-top:6px;
+  margin-bottom:12px;
+  font-family:inherit;
+}
+textarea{min-height:90px}
+
+button{
+  background:#2e7d32;
+  color:#fff;
+  border:none;
+  border-radius:6px;
+  padding:8px 16px;
+  cursor:pointer;
+}
+.del{
+  background:#c62828;
+}
+
+/* cards */
+.card{
+  background:#f9fdf9;
+  border:1px solid #dceddc;
+  border-radius:8px;
+  padding:12px;
+  margin-top:12px;
+}
+.card img{
+  max-width:100%;
+  border-radius:6px;
+  margin-top:8px;
+}
+
+/* checklist */
+.checklist{
+  background:#f6f6f6;
+  padding:12px;
+  border-radius:8px;
+  margin-top:10px;
+}
+.checklist label{
+  font-weight:normal;
+  display:block;
+  margin:4px 0;
+}
+
+/* nav */
+.nav{
+  display:flex;
+  justify-content:space-between;
+  margin-top:25px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="wrap">
+
+<h2>📂 Existing Status (हालसम्म भएका कार्यहरू)</h2>
+<p class="small">
+संस्थाले/फर्मले यसअघि गरेका कामहरू, पूर्वाधार, अनुभव र अवस्थालाई यहाँ प्रस्तुत गर्नुहोस्।
+</p>
+
+<!-- ================= EXISTING WORK SECTION ================= -->
+<h3>🔹 यसअघि गरिएका कार्यहरू</h3>
+
+<label>विषय (Topic)</label>
+<input id="workTopic" placeholder="जस्तै: कृषि तालिम, पूर्वाधार निर्माण">
+
+<label>विवरण (Content)</label>
+<textarea id="workContent" placeholder="के काम गरियो, कहिले, कसरी, कति जनाले लाभ लिए..."></textarea>
+
+<label>Photo URL (optional)</label>
+<input id="workPhoto" placeholder="https://example.com/photo.jpg">
+
+<button onclick="addWork()">➕ Add</button>
+
+<div id="workList"></div>
+
+<hr>
+
+<!-- ================= CHECKLIST SECTION ================= -->
+<h3>✅ पूर्वाधार / अवस्था Checklist</h3>
+<p class="small">
+लागू हुने सबै विकल्प छान्नुहोस् (एकभन्दा बढी हुन सक्छ)।
+</p>
+
+<div class="checklist">
+  <label><input type="checkbox" value="road"> फर्मसम्म मोटरबाटो छ</label>
+  <label><input type="checkbox" value="trail"> फर्मसम्म पैदल बाटो (ट्रेक) छ</label>
+  <label><input type="checkbox" value="electricity"> बिजुली सुविधा छ</label>
+  <label><input type="checkbox" value="water"> खानेपानी / सिँचाइ सुविधा छ</label>
+  <label><input type="checkbox" value="internet"> इन्टरनेट सुविधा छ</label>
+  <label><input type="checkbox" value="market"> नजिकै बजार पहुँच छ</label>
+  <label><input type="checkbox" value="training"> यसअघि तालिम प्राप्त</label>
+</div>
+
+<!-- ================= NAV ================= -->
+<div class="nav">
+  <button onclick="location.href='short-info.html'">⬅ Previous</button>
+  <button onclick="location.href='business-detail.html'">Next ➡</button>
+</div>
+
+</div>
+
+<script>
+/* ================= EXISTING STATUS – AUTOSAVE ================= */
+
+const key = localStorage.getItem("activeProject");
+if(!key){
+  alert("पहिले Project सुरु गर्नुहोस्");
+  location.href="index.html";
+}
+
+const project = JSON.parse(localStorage.getItem(key)) || {};
+
+// init
+project.existingStatus = project.existingStatus || {
+  works: [],
+  checklist: []
+};
+
+/* ---------- EXISTING WORK ---------- */
+function addWork(){
+  if(!workTopic.value || !workContent.value){
+    alert("विषय र विवरण अनिवार्य छ");
+    return;
+  }
+  project.existingStatus.works.push({
+    topic: workTopic.value,
+    content: workContent.value,
+    photo: workPhoto.value
+  });
+  workTopic.value="";
+  workContent.value="";
+  workPhoto.value="";
+  save();
+}
+
+function deleteWork(i){
+  if(confirm("यो विवरण हटाउने ?")){
+    project.existingStatus.works.splice(i,1);
+    save();
+  }
+}
+
+function renderWorks(){
+  workList.innerHTML="";
+  if(project.existingStatus.works.length===0){
+    workList.innerHTML="<i>अहिलेसम्म कुनै विवरण थपिएको छैन</i>";
+    return;
+  }
+  project.existingStatus.works.forEach((w,i)=>{
+    workList.innerHTML+=`
+      <div class="card">
+        <h4>${i+1}. ${w.topic}</h4>
+        <p>${w.content.replace(/\\n/g,"<br>")}</p>
+        ${w.photo ? `<img src="${w.photo}" alt="photo">` : ""}
+        <br>
+        <button class="del" onclick="deleteWork(${i})">🗑 Delete</button>
+      </div>
+    `;
+  });
+}
+
+/* ---------- CHECKLIST ---------- */
+document.querySelectorAll('.checklist input').forEach(cb=>{
+  cb.checked = project.existingStatus.checklist.includes(cb.value);
+  cb.onchange = ()=>{
+    if(cb.checked){
+      if(!project.existingStatus.checklist.includes(cb.value))
+        project.existingStatus.checklist.push(cb.value);
+    }else{
+      project.existingStatus.checklist =
+        project.existingStatus.checklist.filter(v=>v!==cb.value);
+    }
+    save(false);
+  };
+});
+
+/* ---------- SAVE ---------- */
+function save(refresh=true){
+  localStorage.setItem(key, JSON.stringify(project));
+  if(refresh) renderWorks();
+}
+
+renderWorks();
+</script>
+
+</body>
+</html>
