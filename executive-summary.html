@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+<meta charset="UTF-8">
+<title>Executive Summary | FarmerBase BP Engine</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+body{
+  font-family:"Noto Sans Devanagari","Kalimati","Mangal",system-ui;
+  background:#f4f7f6;
+  margin:0;
+}
+.wrap{
+  max-width:900px;
+  margin:25px auto;
+  background:#fff;
+  padding:25px;
+  border-radius:10px;
+}
+h2{color:#2e7d32;margin-top:0}
+.small{font-size:13px;color:#555}
+
+.summary{
+  background:#f9fdf9;
+  border:1px solid #dceddc;
+  border-radius:8px;
+  padding:16px;
+  line-height:1.7;
+  font-size:15px;
+  white-space:pre-line;
+}
+
+.note{
+  background:#fff3cd;
+  padding:8px 12px;
+  border-radius:6px;
+  font-size:13px;
+  margin-bottom:12px;
+}
+
+/* nav */
+.nav{
+  display:flex;
+  justify-content:space-between;
+  margin-top:25px;
+}
+
+button{
+  background:#2e7d32;
+  color:#fff;
+  border:none;
+  border-radius:6px;
+  padding:8px 16px;
+  cursor:pointer;
+}
+
+@media print{
+  body{background:#fff}
+  button,.nav,.note{display:none}
+}
+</style>
+</head>
+
+<body>
+
+<div class="wrap">
+
+<h2>📌 Executive Summary (कार्यकारी सार)</h2>
+
+<div class="note">
+ℹ️ यो Executive Summary प्रणालीले स्वचालित रूपमा तयार गरेको हो।
+आवश्यक परे अन्य पृष्ठहरूमा डाटा सच्याएर यहाँ पुनः हेर्न सकिन्छ।
+</div>
+
+<div id="summaryBox" class="summary">
+Executive Summary लोड हुँदैछ...
+</div>
+
+<!-- NAV -->
+<div class="nav">
+  <button onclick="location.href='sustainability-analysis.html'">⬅ Previous</button>
+  <button onclick="window.print()">🖨 Print / Save PDF</button>
+</div>
+
+</div>
+
+<script>
+/* ================= EXECUTIVE SUMMARY – AUTO ================= */
+
+const key = localStorage.getItem("activeProject");
+if(!key){
+  alert("पहिले Project सुरु गर्नुहोस्");
+  location.href="index.html";
+}
+
+const project = JSON.parse(localStorage.getItem(key)) || {};
+
+function generateExecutiveSummary(p){
+  let s = p.shortInfo || {};
+  let works = p.existingStatus?.works || [];
+  let checklist = p.existingStatus?.checklist || [];
+  let checked = checklist.filter(c=>c.checked);
+  let analysis = p.shortAnalysis || "";
+  let sus = p.sustainability || {};
+
+  let text = "";
+
+  /* Intro */
+  text += `${s.bp_name || "यो व्यवसाय"} `;
+  if(s.bp_location)
+    text += `${s.bp_location} क्षेत्रमा सञ्चालन हुने `;
+  text += "व्यवसायिक प्रस्ताव हो। ";
+
+  if(s.bp_products)
+    text += `यसको मुख्य व्यवसायिक प्रकृति ${s.bp_products} रहेको छ। `;
+
+  text += "\n\n";
+
+  /* Existing status */
+  if(works.length){
+    text += `संस्थाले हालसम्म ${works.length} प्रकारका गतिविधि, अनुभव वा कार्यहरू सफलतापूर्वक सञ्चालन गरिसकेको छ। `;
+  }
+
+  if(checked.length){
+    text += `${checked.length} किसिमका आधारभूत पूर्वाधार तथा सुविधा उपलब्ध छन्। `;
+  }
+
+  text += "\n\n";
+
+  /* Short analysis */
+  if(analysis){
+    text += analysis + "\n\n";
+  }
+
+  /* Sustainability */
+  if(sus.strengths?.length){
+    text += `मुख्य सबल पक्ष: ${sus.strengths.slice(0,2).join(", ")}। `;
+  }
+
+  if(sus.weaknesses?.length){
+    text += `सुधार गर्नुपर्ने पक्ष: ${sus.weaknesses.slice(0,1).join(", ")}। `;
+  }
+
+  if(sus.opportunities?.length){
+    text += `मुख्य अवसर: ${sus.opportunities.slice(0,1).join(", ")}। `;
+  }
+
+  if(sus.solutions?.length){
+    text += `पहिचान गरिएका चुनौती समाधान गर्न ${sus.solutions.slice(0,1).join(", ")} रणनीति अपनाइनेछ। `;
+  }
+
+  text += "\n\n";
+
+  /* Conclusion */
+  text += "समग्रमा, प्रस्तुत व्यवसाय प्रस्ताव स्थानीय स्रोत, अनुभव र सम्भावनामा आधारित भएकाले ";
+  text += "उचित लगानी, व्यवस्थापन र प्रविधि उपयोगका साथ दीगो, नाफामुखी र रोजगारी सिर्जना गर्ने क्षमता राख्दछ।";
+
+  return text;
+}
+
+/* render */
+summaryBox.innerText = generateExecutiveSummary(project);
+</script>
+
+</body>
+</html>
