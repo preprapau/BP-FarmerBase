@@ -1,1 +1,127 @@
-namaste 
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+<meta charset="UTF-8">
+<title>Production Narrative | FarmerBase BP Engine</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+body{
+  font-family:"Noto Sans Devanagari","Kalimati",system-ui;
+  background:#fff;
+  margin:20px;
+}
+h2,h3{
+  color:#2e7d32;
+  margin-bottom:6px;
+}
+.small{
+  font-size:13px;
+  color:#555;
+  margin-bottom:14px;
+}
+textarea{
+  width:100%;
+  box-sizing:border-box;
+  padding:10px;
+  font-size:14px;
+  line-height:1.6;
+}
+button{
+  padding:6px 12px;
+  margin-bottom:10px;
+}
+.section{
+  margin-top:20px;
+}
+</style>
+</head>
+
+<body>
+
+<h2>📝 Production Narrative (उत्पादन विवरण)</h2>
+<button onclick="window.print()">🖨️ Print</button>
+
+<p class="small">
+यो विवरण Production Page मा प्रविष्ट गरिएको डाटाका आधारमा स्वतः तयार गरिएको हो।
+आवश्यक परे किसानले यसलाई सच्याउन वा थप्न सक्नुहुन्छ।
+</p>
+
+<div class="section">
+  <h3>📄 नेपाली विवरण</h3>
+  <textarea id="neText" rows="10"></textarea>
+</div>
+
+<div class="section">
+  <h3>📄 English Description</h3>
+  <textarea id="enText" rows="10"></textarea>
+</div>
+
+<script>
+/* LOAD PROJECT */
+const key = localStorage.getItem("activeProject");
+if(!key){ alert("Active योजना भेटिएन"); }
+const project = JSON.parse(localStorage.getItem(key)) || {};
+const products = project.productionProducts || [];
+
+/* GROUP BY TYPE */
+const groups = {};
+products.forEach(p=>{
+  if(!p.name || p.qty<=0) return;
+  groups[p.type] = groups[p.type] || [];
+  groups[p.type].push(p);
+});
+
+/* BUILD NEPALI TEXT */
+let ne = "यस व्यवसाय योजनाअन्तर्गत निम्न उत्पादनहरू समावेश गरिएको छ।\n\n";
+
+Object.keys(groups).forEach(type=>{
+  ne += "🔹 " + type + " उत्पादन:\n";
+  groups[type].forEach(p=>{
+    ne += "– " + p.name + " : " + p.qty + " " + (p.unit||"") ;
+    if(p.note) ne += " ("+p.note+")";
+    ne += "\n";
+  });
+  ne += "\n";
+});
+
+ne += "उपरोक्त उत्पादनहरूबाट बजारमा बिक्रीयोग्य उत्पादन प्राप्त हुने र त्यसबाट आम्दानी सिर्जना हुने अपेक्षा गरिएको छ।";
+
+/* BUILD ENGLISH TEXT */
+let en = "This business plan includes the following production activities.\n\n";
+
+Object.keys(groups).forEach(type=>{
+  en += "• " + type + " products:\n";
+  groups[type].forEach(p=>{
+    en += "- " + p.name + ": " + p.qty + " " + (p.unit||"");
+    if(p.note) en += " ("+p.note+")";
+    en += "\n";
+  });
+  en += "\n";
+});
+
+en += "The above production activities are expected to generate marketable outputs and corresponding income.";
+
+/* LOAD OR INIT */
+neText.value = project.productionNarrativeNe || ne;
+enText.value = project.productionNarrativeEn || en;
+
+/* SAVE ON EDIT */
+neText.oninput = ()=>{
+  project.productionNarrativeNe = neText.value;
+  save();
+};
+enText.oninput = ()=>{
+  project.productionNarrativeEn = enText.value;
+  save();
+};
+
+function save(){
+  localStorage.setItem(key,JSON.stringify(project));
+}
+</script>
+
+</body>
+</html>
+
+
