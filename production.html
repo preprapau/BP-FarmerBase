@@ -2,8 +2,9 @@
 <html lang="ne">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>Production Plan | FarmerBase BP Engine</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
 body{
@@ -27,14 +28,20 @@ header a,footer a{
   margin:auto;
   padding:20px
 }
-h2{color:#2e7d32;margin-bottom:6px}
+h2,h3{color:#2e7d32;margin-bottom:6px}
 .small{font-size:13px;color:#555}
+
+.section{
+  background:#fff;
+  padding:14px;
+  border-radius:10px;
+  margin-bottom:14px
+}
 
 table{
   width:100%;
   border-collapse:collapse;
-  background:#fff;
-  margin-top:12px
+  margin-top:8px
 }
 th,td{
   border:1px solid #ccc;
@@ -55,14 +62,30 @@ textarea{resize:vertical}
   color:#fff;
   border:none;
   cursor:pointer;
-  margin-top:10px
+  margin-top:6px
 }
 .del{color:#c62828;font-weight:700;cursor:pointer}
+
 .totalBox{
-  margin-top:14px;
   font-size:16px;
   font-weight:700;
-  color:#2e7d32
+  color:#2e7d32;
+  margin-top:10px
+}
+
+.reportBar{
+  margin-top:16px;
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap
+}
+.reportBar a{
+  background:#fff;
+  border:2px solid #2e7d32;
+  padding:8px 12px;
+  font-weight:700;
+  color:#2e7d32;
+  text-decoration:none
 }
 </style>
 </head>
@@ -72,31 +95,33 @@ textarea{resize:vertical}
 <header>
   <a href="index.html">🏠 Home</a>
   <strong>📦 Production Plan</strong>
-  <a href="income.html">➡️ Income</a>
+  <a href="expense-demo.html">➡️ Expense</a>
 </header>
 
 <div class="container">
 
 <h2>उत्पादन योजना (Production Plan)</h2>
 <p class="small">
-के उत्पादन गर्ने, कति, कति दरमा — यही डाटाले Income र ROI तय गर्छ।
+यहाँ प्रविष्ट उत्पादन विवरण Expense, Income, ROI तथा Proposal को आधार हो।
 </p>
 
-<table>
-<thead>
-<tr>
-  <th>उत्पादन</th>
-  <th>प्रकार</th>
-  <th>इकाई</th>
-  <th>दर</th>
-  <th>परिमाण</th>
-  <th>रकम</th>
-  <th>Narration</th>
-  <th>❌</th>
-</tr>
-</thead>
-<tbody id="tbody"></tbody>
-</table>
+<!-- CATEGORY MANAGER -->
+<div class="section">
+<h3>📂 उत्पादनका प्रकार</h3>
+<div id="typeBox"></div>
+<input id="newType" placeholder="नयाँ प्रकार (जस्तै: फलफूल)">
+<button class="btn" onclick="addType()">➕ प्रकार थप्नुहोस्</button>
+</div>
+
+<!-- TABLE NARRATION -->
+<div class="section">
+<h3>📝 समग्र उत्पादन Narration</h3>
+<textarea rows="3" id="tableNarration"
+ placeholder="समग्र उत्पादन योजनाको विवरण लेख्नुहोस्..."></textarea>
+</div>
+
+<!-- GROUPED TABLES -->
+<div id="tables"></div>
 
 <button class="btn" onclick="addRow()">➕ नयाँ उत्पादन थप्नुहोस्</button>
 
@@ -104,65 +129,142 @@ textarea{resize:vertical}
   कुल उत्पादन मूल्य: रु <span id="grandTotal">0</span>
 </div>
 
+<!-- REPORT LINKS -->
+<div class="reportBar">
+  <a href="production-report.html" target="_blank">📊 Production Report</a>
+  <a href="production-chart.html" target="_blank">📈 Production Chart</a>
+  <a href="production-income-link.html" target="_blank">🔗 Prod → Income</a>
+  <a href="production-narrative.html" target="_blank">📝 Production Narrative</a>
+</div>
+
 </div>
 
 <footer>
-  <span class="small">FarmerBase BP Engine – Production First</span>
+  <span class="small">FarmerBase BP Engine – Production Core</span>
 </footer>
 
 <script>
-/* ===============================
-   PRODUCTION PLAN – SINGLE PAGE
-   =============================== */
+/* =====================================
+   PRODUCTION PLAN – PROJECT BASED
+   ===================================== */
 
-let production = JSON.parse(localStorage.getItem("PRODUCTION_PLAN")) || [];
+const key = localStorage.getItem("activeProject");
+if(!key){
+  alert("Active योजना भेटिएन । index बाट योजना सुरु गर्नुहोस्।");
+}
+
+let project = JSON.parse(localStorage.getItem(key)) || {};
+
+project.production = project.production || {
+  types:["पशु","तरकारी","दुग्ध","अन्य"],
+  items:[],
+  narration:""
+};
+
+const TYPES = project.production.types;
+const ITEMS = project.production.items;
+
+tableNarration.value = project.production.narration || "";
+tableNarration.oninput = ()=>{
+  project.production.narration = tableNarration.value;
+  save();
+};
 
 function save(){
-  localStorage.setItem("PRODUCTION_PLAN",JSON.stringify(production));
+  localStorage.setItem(key,JSON.stringify(project));
   render();
 }
 
-function render(){
-  tbody.innerHTML="";
-  let total=0;
-
-  production.forEach((p,i)=>{
-    p.amount = (Number(p.rate)||0) * (Number(p.qty)||0);
-    total += p.amount;
-
-    tbody.innerHTML+=`
-<tr>
-<td><input value="${p.name||""}" oninput="edit(${i},'name',this.value)"></td>
-
-<td>
-<select onchange="edit(${i},'type',this.value)">
-<option ${p.type==="पशु"?"selected":""}>पशु</option>
-<option ${p.type==="तरकारी"?"selected":""}>तरकारी</option>
-<option ${p.type==="दुग्ध"?"selected":""}>दुग्ध</option>
-<option ${p.type==="अन्य"?"selected":""}>अन्य</option>
-</select>
-</td>
-
-<td><input value="${p.unit||""}" oninput="edit(${i},'unit',this.value)"></td>
-<td><input type="number" value="${p.rate||0}" oninput="edit(${i},'rate',this.value)"></td>
-<td><input type="number" value="${p.qty||0}" oninput="edit(${i},'qty',this.value)"></td>
-<td>रु ${p.amount.toLocaleString()}</td>
-<td>
-<textarea rows="2" oninput="edit(${i},'note',this.value)">
-${p.note||""}</textarea>
-</td>
-<td class="del" onclick="remove(${i})">✖</td>
-</tr>`;
+/* ---------- TYPE MANAGER ---------- */
+function renderTypes(){
+  typeBox.innerHTML="";
+  TYPES.forEach((t,i)=>{
+    typeBox.innerHTML+=`
+      <div>
+        <input value="${t}" oninput="editType(${i},this.value)">
+        <span class="del" onclick="delType(${i})">✖</span>
+      </div>`;
   });
-
-  grandTotal.innerText = total.toLocaleString();
+}
+function addType(){
+  if(!newType.value) return;
+  TYPES.push(newType.value);
+  newType.value="";
+  save();
+}
+function editType(i,v){
+  TYPES[i]=v;
+  save();
+}
+function delType(i){
+  if(!confirm("यो प्रकार हटाउने ?")) return;
+  const t=TYPES[i];
+  TYPES.splice(i,1);
+  project.production.items =
+    project.production.items.filter(p=>p.type!==t);
+  save();
 }
 
+/* ---------- TABLES ---------- */
+function render(){
+  renderTypes();
+  tables.innerHTML="";
+  let grand=0;
+
+  TYPES.forEach(type=>{
+    const rows = ITEMS.filter(p=>p.type===type);
+    if(rows.length===0) return;
+
+    let subtotal=0;
+    let html=`<div class="section">
+      <h3>${type}</h3>
+      <table>
+      <tr>
+        <th>उत्पादन</th>
+        <th>इकाई</th>
+        <th>दर</th>
+        <th>परिमाण</th>
+        <th>रकम</th>
+        <th>कैफियत</th>
+        <th></th>
+      </tr>`;
+
+    rows.forEach(p=>{
+      p.amount=(Number(p.rate)||0)*(Number(p.qty)||0);
+      subtotal+=p.amount;
+      grand+=p.amount;
+
+      html+=`
+      <tr>
+        <td><input value="${p.name}" oninput="edit('${p.id}','name',this.value)"></td>
+        <td><input value="${p.unit}" oninput="edit('${p.id}','unit',this.value)"></td>
+        <td><input type="number" value="${p.rate}" oninput="edit('${p.id}','rate',this.value)"></td>
+        <td><input type="number" value="${p.qty}" oninput="edit('${p.id}','qty',this.value)"></td>
+        <td>रु ${p.amount.toLocaleString()}</td>
+        <td><input value="${p.note||""}" oninput="edit('${p.id}','note',this.value)"></td>
+        <td class="del" onclick="remove('${p.id}')">✖</td>
+      </tr>`;
+    });
+
+    html+=`
+      <tr>
+        <th colspan="4">उप–जम्मा</th>
+        <th colspan="3">रु ${subtotal.toLocaleString()}</th>
+      </tr>
+      </table></div>`;
+
+    tables.innerHTML+=html;
+  });
+
+  grandTotal.innerText = grand.toLocaleString();
+}
+
+/* ---------- CRUD ---------- */
 function addRow(){
-  production.push({
+  ITEMS.push({
     id:Date.now(),
     name:"",
-    type:"तरकारी",
+    type:TYPES[0],
     unit:"",
     rate:0,
     qty:0,
@@ -170,16 +272,16 @@ function addRow(){
   });
   save();
 }
-
-function edit(i,f,v){
-  production[i][f] =
-    (f==="rate"||f==="qty") ? Number(v)||0 : v;
+function edit(id,f,v){
+  let p=ITEMS.find(x=>x.id==id);
+  if(!p) return;
+  p[f]=(f==="rate"||f==="qty")?Number(v)||0:v;
   save();
 }
-
-function remove(i){
+function remove(id){
   if(!confirm("यो उत्पादन हटाउने ?")) return;
-  production.splice(i,1);
+  project.production.items =
+    project.production.items.filter(x=>x.id!=id);
   save();
 }
 
