@@ -12,13 +12,13 @@ body{
   margin:0;
 }
 .wrap{
-  max-width:900px;
+  max-width:950px;
   margin:25px auto;
   background:#fff;
   padding:25px;
   border-radius:10px;
 }
-h2{color:#2e7d32;margin-top:0}
+h2,h3{color:#2e7d32;margin-top:0}
 
 /* ===== TOP BAR ===== */
 .topBar{
@@ -33,13 +33,13 @@ h2{color:#2e7d32;margin-top:0}
 
 /* form */
 label{font-weight:600}
-input,textarea{
+input,select,textarea{
   width:100%;
   padding:8px;
   margin-top:6px;
   font-family:inherit;
 }
-textarea{min-height:80px}
+textarea{min-height:70px}
 
 button{
   border:none;
@@ -53,7 +53,8 @@ button{
 
 /* preview */
 .preview input,
-.preview textarea{
+.preview textarea,
+.preview select{
   background:#f3f3f3;
   pointer-events:none;
 }
@@ -99,7 +100,7 @@ button{
 
 <h2>✏️ व्यवसायको संक्षिप्त जानकारी</h2>
 
-<label>व्यवसाय / प्रस्तावनाको नाम</label>
+<label>व्यवसाय / परियोजनाको नाम</label>
 <input id="bp_name">
 
 <label>सञ्चालन हुने स्थान</label>
@@ -113,6 +114,51 @@ button{
 
 <label>सम्पर्क नम्बर</label>
 <input id="bp_phone">
+
+<hr>
+
+<h3>🏢 संस्थागत आवद्धता</h3>
+
+<label>संस्थाको प्रकार</label>
+<select id="org_type">
+  <option value="">-- छान्नुहोस् --</option>
+  <option>समूह</option>
+  <option>सहकारी</option>
+  <option>कम्पनी</option>
+  <option>एकल उद्यम</option>
+</select>
+
+<label>संस्था दर्ता छ?</label>
+<select id="org_registered">
+  <option value="">-- छान्नुहोस् --</option>
+  <option>छ</option>
+  <option>छैन</option>
+</select>
+
+<label>दर्ता निकाय</label>
+<input id="reg_authority">
+
+<label>दर्ता नं</label>
+<input id="reg_no">
+
+<label>PAN नं</label>
+<input id="pan_no">
+
+<hr>
+
+<h3>👥 लाभान्वित समूह</h3>
+
+<label>महिला संख्या</label>
+<input id="female_count" type="number" min="0">
+
+<label>पुरुष संख्या</label>
+<input id="male_count" type="number" min="0">
+
+<label>अन्य (यदि भए)</label>
+<input id="other_count" type="number" min="0">
+
+<label>जम्मा लाभान्वित (Auto)</label>
+<input id="total_count" type="number" readonly>
 
 <!-- ===== BOTTOM NAV ===== -->
 <div class="nav">
@@ -133,18 +179,29 @@ let project = JSON.parse(localStorage.getItem(key));
 project.shortInfo = project.shortInfo || {};
 
 /* ===== LOAD ===== */
-document.querySelectorAll("input,textarea").forEach(el=>{
-  if(project.shortInfo[el.id])
+document.querySelectorAll("input,textarea,select").forEach(el=>{
+  if(project.shortInfo[el.id] !== undefined)
     el.value = project.shortInfo[el.id];
+});
+
+/* ===== AUTO TOTAL ===== */
+function calcTotal(){
+  let f = Number(female_count.value)||0;
+  let m = Number(male_count.value)||0;
+  let o = Number(other_count.value)||0;
+  total_count.value = f+m+o;
+}
+[female_count, male_count, other_count].forEach(el=>{
+  el.addEventListener("input", calcTotal);
 });
 
 /* ===== AUTOSAVE ===== */
 let t;
-document.querySelectorAll("input,textarea").forEach(el=>{
+document.querySelectorAll("input,textarea,select").forEach(el=>{
   el.addEventListener("input",()=>{
     clearTimeout(t);
     t=setTimeout(()=>{
-      document.querySelectorAll("input,textarea").forEach(i=>{
+      document.querySelectorAll("input,textarea,select").forEach(i=>{
         project.shortInfo[i.id]=i.value||"";
       });
       project.lastEdited=new Date().toLocaleString("ne-NP");
