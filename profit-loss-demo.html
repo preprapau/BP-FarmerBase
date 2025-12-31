@@ -2,246 +2,206 @@
 <html lang="ne">
 <head>
 <meta charset="UTF-8">
-<title>Profit – Loss (Final) | Farmerbase BP Engine</title>
+<title>नाफा–नोक्सान विवरण | FarmerBase BP Engine</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
 body{
   font-family:"Noto Sans Devanagari","Kalimati",system-ui;
-  background:#f4f7f6;margin:0
+  background:#f4f7f6;
+  margin:0;
 }
-header,footer{
+header, footer{
   background:#e8f5e9;
   padding:10px 16px;
   display:flex;
-  justify-content:space-between
+  justify-content:space-between;
+  align-items:center;
 }
-header a,footer a{
+header a, footer a{
+  text-decoration:none;
+  font-weight:700;
   color:#2e7d32;
-  font-weight:600;
-  text-decoration:none
 }
-.wrap{
+.navAero a{ margin:0 8px; }
+.container{
   max-width:900px;
-  margin:18px auto;
-  background:#fff;
-  padding:22px;
-  border-radius:12px
+  margin:0 auto;
+  padding:20px;
 }
-h2,h3{color:#2e7d32;margin-top:0}
-table{width:100%;border-collapse:collapse;margin-top:10px}
-th,td{border:1px solid #ccc;padding:8px;text-align:right}
-th{background:#eef5ee}
-.left{text-align:left}
-.sum{font-weight:700;background:#fafafa}
-.pos{color:#2e7d32;font-weight:700}
-.neg{color:#c62828;font-weight:700}
-input{width:100%;padding:6px;box-sizing:border-box}
-.small{font-size:13px;color:#2e7d32}
+h2,h3{ color:#2e7d32; margin:10px 0; }
+table{
+  width:100%;
+  border-collapse:collapse;
+  background:#fff;
+}
+th,td{
+  border:1px solid #ccc;
+  padding:8px;
+  font-size:15px;
+}
+th{ background:#eef5ee; text-align:left; }
+td:last-child{ text-align:right; }
+.highlight{
+  font-weight:700;
+  background:#f1f8f1;
+}
+input{
+  width:120px;
+  padding:6px;
+}
+.small{ font-size:13px;color:#555; }
 </style>
 </head>
 
 <body>
 
+<!-- ===== TOP NAV ===== -->
 <header>
-  <a href="income-demo.html">◀️ Income</a>
-  <a href="index.html">🏠 Home</a>
+  <div class="navAero">
+    <a href="income-demo.html">⬅️ Income</a>
+  </div>
+
+  <div>
+    <a href="index.html" target="_blank">🏠 Home</a> |
+    <a href="pl-report.html" target="_blank">📊 P&L Report</a>
+  </div>
+
+  <div class="navAero">
+    <a href="roi.html">ROI ➡️</a>
+  </div>
 </header>
 
-<div class="wrap">
+<div class="container">
 
-<h2>📊 नाफा – नोक्सान विवरण (वार्षिक)</h2>
-
-<!-- ================= INCOME ================= -->
-<h3>💰 आम्दानी</h3>
-<table>
-<tr>
-  <th class="left">विवरण</th>
-  <th>रकम</th>
-</tr>
-<tr>
-  <td class="left">कुल आम्दानी</td>
-  <td id="totalIncome">0</td>
-</tr>
-</table>
-
-<!-- ================= OPERATING COST ================= -->
-<h3>💸 चालु खर्च</h3>
-<table>
-<tr>
-  <th class="left">विवरण</th>
-  <th>रकम</th>
-</tr>
-<tr>
-  <td class="left">कुल चालु खर्च</td>
-  <td id="totalOperating">0</td>
-</tr>
-</table>
-
-<!-- ================= GROSS PROFIT ================= -->
-<h3>📈 सकल नाफा</h3>
-<table>
-<tr class="sum">
-  <td class="left">सकल नाफा (आम्दानी − चालु खर्च)</td>
-  <td id="grossProfit">0</td>
-</tr>
-</table>
-
-<!-- ================= DEPRECIATION ================= -->
-<h3>🏗️ ह्रासकट्टी (Depreciation)</h3>
-<table>
-<tr>
-  <th class="left">विवरण</th>
-  <th>दर %</th>
-  <th>रकम</th>
-</tr>
-<tr>
-  <td class="left">वार्षिक ह्रासकट्टी (स्थिर खर्चमा)</td>
-  <td>
-    <input type="number" id="depRate" value="10" oninput="recalc()">
-  </td>
-  <td id="depreciation">0</td>
-</tr>
-</table>
-
-<!-- ================= PROFIT BEFORE TAX ================= -->
-<h3>🧾 कर-पूर्व नाफा</h3>
-<table>
-<tr class="sum">
-  <td class="left">कर-पूर्व नाफा (सकल नाफा − ह्रासकट्टी)</td>
-  <td id="profitBeforeTax">0</td>
-</tr>
-</table>
-
-<!-- ================= TAX ================= -->
-<h3>🏛️ आम्दानी कर</h3>
-<table>
-<tr>
-  <th class="left">विवरण</th>
-  <th>दर %</th>
-  <th>रकम</th>
-</tr>
-<tr>
-  <td class="left">आम्दानी कर</td>
-  <td>
-    <input type="number" id="taxRate" value="15" oninput="recalc()">
-  </td>
-  <td id="incomeTax">0</td>
-</tr>
-</table>
-
-<!-- ================= NET PROFIT ================= -->
-<h3>✅ खुद नाफा (करपछि)</h3>
-<table>
-<tr class="sum">
-  <td class="left">कर-पछिको खुद नाफा</td>
-  <td id="netProfit">0</td>
-</tr>
-</table>
+<h2>📊 नाफा–नोक्सान विवरण (वार्षिक)</h2>
 
 <p class="small">
-✔️ ह्रासकट्टी र कर दुवै editable छन्  
-| ✔️ नाफा ≤ 0 भए कर स्वतः 0 हुन्छ
+यो विवरण Income र Expense पेजमा प्रविष्ट डाटाका आधारमा स्वतः गणना गरिएको हो।
 </p>
+
+<table>
+<tbody>
+<tr>
+  <th>कुल आम्दानी</th>
+  <td id="totalIncome">0</td>
+</tr>
+
+<tr>
+  <th>कुल चालु + स्थिर खर्च</th>
+  <td id="totalExpense">0</td>
+</tr>
+
+<tr>
+  <th>ह्रासकट्टी (Depreciation)</th>
+  <td id="depreciation">0</td>
+</tr>
+
+<tr class="highlight">
+  <th>सञ्चालन नाफा</th>
+  <td id="operatingProfit">0</td>
+</tr>
+
+<tr>
+  <th>
+    आम्दानी कर (%)
+    <input type="number" id="taxRate" value="5">
+  </th>
+  <td id="taxAmount">0</td>
+</tr>
+
+<tr class="highlight">
+  <th>शुद्ध नाफा</th>
+  <td id="netProfit">0</td>
+</tr>
+</tbody>
+</table>
 
 </div>
 
+<!-- ===== BOTTOM NAV ===== -->
 <footer>
-  <a href="income-demo.html">◀️ Income</a>
-  <a href="index.html">🏠 Home</a>
+  <div class="navAero">
+    <a href="income-demo.html">⬅️ Income</a>
+  </div>
+
+  <div class="small">
+    FarmerBase BP Engine – नाफा–नोक्सान विश्लेषण
+  </div>
+
+  <div class="navAero">
+    <a href="roi.html">ROI ➡️</a>
+  </div>
 </footer>
 
 <script>
-/* =====================================================
-   LOAD PROJECT
-   ===================================================== */
-const projectKey = localStorage.getItem("activeProject");
-if(!projectKey){
-  alert("पहिले Project खोल्नुहोस्");
-  location.href="index.html";
-}
+/* ===== LOAD PROJECT ===== */
+const key = localStorage.getItem("activeProject");
+if(!key){ alert("Active योजना भेटिएन"); }
 
-let project = JSON.parse(localStorage.getItem(projectKey)) || {};
-const expenses = project.expenses || [];
-const totalIncome = Number(project.totalIncome) || 0;
+let project = JSON.parse(localStorage.getItem(key)) || {};
+project.taxRate = project.taxRate || 5;
 
-/* =====================================================
-   BASE COST CALCULATION
-   ===================================================== */
-let operatingCost = 0;
-let fixedCost = 0;
+/* ===== CALCULATIONS ===== */
+function calcPL(){
+  const income = Number(project.totalIncome)||0;
 
-expenses.forEach(e=>{
-  if(e.costType === "operating"){
-    operatingCost += Number(e.amount)||0;
-  }
-  if(e.costType === "fixed"){
-    fixedCost += Number(e.amount)||0;
-  }
-});
+  let expense = 0;
+  (project.expenses||[]).forEach(e=>{
+    expense += Number(e.amount)||0;
+  });
 
-/* =====================================================
-   RECALC FUNCTION
-   ===================================================== */
-function recalc(){
+  let depreciation = 0;
+  const depRate = project.depRate || 10;
+  (project.expenses||[]).forEach(e=>{
+    if(
+      e.category==="पूर्वाधार निर्माण" ||
+      e.category==="मेशिन औजार"
+    ){
+      depreciation += Number(e.amount)||0;
+    }
+  });
+  depreciation = depreciation * (depRate/100);
 
-  const depRate = Number(depRateEl.value)||0;
-  const taxRate = Number(taxRateEl.value)||0;
+  const operatingProfit = income - expense - depreciation;
 
-  const grossProfit = totalIncome - operatingCost;
-  const depreciation = fixedCost * depRate / 100;
-  const profitBeforeTax = grossProfit - depreciation;
-
-  const incomeTax = profitBeforeTax > 0
-    ? profitBeforeTax * taxRate / 100
+  const tax = operatingProfit>0
+    ? operatingProfit * (project.taxRate/100)
     : 0;
 
-  const netProfit = profitBeforeTax - incomeTax;
+  const netProfit = operatingProfit - tax;
 
-  // Render
-  totalIncomeEl.innerText = totalIncome.toFixed(2);
-  totalOperatingEl.innerText = operatingCost.toFixed(2);
-  grossProfitEl.innerText = grossProfit.toFixed(2);
-  depreciationEl.innerText = depreciation.toFixed(2);
-  profitBeforeTaxEl.innerText = profitBeforeTax.toFixed(2);
-  incomeTaxEl.innerText = incomeTax.toFixed(2);
-  netProfitEl.innerText = netProfit.toFixed(2);
+  /* ===== RENDER ===== */
+  totalIncome.innerText = income.toFixed(2);
+  totalExpense.innerText = expense.toFixed(2);
+  depreciation.innerText = depreciation.toFixed(2);
+  operatingProfit.innerText = operatingProfit.toFixed(2);
+  taxAmount.innerText = tax.toFixed(2);
+  netProfit.innerText = netProfit.toFixed(2);
 
-  grossProfitEl.className = grossProfit >= 0 ? "pos" : "neg";
-  profitBeforeTaxEl.className = profitBeforeTax >= 0 ? "pos" : "neg";
-  netProfitEl.className = netProfit >= 0 ? "pos" : "neg";
+  /* Save for ROI */
+  project.netProfit = netProfit;
+  project.operatingProfit = operatingProfit;
+  project.depreciationAmount = depreciation;
+  project.taxAmount = tax;
 
-  // Save for ROI / Proposal
-  project.profitLoss = {
-    totalIncome,
-    operatingCost,
-    fixedCost,
-    grossProfit,
-    depreciation,
-    profitBeforeTax,
-    incomeTax,
-    netProfit,
-    depRate,
-    taxRate
-  };
-
-  localStorage.setItem(projectKey, JSON.stringify(project));
+  save();
 }
 
-/* =====================================================
-   INIT
-   ===================================================== */
-const totalIncomeEl = document.getElementById("totalIncome");
-const totalOperatingEl = document.getElementById("totalOperating");
-const grossProfitEl = document.getElementById("grossProfit");
-const depreciationEl = document.getElementById("depreciation");
-const profitBeforeTaxEl = document.getElementById("profitBeforeTax");
-const incomeTaxEl = document.getElementById("incomeTax");
-const netProfitEl = document.getElementById("netProfit");
-const depRateEl = document.getElementById("depRate");
-const taxRateEl = document.getElementById("taxRate");
+/* ===== TAX RATE ===== */
+taxRate.value = project.taxRate;
+taxRate.oninput = ()=>{
+  project.taxRate = Number(taxRate.value)||0;
+  calcPL();
+};
 
-recalc();
+/* ===== SAVE ===== */
+function save(){
+  localStorage.setItem(key, JSON.stringify(project));
+}
+
+/* INIT */
+calcPL();
 </script>
 
 </body>
