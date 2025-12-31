@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+<meta charset="UTF-8">
+<title>ROI Charts | FarmerBase BP Engine</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+body{
+  font-family:"Noto Sans Devanagari","Kalimati",system-ui;
+  background:#fff;
+  margin:20px;
+}
+h2,h3{
+  color:#2e7d32;
+  margin-bottom:6px;
+}
+.small{
+  font-size:13px;
+  color:#555;
+  margin-bottom:14px;
+}
+canvas{
+  max-width:900px;
+  margin:30px auto;
+  display:block;
+}
+button{
+  padding:6px 12px;
+  margin-bottom:10px;
+}
+.section{
+  margin-top:30px;
+}
+</style>
+</head>
+
+<body>
+
+<h2>🥧 ROI Charts (दृश्य विश्लेषण)</h2>
+<button onclick="window.print()">🖨️ Print</button>
+
+<p class="small">
+यी चार्टहरू Income, Expense, Profit–Loss र ROI पेजका डाटामा आधारित
+स्वतः तयार गरिएको हुन्।
+</p>
+
+<!-- ===== PIE CHART ===== -->
+<div class="section">
+  <h3>📊 कुल लगानी बनाम 5-वर्ष प्रतिफल</h3>
+  <canvas id="investmentPie"></canvas>
+</div>
+
+<!-- ===== BAR CHART ===== -->
+<div class="section">
+  <h3>📈 वर्ष अनुसार शुद्ध नाफा</h3>
+  <canvas id="profitBar"></canvas>
+</div>
+
+<!-- ===== LINE CHART ===== -->
+<div class="section">
+  <h3>📉 संचयी नगद प्रवाह (Cumulative Cashflow)</h3>
+  <canvas id="cashflowLine"></canvas>
+</div>
+
+<script>
+/* ===== LOAD PROJECT ===== */
+const key = localStorage.getItem("activeProject");
+if(!key){ alert("Active योजना भेटिएन"); }
+const p = JSON.parse(localStorage.getItem(key)) || {};
+
+/* ===== BASIC VALUES ===== */
+const income = Number(p.totalIncome)||0;
+const netProfit = Number(p.netProfit)||0;
+
+/* Initial Investment */
+const investment = (p.expenses||[])
+  .filter(e=>e.category==="पूर्वाधार निर्माण" || e.category==="मेशिन औजार")
+  .reduce((s,e)=>s+(Number(e.amount)||0),0);
+
+/* 5-Year Values */
+const years = ["Year 1","Year 2","Year 3","Year 4","Year 5"];
+const profitData = [];
+const cashflowData = [];
+
+let cumulative = 0;
+for(let i=0;i<5;i++){
+  profitData.push(netProfit);
+  cumulative += netProfit;
+  cashflowData.push(cumulative);
+}
+
+/* ===== PIE: Investment vs Return ===== */
+new Chart(document.getElementById("investmentPie"),{
+  type:"pie",
+  data:{
+    labels:["Initial Investment","5-Year Total Return"],
+    datasets:[{
+      data:[investment, netProfit*5],
+      backgroundColor:["#ef9a9a","#a5d6a7"]
+    }]
+  },
+  options:{
+    responsive:true
+  }
+});
+
+/* ===== BAR: Year-wise Net Profit ===== */
+new Chart(document.getElementById("profitBar"),{
+  type:"bar",
+  data:{
+    labels:years,
+    datasets:[{
+      label:"Net Profit",
+      data:profitData,
+      backgroundColor:"#81c784"
+    }]
+  },
+  options:{
+    responsive:true,
+    plugins:{ legend:{ display:false } },
+    scales:{ y:{ beginAtZero:true } }
+  }
+});
+
+/* ===== LINE: Cumulative Cashflow ===== */
+new Chart(document.getElementById("cashflowLine"),{
+  type:"line",
+  data:{
+    labels:years,
+    datasets:[{
+      label:"Cumulative Cashflow",
+      data:cashflowData,
+      borderWidth:2,
+      fill:false
+    }]
+  },
+  options:{
+    responsive:true,
+    scales:{ y:{ beginAtZero:true } }
+  }
+});
+</script>
+
+</body>
+</html>
+
