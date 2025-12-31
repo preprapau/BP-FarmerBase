@@ -2,60 +2,35 @@
 <html lang="ne">
 <head>
 <meta charset="UTF-8">
-<title>Short Info | BPMS</title>
+<title>Business Detail | FarmerBase BP Engine</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
 body{
-  font-family:"Noto Sans Devanagari","Kalimati","Mangal","Nirmala UI",system-ui,Arial;
+  font-family:"Noto Sans Devanagari","Kalimati","Mangal",system-ui;
   background:#f4f7f6;
   margin:0;
 }
-.container{
-  max-width:900px;
+.wrap{
+  max-width:950px;
   margin:25px auto;
   background:#fff;
   padding:25px;
   border-radius:10px;
 }
-h2{margin-top:0;color:#2e7d32}
-h3{margin-top:30px;color:#2e7d32}
+h2{color:#2e7d32;margin-top:0}
+h3{color:#2e7d32}
 
-label{display:block;font-weight:600;margin-top:14px}
+label{font-weight:600}
 input,textarea{
   width:100%;
   padding:8px;
   margin-top:6px;
+  margin-bottom:12px;
   font-family:inherit;
 }
-textarea{min-height:70px}
+textarea{min-height:120px}
 
-#autosaveStatus{
-  font-size:13px;
-  color:#2e7d32;
-  margin-bottom:10px
-}
-
-/* preview */
-.preview input,
-.preview textarea{
-  background:#f3f3f3;
-  pointer-events:none;
-}
-.preview-note{
-  background:#fff3cd;
-  padding:6px 10px;
-  border-radius:6px;
-  font-size:13px;
-  margin-bottom:10px;
-}
-
-/* nav */
-.nav{
-  display:flex;
-  justify-content:space-between;
-  margin:20px 0;
-}
 button{
   padding:8px 16px;
   border:none;
@@ -64,138 +39,180 @@ button{
   background:#2e7d32;
   color:#fff;
 }
-.toggle{
-  background:#0277bd;
+.previewBtn{background:#0277bd}
+.del{background:#c62828}
+.edit{background:#0277bd}
+
+/* topic cards */
+.topic-box{
+  background:#f9fdf9;
+  border:1px solid #dceddc;
+  border-radius:8px;
+  padding:12px;
+  margin-top:12px;
+}
+.actions button{
+  margin-right:6px;
+}
+
+/* preview mode */
+.preview input,
+.preview textarea,
+.preview .form,
+.preview .actions,
+.preview .addBtn{
+  display:none !important;
+}
+.preview-label{
+  background:#fff3cd;
+  padding:6px 10px;
+  border-radius:6px;
+  font-size:13px;
+  margin-bottom:10px;
+}
+
+/* top nav */
+.topNav{
+  display:flex;
+  justify-content:space-between;
+  margin-bottom:15px;
+}
+
+/* bottom nav */
+.nav{
+  display:flex;
+  justify-content:space-between;
+  margin-top:30px;
 }
 </style>
 </head>
 
 <body>
 
-<div class="container" id="page">
+<div class="wrap" id="page">
 
-<!-- TOP NAV -->
-<div class="nav">
-  <button onclick="goPrev()">⬅ Home</button>
-  <button class="toggle" onclick="togglePreview()">👁 Preview / ✏️ Edit</button>
+<!-- ===== TOP NAV ===== -->
+<div class="topNav">
+  <button class="previewBtn" onclick="togglePreview()">👁 Preview / ✏️ Edit</button>
+  <button onclick="location.href='production.html'">Next ➡</button>
 </div>
 
-<div id="previewNote" class="preview-note" style="display:none">
+<div id="previewLabel" class="preview-label" style="display:none">
 👁 Preview Mode (Read-only)
 </div>
 
-<div id="autosaveStatus">💾 Saved</div>
+<h2>📌 व्यवसायको विस्तृत विवरण</h2>
 
-<h2>✏️ व्यवसाय / प्रस्तावनाको संक्षिप्त विवरण</h2>
+<!-- ===== FORM ===== -->
+<div class="form">
+  <label>विषय (Topic)</label>
+  <input id="topicInput" placeholder="जस्तै: उत्पादन योजना, बजार विश्लेषण">
 
-<label>व्यवसाय / प्रस्तावनाको नाम</label>
-<input id="bp_name">
+  <label>विवरण (Content)</label>
+  <textarea id="contentInput" placeholder="यहाँ विस्तृत विवरण लेख्नुहोस्..."></textarea>
 
-<label>सञ्चालन हुने स्थान (ठेगाना)</label>
-<input id="bp_location">
+  <button class="addBtn" onclick="saveTopic()">💾 Save</button>
+</div>
 
-<label>सञ्चालन गर्ने संस्था</label>
-<input id="bp_org">
+<!-- ===== LIST ===== -->
+<div id="topicList"></div>
 
-<label>प्रोप्राइटरको नाम</label>
-<input id="bp_owner">
-
-<label>सम्पर्क नम्बर</label>
-<input id="bp_phone">
-
-<label>उत्पादन / व्यवसायिक प्रकृति</label>
-<textarea id="bp_products"></textarea>
-
-<hr>
-
-<h3>संस्थागत परिचय</h3>
-
-<label>दर्ता मिति</label>
-<input id="reg_date">
-
-<label>दर्ता निकाय</label>
-<input id="reg_authority">
-
-<label>दर्ता नं</label>
-<input id="reg_no">
-
-<label>PAN नं</label>
-<input id="pan_no">
-
-<hr>
-
-<h3>लाभान्वित समूह</h3>
-
-<label>समूह प्रकार</label>
-<input id="benef_group_type">
-
-<label>महिला संख्या</label>
-<input id="female_count" type="number">
-
-<label>पुरुष संख्या</label>
-<input id="male_count" type="number">
-
-<label>जम्मा संख्या</label>
-<input id="total_count" type="number">
-
-<!-- BOTTOM NAV -->
+<!-- ===== BOTTOM NAV ===== -->
 <div class="nav">
-  <button onclick="goPrev()">⬅ Home</button>
-  <button onclick="goNext()">Next ➡</button>
+  <button onclick="location.href='existing-status.html'">⬅ Previous</button>
+  <button onclick="location.href='production.html'">Next ➡</button>
 </div>
 
 </div>
 
 <script>
-/* ===== SAFETY ===== */
-let activeKey = localStorage.getItem("activeProject");
-if(!activeKey){
+/* ================= BUSINESS DETAIL – AUTOSAVE ================= */
+
+const key = localStorage.getItem("activeProject");
+if(!key){
   alert("पहिले Home बाट Project खोल्नुहोस्");
   location.href="index.html";
 }
-let project = JSON.parse(localStorage.getItem(activeKey));
 
-/* ===== LOAD ===== */
-function loadForm(){
-  let s = project.shortInfo||{};
-  document.querySelectorAll("input,textarea").forEach(el=>{
-    if(s[el.id]) el.value = s[el.id];
+const project = JSON.parse(localStorage.getItem(key)) || {};
+project.businessDetail = project.businessDetail || [];
+
+let editIndex = null;
+let preview = false;
+
+/* ----- SAVE / UPDATE ----- */
+function saveTopic(){
+  const topic = topicInput.value.trim();
+  const content = contentInput.value.trim();
+  if(!topic || !content){
+    alert("विषय र विवरण दुवै आवश्यक छ");
+    return;
+  }
+
+  if(editIndex !== null){
+    project.businessDetail[editIndex] = { topic, content };
+    editIndex = null;
+  }else{
+    project.businessDetail.push({ topic, content });
+  }
+
+  topicInput.value="";
+  contentInput.value="";
+  persist();
+}
+
+/* ----- EDIT ----- */
+function editTopic(i){
+  const t = project.businessDetail[i];
+  topicInput.value = t.topic;
+  contentInput.value = t.content;
+  editIndex = i;
+}
+
+/* ----- DELETE ----- */
+function deleteTopic(i){
+  if(confirm("यो विवरण हटाउने ?")){
+    project.businessDetail.splice(i,1);
+    persist();
+  }
+}
+
+/* ----- SAVE + RENDER ----- */
+function persist(){
+  project.lastEdited = new Date().toLocaleString("ne-NP");
+  localStorage.setItem(key, JSON.stringify(project));
+  render();
+}
+
+function render(){
+  topicList.innerHTML="";
+  if(project.businessDetail.length===0){
+    topicList.innerHTML="<i>कुनै विवरण थपिएको छैन</i>";
+    return;
+  }
+
+  project.businessDetail.forEach((t,i)=>{
+    topicList.innerHTML+=`
+      <div class="topic-box">
+        <h3>${i+1}. ${t.topic}</h3>
+        <p>${t.content.replace(/\\n/g,"<br>")}</p>
+        <div class="actions">
+          <button class="edit" onclick="editTopic(${i})">✏️ Edit</button>
+          <button class="del" onclick="deleteTopic(${i})">🗑 Delete</button>
+        </div>
+      </div>
+    `;
   });
 }
-loadForm();
 
-/* ===== SAVE / AUTOSAVE ===== */
-function saveShortInfo(){
-  let data={};
-  document.querySelectorAll("input,textarea").forEach(el=>{
-    data[el.id]=el.value||"";
-  });
-  project.shortInfo=data;
-  project.lastEdited=new Date().toLocaleString("ne-NP");
-  localStorage.setItem(activeKey,JSON.stringify(project));
-  autosaveStatus.innerText="✔ Saved";
-}
-
-let t;
-document.querySelectorAll("input,textarea").forEach(el=>{
-  el.addEventListener("input",()=>{
-    autosaveStatus.innerText="⏳ Saving...";
-    clearTimeout(t);
-    t=setTimeout(saveShortInfo,700);
-  });
-});
-
-/* ===== PREVIEW ===== */
-let preview=false;
+/* ----- PREVIEW MODE ----- */
 function togglePreview(){
-  preview=!preview;
-  page.classList.toggle("preview",preview);
-  previewNote.style.display = preview ? "block":"none";
+  preview = !preview;
+  page.classList.toggle("preview", preview);
+  previewLabel.style.display = preview ? "block" : "none";
 }
 
-/* ===== NAV ===== */
-function goPrev(){location.href="index.html";}
-function goNext(){saveShortInfo();location.href="existing-status.html";}
+render();
 </script>
 
 </body>
