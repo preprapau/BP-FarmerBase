@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+<meta charset="UTF-8">
+<title>Income Report | FarmerBase BP Engine</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+body{
+  font-family:"Noto Sans Devanagari","Kalimati",system-ui;
+  background:#fff;
+  margin:20px;
+}
+h2,h3{ color:#2e7d32; margin:10px 0; }
+.topbar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+button{ padding:6px 12px; }
+canvas{
+  max-width:900px;
+  margin:20px auto;
+  display:block;
+}
+table{
+  width:100%;
+  border-collapse:collapse;
+  margin-top:20px;
+}
+th,td{
+  border:1px solid #000;
+  padding:6px;
+  font-size:14px;
+}
+th{ background:#f0f0f0; }
+td:last-child{ text-align:right; }
+.small{ font-size:13px; color:#555; }
+</style>
+</head>
+
+<body>
+
+<div class="topbar">
+  <h2>📈 आम्दानी प्रतिवेदन (Income Report)</h2>
+  <button onclick="window.print()">🖨️ Print</button>
+</div>
+
+<p class="small">
+यो प्रतिवेदन Production, Expense Allocation र Income Margin को आधारमा स्वतः तयार गरिएको हो।
+</p>
+
+<!-- ===== BAR CHART: INCOME BY PRODUCT ===== -->
+<h3>🟢 उत्पादन अनुसार आम्दानी</h3>
+<canvas id="incomeBar"></canvas>
+
+<!-- ===== BAR CHART: COST vs SELL RATE ===== -->
+<h3>🔵 लागत बनाम बिक्री दर (प्रति युनिट)</h3>
+<canvas id="rateBar"></canvas>
+
+<!-- ===== DETAIL TABLE ===== -->
+<h3>📄 आम्दानी विवरण तालिका</h3>
+<table>
+<thead>
+<tr>
+  <th>उत्पादन</th>
+  <th>परिमाण</th>
+  <th>इकाइ</th>
+  <th>युनिट लागत (रु)</th>
+  <th>Margin प्रकार</th>
+  <th>Margin</th>
+  <th>बिक्री दर</th>
+  <th>आम्दानी (रु)</th>
+</tr>
+</thead>
+<tbody id="incomeBody"></tbody>
+<tfoot>
+<tr>
+  <th colspan="7">कुल आम्दानी</th>
+  <th id="grandIncome">0</th>
+</tr>
+</tfoot>
+</table>
+
+<script>
+/* ===== LOAD PROJECT ===== */
+const key = localStorage.getItem("activeProject");
+if(!key){ alert("Active योजना भेटिएन"); }
+const project = JSON.parse(localStorage.getItem(key)) || {};
+const products = project.productionProducts || [];
+const incomes = project.income || [];
+
+/* ===== UNIT COST (same logic as expense-demo) ===== */
+function allocateExpense(expense){
+  const res = {};
+  const prods = products;
+  const totalQty = prods.reduce((s,p)=>s+(Number(p.qty)||0),0);
+
+  if(expense.allocationType==="DIRECT"){
+    res[expense.appliesTo[0]] = expense.amount;
+    return res;
+  }
+  if(expense.allocationType==="LS"){
+    expense.appliesTo.forEach(pid=>{
+      const p = prods.find(x=>x.id===pid);
+      res[pid] = totalQty>0 ? expense.amount*(p.qty/totalQty) : 0;
+    });
+    return res;
+  }
+  if(expense.allocationType==="%"){
+    expense.appliesTo.forEach(pid=>{
+      const pct = expense.allocationPercent?.[pid] || 0;
+      res[pid] = expense.amount*(pct/100);
+    });
+    return res;
+  }
+  return res;
+}
+
+function computeUnitCost(){
+  const costMap = {};
+  products.forEach(p=>costMap[p.id]=0);
+
+  (project.expenses||[]).forEach(e=>{
+    const alloc = allocateExpense(e);
+    Object.keys(alloc).forEach(pid=>{
+      costMap[pid]+=alloc[pid];
+    });
+  });
+
+  const unitCost = {};
+  products.forEach(p=>{
+    unitCost[p.id] = p.qty>0 ? costMap[p.id]/p.qty : 0;
+  });
+  return unitCost;
+}
+
+/* ===== PREPARE DATA ===== */
+const unitCostMap = computeUnitCost();
+
+const labels = [];
+const incomeData = [];
+const costRateData = [];
+const sellRateData = [];
+
+let grand = 0;
+incomeBody.innerHTML="";
+
+products.forEach(p=>{
+  if(p.qty<=0) return;
+
+  const row = incomes.find(x=>x.productId===p.id);
+  if(!row) return;
+
+  const uc = unitCostMap[p.id] || 0;
+  let sellRate = 0;
+
+  if(row.marginType==="%"){
+    sellRate = uc * (1 + (row.marginValue/100));
+  }else{
+    sellRate = uc + (row.marginValue||0);
+  }
+
+  const incomeAmt = sellRate * p.qty;
+  grand += incomeAmt;
+
+  labels.push(p.name);
+  incomeData.push(incomeAmt);
+  costRateData.push(uc);
+  sellRateData.push(sellRate);
+
+  const tr=document.createElement("tr");
+  tr.innerHTML=`
+    <td>${p.name}</td>
+    <td>${p.qty}</td>
+    <td>${p.unit}</td>
+    <td>${uc.toFixed(2)}</td>
+    <td>${row.marginType}</td>
+    <td>${row.marginValue}</td>
+    <td>${sellRate.toFixed(2)}</td>
+    <td>${incomeAmt.toFixed(2)}</td>
+  `;
+  incomeBody.appendChild(tr);
+});
+
+grandIncome.innerText = grand.toFixed(2);
+
+/* ===== DRAW INCOME BAR ===== */
+new Chart(document.getElementById("incomeBar"),{
+  type:"bar",
+  data:{
+    labels:labels,
+    datasets:[{
+      label:"आम्दानी (रु)",
+      data:incomeData,
+      backgroundColor:"#66bb6a"
+    }]
+  },
+  options:{
+    responsive:true,
+    plugins:{ legend:{ display:false } }
+  }
+});
+
+/* ===== DRAW COST vs SELL RATE ===== */
+new Chart(document.getElementById("rateBar"),{
+  type:"bar",
+  data:{
+    labels:labels,
+    datasets:[
+      {
+        label:"युनिट लागत",
+        data:costRateData,
+        backgroundColor:"#90caf9"
+      },
+      {
+        label:"बिक्री दर",
+        data:sellRateData,
+        backgroundColor:"#81c784"
+      }
+    ]
+  },
+  options:{
+    responsive:true,
+    scales:{ y:{ beginAtZero:true } }
+  }
+});
+</script>
+
+</body>
+</html>
