@@ -2,7 +2,7 @@
 <html lang="ne">
 <head>
 <meta charset="UTF-8">
-<title>Short Analysis | FarmerBase BP Engine</title>
+<title>Sustainability Analysis | FarmerBase BP Engine</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
@@ -12,44 +12,54 @@ body{
   margin:0;
 }
 .wrap{
-  max-width:900px;
+  max-width:1200px;
   margin:25px auto;
-  background:#fff;
-  padding:25px;
-  border-radius:10px;
+  padding:20px;
 }
-h2,h3{color:#2e7d32;margin-top:0}
+h2{color:#2e7d32;margin-top:0}
 .small{font-size:13px;color:#555}
 
-textarea{
-  width:100%;
-  min-height:150px;
-  padding:10px;
-  font-family:inherit;
-  margin-top:8px;
+.grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:16px;
 }
 
+.box{
+  background:#fff;
+  border-radius:10px;
+  padding:15px;
+}
+.box h3{
+  margin-top:0;
+  color:#2e7d32;
+}
+
+input{
+  width:100%;
+  padding:8px;
+  margin-top:6px;
+}
 button{
+  margin-top:6px;
   background:#2e7d32;
   color:#fff;
   border:none;
   border-radius:6px;
-  padding:8px 16px;
+  padding:6px 12px;
   cursor:pointer;
 }
-.autoBtn{
-  background:#0277bd;
-  margin-top:8px;
+.del{background:#c62828}
+
+ul{padding-left:18px}
+li{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin:4px 0;
 }
 
-.box{
-  background:#f9fdf9;
-  border:1px solid #dceddc;
-  border-radius:8px;
-  padding:12px;
-  margin-top:12px;
-}
-
+/* nav */
 .nav{
   display:flex;
   justify-content:space-between;
@@ -62,37 +72,58 @@ button{
 
 <div class="wrap">
 
-<h2>🧠 Short Analysis (छोटो विश्लेषण)</h2>
+<h2>♻️ व्यवसायको दीगोपन विश्लेषण (Sustainability Analysis)</h2>
 <p class="small">
-यस भागमा व्यवसायको वर्तमान अवस्था, सम्भावना र निष्कर्षलाई
-छोटो, स्पष्ट र निर्णय-मैत्री शैलीमा प्रस्तुत गरिन्छ।
+यस उपकरणमार्फत व्यवसायका सबल पक्ष, सुधार गर्नुपर्ने पक्ष, अवसर र समाधानलाई
+स्पष्ट रूपमा छुट्याएर विश्लेषण गर्न सकिन्छ।
 </p>
 
-<!-- AUTO INSIGHT -->
+<div class="grid">
+
+<!-- STRENGTH -->
 <div class="box">
-<h3>📌 Auto Insights (सहयोगी बुँदा)</h3>
-<ul id="autoPoints" class="small"></ul>
+<h3>🟢 सबल पक्ष (Strengths)</h3>
+<input id="sInput" placeholder="सबल पक्ष लेख्नुहोस्">
+<button onclick="addItem('strengths', sInput)">➕ Add</button>
+<ul id="strengths"></ul>
 </div>
 
-<!-- ANALYSIS TEXT -->
-<h3>✍️ Short Analysis लेख्नुहोस्</h3>
-<textarea id="analysisText"
-  placeholder="यहाँ 3–5 वाक्यमा छोटो विश्लेषण लेख्नुहोस्..."></textarea>
+<!-- WEAKNESS -->
+<div class="box">
+<h3>🟡 सुधार गर्नुपर्ने पक्ष (Weaknesses)</h3>
+<input id="wInput" placeholder="सुधार गर्नुपर्ने पक्ष लेख्नुहोस्">
+<button onclick="addItem('weaknesses', wInput)">➕ Add</button>
+<ul id="weaknesses"></ul>
+</div>
 
-<button class="autoBtn" onclick="generateAuto()">
-⚡ Auto-Generate Draft
-</button>
+<!-- OPPORTUNITY -->
+<div class="box">
+<h3>🔵 अवसरहरू (Opportunities)</h3>
+<input id="oInput" placeholder="अवसर लेख्नुहोस्">
+<button onclick="addItem('opportunities', oInput)">➕ Add</button>
+<ul id="opportunities"></ul>
+</div>
+
+<!-- SOLUTION -->
+<div class="box">
+<h3>🔧 समाधान / रणनीति (Solutions)</h3>
+<input id="solInput" placeholder="समाधान वा रणनीति लेख्नुहोस्">
+<button onclick="addItem('solutions', solInput)">➕ Add</button>
+<ul id="solutions"></ul>
+</div>
+
+</div>
 
 <!-- NAV -->
 <div class="nav">
-  <button onclick="location.href='existing-status.html'">⬅ Previous</button>
+  <button onclick="location.href='short-analysis.html'">⬅ Previous</button>
   <button onclick="location.href='business-detail.html'">Next ➡</button>
 </div>
 
 </div>
 
 <script>
-/* ================= SHORT ANALYSIS – AUTOSAVE ================= */
+/* ================= SUSTAINABILITY ANALYSIS – AUTOSAVE ================= */
 
 const key = localStorage.getItem("activeProject");
 if(!key){
@@ -101,72 +132,46 @@ if(!key){
 }
 
 const project = JSON.parse(localStorage.getItem(key)) || {};
-project.shortAnalysis = project.shortAnalysis || "";
-
-// load saved
-analysisText.value = project.shortAnalysis;
-
-// autosave
-analysisText.oninput = ()=>{
-  project.shortAnalysis = analysisText.value;
-  localStorage.setItem(key, JSON.stringify(project));
+project.sustainability = project.sustainability || {
+  strengths:[],
+  weaknesses:[],
+  opportunities:[],
+  solutions:[]
 };
 
-// -------- AUTO INSIGHTS --------
-function loadInsights(){
-  autoPoints.innerHTML="";
-
-  const works = project.existingStatus?.works || [];
-  const checklist = project.existingStatus?.checklist || [];
-
-  if(works.length>0){
-    autoPoints.innerHTML+=`<li>संस्थाले यसअघि ${works.length} वटा कार्य/अनुभव हासिल गरिसकेको छ।</li>`;
-  }
-
-  const checked = checklist.filter(c=>c.checked);
-  if(checked.length>0){
-    autoPoints.innerHTML+=`<li>${checked.length} वटा आधारभूत सुविधा/अवस्था उपलब्ध छन्।</li>`;
-  }
-
-  if(project.shortInfo?.location){
-    autoPoints.innerHTML+=`<li>व्यवसाय ${project.shortInfo.location} क्षेत्रमा अवस्थित छ।</li>`;
-  }
-
-  if(autoPoints.innerHTML===""){
-    autoPoints.innerHTML="<li>थप विवरण भरेपछि auto insights देखिन्छ।</li>";
-  }
-}
-
-// -------- AUTO GENERATE --------
-function generateAuto(){
-  let text = "";
-
-  const works = project.existingStatus?.works || [];
-  const checklist = project.existingStatus?.checklist || [];
-  const checked = checklist.filter(c=>c.checked);
-
-  text += "व्यवसायले हालसम्म प्रारम्भिक स्तरका गतिविधिहरू सञ्चालन गरिसकेको छ। ";
-
-  if(works.length>0){
-    text += `यसअघि ${works.length} प्रकारका कार्य/अनुभव हासिल गरिएका छन्। `;
-  }
-
-  if(checked.length>0){
-    text += `आधारभूत पूर्वाधार तथा सुविधा ${checked.length} शीर्षकमा उपलब्ध छन्। `;
-  }
-
-  text += "यसले व्यवसाय विस्तारको सम्भावना देखाउँछ। ";
-
-  text += "तर थप लगानी, प्रविधि र व्यवस्थापन सुधार आवश्यक देखिन्छ। ";
-
-  text += "उचित योजना र स्रोत परिचालनका साथ व्यवसाय दिगो र नाफामुखी बन्न सक्छ।";
-
-  analysisText.value = text;
-  project.shortAnalysis = text;
+function save(){
   localStorage.setItem(key, JSON.stringify(project));
+  render();
 }
 
-loadInsights();
+function addItem(type,input){
+  if(!input.value.trim()) return;
+  project.sustainability[type].push(input.value.trim());
+  input.value="";
+  save();
+}
+
+function delItem(type,i){
+  project.sustainability[type].splice(i,1);
+  save();
+}
+
+function render(){
+  ["strengths","weaknesses","opportunities","solutions"].forEach(type=>{
+    const ul=document.getElementById(type);
+    ul.innerHTML="";
+    project.sustainability[type].forEach((t,i)=>{
+      ul.innerHTML+=`
+        <li>
+          <span>${t}</span>
+          <button class="del" onclick="delItem('${type}',${i})">✖</button>
+        </li>
+      `;
+    });
+  });
+}
+
+render();
 </script>
 
 </body>
