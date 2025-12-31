@@ -2,7 +2,7 @@
 <html lang="ne">
 <head>
 <meta charset="UTF-8">
-<title>खर्च विवरण | FarmerBase BP Engine</title>
+<title>खर्च विवरण (वार्षिक) | FarmerBase BP Engine</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
@@ -24,23 +24,13 @@ header a{
   color:#2e7d32;
 }
 .container{
-  max-width:1000px;
+  max-width:1100px;
   margin:0 auto;
   padding:20px;
 }
-h2{
+h2,h3{
+  color:#2e7d32;
   margin:10px 0;
-  color:#2e7d32;
-}
-h3{
-  margin:16px 0 6px;
-  color:#2e7d32;
-}
-textarea{
-  width:100%;
-  box-sizing:border-box;
-  padding:8px;
-  font-size:14px;
 }
 table{
   width:100%;
@@ -54,37 +44,36 @@ th,td{
 }
 th{
   background:#eef5ee;
-  text-align:left;
 }
-input,select{
+input,select,textarea{
   width:100%;
   box-sizing:border-box;
   padding:6px;
   font-size:14px;
 }
 .addBtn{
-  margin-top:10px;
+  margin:10px 0;
   padding:8px 14px;
   background:#2e7d32;
   color:#fff;
   border:none;
   cursor:pointer;
 }
-.deleteBtn{
+.delBtn{
   color:#c62828;
-  cursor:pointer;
   font-weight:700;
+  cursor:pointer;
   text-align:center;
-}
-.noteText{
-  font-size:12px;
-  color:#555;
 }
 .footerBox{
   background:#fff;
   border:1px solid #ccc;
   padding:12px;
   margin-top:16px;
+}
+.small{
+  font-size:13px;
+  color:#555;
 }
 </style>
 </head>
@@ -101,7 +90,7 @@ input,select{
 <h2>💰 खर्च विवरण (वार्षिक)</h2>
 
 <!-- ===== OVERALL NARRATION ===== -->
-<label><strong>✍️ खर्च सम्बन्धी समग्र विवरण</strong></label>
+<label><strong>✍️ खर्च सम्बन्धी विवरण</strong></label>
 <textarea id="expenseNarration" rows="3"></textarea>
 
 <!-- ===== EXPENSE TABLE ===== -->
@@ -110,8 +99,9 @@ input,select{
 <tr>
   <th>खर्च शीर्षक</th>
   <th>बर्ग</th>
-  <th>रकम (रु)</th>
-  <th>Note</th>
+  <th style="width:90px">परिमाण</th>
+  <th style="width:110px">दर</th>
+  <th style="width:130px;text-align:right">रकम</th>
   <th>❌</th>
 </tr>
 </thead>
@@ -120,63 +110,60 @@ input,select{
 
 <button class="addBtn" onclick="addExpense()">➕ नयाँ खर्च</button>
 
-<!-- ===== FUNDING SOURCE ===== -->
+<!-- ===== SUMMARY ===== -->
 <div class="footerBox">
-<h3>💼 लगानीको स्रोत बाँडफाँट</h3>
-
-<table>
-<tr>
-  <th>स्रोत</th>
-  <th>रकम (रु)</th>
-</tr>
-<tr>
-  <td>आफ्नै पूँजी</td>
-  <td><input type="number" oninput="updateFunding('own',this.value)"></td>
-</tr>
-<tr>
-  <td>ऋण / कर्जा</td>
-  <td><input type="number" oninput="updateFunding('loan',this.value)"></td>
-</tr>
-<tr>
-  <td>अनुदान</td>
-  <td><input type="number" oninput="updateFunding('grant',this.value)"></td>
-</tr>
-</table>
+  <h3>📊 खर्च सारांश</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>शीर्षक</th>
+        <th>परिमाण</th>
+        <th>दर</th>
+        <th style="text-align:right">रकम</th>
+      </tr>
+    </thead>
+    <tbody id="summaryBody"></tbody>
+    <tfoot>
+      <tr>
+        <th colspan="3">कुल खर्च</th>
+        <th style="text-align:right" id="summaryTotal">0</th>
+      </tr>
+    </tfoot>
+  </table>
 </div>
 
 <!-- ===== DEPRECIATION ===== -->
 <div class="footerBox">
-<h3>📉 ह्रासकट्टी (Depreciation)</h3>
-<p class="noteText">
-स्थिर खर्च (पूर्वाधार, मेशीन आदि) मा वार्षिक ह्रासकट्टी लागू हुन्छ।
-</p>
-<table>
-<tr>
-  <th>ह्रासकट्टी दर (%)</th>
-  <th>वार्षिक ह्रासकट्टी रकम (रु)</th>
-</tr>
-<tr>
-  <td>
-    <input type="number" value="10" oninput="updateDepRate(this.value)">
-  </td>
-  <td id="deprAmount">0</td>
-</tr>
-</table>
+  <h3>📉 ह्रासकट्टी (Depreciation)</h3>
+  <div class="small">
+    स्थिर खर्च (पूर्वाधार / मेशीन) मा मात्र लागू हुन्छ।
+  </div>
+  <table>
+    <tr>
+      <th>ह्रासकट्टी दर (%)</th>
+      <th>वार्षिक ह्रासकट्टी रकम (रु)</th>
+    </tr>
+    <tr>
+      <td>
+        <input type="number" id="depRate" value="10">
+      </td>
+      <td id="depAmount">0</td>
+    </tr>
+  </table>
 </div>
 
 </div>
 
 <script>
-/* ===== Load Project ===== */
+/* ===== LOAD PROJECT ===== */
 const key = localStorage.getItem("activeProject");
 if(!key){ alert("Active योजना भेटिएन"); }
+
 let project = JSON.parse(localStorage.getItem(key)) || {};
-
 project.expenses = project.expenses || [];
-project.funding = project.funding || {own:0,loan:0,grant:0};
-project.deprRate = project.deprRate || 10;
+project.depRate = project.depRate || 10;
 
-/* ===== Default Narration ===== */
+/* ===== DEFAULT NARRATION ===== */
 if(!project.expenseNarration){
   project.expenseNarration =
     "यस व्यवसाय सञ्चालनका लागि आवश्यक चालु तथा स्थिर खर्चहरू यथार्थपरक रूपमा अनुमान गरिएको छ।";
@@ -187,14 +174,14 @@ expenseNarration.oninput = ()=>{
   save();
 };
 
-/* ===== Budget Code ===== */
+/* ===== BUDGET CODE ===== */
 function generateBudgetCode(category){
   if(category.includes("पूर्वाधार")) return "FX-INF-"+Date.now().toString().slice(-4);
   if(category.includes("मेशीन")) return "FX-MAC-"+Date.now().toString().slice(-4);
   return "OP-OTH-"+Date.now().toString().slice(-4);
 }
 
-/* ===== Render Expenses ===== */
+/* ===== RENDER ===== */
 function render(){
   expenseBody.innerHTML="";
   project.expenses.forEach((e,i)=>{
@@ -203,6 +190,8 @@ function render(){
       <td>
         <input value="${e.title||""}"
           oninput="upd(${i},'title',this.value)">
+        <textarea rows="2"
+          oninput="upd(${i},'note',this.value)">${e.note||"यस खर्चको संक्षिप्त विवरण"}</textarea>
       </td>
       <td>
         <select onchange="upd(${i},'category',this.value)">
@@ -220,18 +209,20 @@ function render(){
         </select>
       </td>
       <td>
-        <input type="number" value="${e.amount||0}"
-          oninput="upd(${i},'amount',this.value)">
+        <input type="number" value="${e.qty||0}"
+          oninput="updateCalc(${i},'qty',this.value)">
       </td>
       <td>
-        <textarea rows="2"
-          oninput="upd(${i},'note',this.value)">${e.note||"यस खर्चको संक्षिप्त विवरण"}</textarea>
+        <input type="number" value="${e.rate||0}"
+          oninput="updateCalc(${i},'rate',this.value)">
       </td>
-      <td class="deleteBtn" onclick="del(${i})">✖</td>
+      <td style="text-align:right">${(e.amount||0).toFixed(2)}</td>
+      <td class="delBtn" onclick="del(${i})">✖</td>
     `;
     expenseBody.appendChild(tr);
   });
 
+  renderSummary();
   calcDepreciation();
 }
 
@@ -240,50 +231,102 @@ function addExpense(){
   project.expenses.push({
     title:"",
     category:"कच्चापदार्थ",
+    qty:1,
+    rate:0,
     amount:0,
     note:"यस खर्चको संक्षिप्त विवरण",
     budgetCode:generateBudgetCode("कच्चापदार्थ")
   });
   save(); render();
 }
+
 function upd(i,f,v){
-  project.expenses[i][f] = f==="amount"?Number(v):v;
+  project.expenses[i][f]=v;
+  save();
+}
+
+function updateCalc(i,f,v){
+  project.expenses[i][f]=Number(v)||0;
+  const q=Number(project.expenses[i].qty)||0;
+  const r=Number(project.expenses[i].rate)||0;
+  project.expenses[i].amount=q*r;
   save(); render();
 }
+
 function del(i){
   if(!confirm("यो खर्च हटाउने ?")) return;
   project.expenses.splice(i,1);
   save(); render();
 }
 
-/* ===== Funding ===== */
-function updateFunding(k,v){
-  project.funding[k]=Number(v)||0;
-  save();
+/* ===== SUMMARY ===== */
+function renderSummary(){
+  const body=document.getElementById("summaryBody");
+  const totalEl=document.getElementById("summaryTotal");
+  body.innerHTML="";
+  let grand=0, lastCat="";
+
+  project.expenses.forEach(e=>{
+    const amt=Number(e.amount)||0;
+    grand+=amt;
+
+    if(e.category!==lastCat){
+      const r=document.createElement("tr");
+      r.innerHTML=`<td colspan="4" style="background:#eef5ee;font-weight:700">
+        ◼ ${e.category}</td>`;
+      body.appendChild(r);
+      lastCat=e.category;
+    }
+
+    const tr=document.createElement("tr");
+    tr.dataset.budgetCode=e.budgetCode||"";
+    tr.innerHTML=`
+      <td>${e.title||""}</td>
+      <td>${e.qty||0}</td>
+      <td>${e.rate||0}</td>
+      <td style="text-align:right">${amt.toFixed(2)}</td>`;
+    body.appendChild(tr);
+  });
+
+  totalEl.innerText=grand.toFixed(2);
 }
 
-/* ===== Depreciation ===== */
-function updateDepRate(v){
-  project.deprRate = Number(v)||0;
+/* ===== DEPRECIATION ===== */
+depRate.oninput=()=>{
+  project.depRate=Number(depRate.value)||0;
   save(); calcDepreciation();
-}
+};
+
 function calcDepreciation(){
-  let fixedTotal=0;
+  let fixed=0;
   project.expenses.forEach(e=>{
     if(e.category.includes("स्थिर") || e.category.includes("पूर्वाधार") || e.category.includes("मेशीन")){
-      fixedTotal += Number(e.amount)||0;
+      fixed+=Number(e.amount)||0;
     }
   });
-  const dep = fixedTotal * (project.deprRate/100);
-  deprAmount.innerText = dep.toFixed(2);
+  const dep=fixed*(project.depRate/100);
+  depAmount.innerText=dep.toFixed(2);
 }
 
-/* ===== Save ===== */
+/* ===== PRODUCTION COST LOGIC (READY) ===== */
+/*
+  Unit Production Cost = Total Operating Cost / Total Production Units
+
+  This value will be pulled in:
+  - Income page (pricing + margin)
+  - Profit–Loss
+  - ROI
+
+  Example:
+  project.unitCost = operatingCost / productionQty;
+*/
+
+/* ===== SAVE ===== */
 function save(){
   localStorage.setItem(key,JSON.stringify(project));
 }
 
-/* Init */
+/* INIT */
 render();
 </script>
 
