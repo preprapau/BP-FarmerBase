@@ -2,7 +2,7 @@
 <html lang="ne">
 <head>
 <meta charset="UTF-8">
-<title>उत्पादन लागत सारांश | FarmerBase BP Engine</title>
+<title>Income | FarmerBase BP Engine</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
@@ -31,34 +31,16 @@ header a,footer a{
 h2,h3{color:#2e7d32;margin:8px 0}
 .small{font-size:13px;color:#555}
 
-.costBox{
+.section{
   background:#fff;
-  border:1px solid #ccc;
-  padding:16px;
-  margin-bottom:16px;
+  padding:14px;
   border-radius:12px;
+  margin-bottom:16px;
 }
-
-.costTitle{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-}
-
-.costBadge{
-  padding:4px 12px;
-  border-radius:20px;
-  font-size:13px;
-  font-weight:700;
-}
-.badge-var{background:#e3f2fd;color:#1565c0}
-.badge-fix{background:#fff3e0;color:#ef6c00}
-.badge-total{background:#e8f5e9;color:#2e7d32}
 
 table{
   width:100%;
   border-collapse:collapse;
-  margin-top:10px;
 }
 th,td{
   border:1px solid #ccc;
@@ -67,31 +49,61 @@ th,td{
 }
 th{background:#eef5ee}
 .right{text-align:right}
+
+input,select{
+  width:100%;
+  padding:6px;
+  box-sizing:border-box;
+}
+
+.inline{
+  display:flex;
+  gap:6px;
+  flex-wrap:wrap;
+  align-items:center;
+}
+
 .highlight{
   background:#e8f5e9;
   font-weight:700;
 }
 
-.unitCost{
-  margin-top:10px;
-  font-size:18px;
+.rateBox{
+  font-size:14px;
+  margin-top:6px;
+}
+.suggested{
+  color:#1565c0;
   font-weight:700;
+}
+.finalRate{
   color:#2e7d32;
+  font-weight:700;
 }
 
-.reportBar{
-  margin-top:20px;
-  display:flex;
-  gap:10px;
-  flex-wrap:wrap;
+.badge{
+  display:inline-block;
+  padding:4px 12px;
+  border-radius:20px;
+  font-size:13px;
+  margin-left:6px;
 }
-.reportBar a{
-  background:#fff;
-  border:2px solid #2e7d32;
-  padding:8px 12px;
+.badge-suggest{background:#e3f2fd;color:#1565c0}
+.badge-final{background:#e8f5e9;color:#2e7d32}
+
+.del{
+  color:#c62828;
+  cursor:pointer;
   font-weight:700;
-  color:#2e7d32;
-  text-decoration:none;
+}
+
+.totalIncome{
+  background:#e8f5e9;
+  font-size:20px;
+  font-weight:700;
+  text-align:center;
+  padding:16px;
+  border-radius:12px;
 }
 
 .footerNav{
@@ -101,7 +113,7 @@ th{background:#eef5ee}
 }
 
 @media print{
-  header, footer, .reportBar{display:none}
+  header, footer, button, .badge{display:none}
   body{background:#fff}
 }
 </style>
@@ -111,27 +123,42 @@ th{background:#eef5ee}
 
 <!-- TOP NAV -->
 <header>
-  <a href="expense-demo.html">⬅️ Expense</a>
-  <strong>🧮 Production Cost Summary</strong>
-  <a href="income-demo.html">➡️ Income</a>
+  <a href="production-cost-summary.html">⬅️ Cost Summary</a>
+  <strong>📈 Income</strong>
+  <a href="profit-loss.html">➡️ Profit–Loss</a>
 </header>
 
 <div class="container">
 
-<h2>उत्पादन लागत सारांश (Auto)</h2>
+<h2>आम्दानी विवरण (Income Planning)</h2>
 <p class="small">
-ℹ️ यो लागत सारांश <b>expense-demo.html</b> मा प्रविष्ट खर्चहरूको आधारमा
-उत्पादन अनुसार स्वचालित रूपमा गणना गरिएको हो।
+ℹ️ प्रति इकाई लागत <b>Production Cost Summary</b> बाट आएको हो।  
+नाफा प्रतिशत/रकम परिवर्तन गर्दा बिक्री दर र आम्दानी स्वतः गणना हुन्छ।
 </p>
 
-<div id="tables"></div>
-
-<!-- REPORT LINKS (NEW TAB) -->
-<div class="reportBar">
-  <a href="production-report.html" target="_blank">📦 Production Report</a>
-  <a href="production-chart.html" target="_blank">📈 Production Chart</a>
-  <a href="expense-report.html" target="_blank">💰 Expense Report</a>
-  <a href="profit-loss.html" target="_blank">📊 Profit – Loss</a>
+<!-- INCOME TABLE -->
+<div class="section">
+<table>
+<thead>
+<tr>
+  <th>उत्पादन</th>
+  <th>इकाई</th>
+  <th class="right">परिमाण</th>
+  <th class="right">प्रति इकाई लागत</th>
+  <th>नाफा प्रकार</th>
+  <th class="right">नाफा</th>
+  <th class="right">बिक्री दर</th>
+  <th class="right">आम्दानी</th>
+  <th></th>
+</tr>
+</thead>
+<tbody id="tbody"></tbody>
+<tr class="highlight">
+  <th colspan="7" class="right">कुल आम्दानी</th>
+  <th class="right" id="totalIncome">0</th>
+  <th></th>
+</tr>
+</table>
 </div>
 
 </div>
@@ -139,27 +166,31 @@ th{background:#eef5ee}
 <!-- BOTTOM NAV -->
 <footer>
   <div class="footerNav">
-    <a href="expense-demo.html">⬅️ Expense</a>
+    <a href="production-cost-summary.html">⬅️ Cost Summary</a>
     <span class="small">
-      FarmerBase BP Engine – Expense आधारित उत्पादन लागत प्रणाली
+      FarmerBase BP Engine – Income Module
     </span>
-    <a href="income-demo.html">➡️ Income</a>
+    <a href="profit-loss.html">➡️ Profit–Loss</a>
   </div>
 </footer>
 
 <script>
-/* ==================================
-   PRODUCTION COST SUMMARY (AUTO)
-   ================================== */
+/* ===============================
+   INCOME DEMO – FINAL
+   =============================== */
 
 const key = localStorage.getItem("activeProject");
 if(!key){ alert("Active योजना भेटिएन"); }
 
 const project = JSON.parse(localStorage.getItem(key)) || {};
-const expenses = project.expenses || [];
-const products = project.productionProducts || [];
 
-/* -------- allocation helper -------- */
+project.income = project.income || [];
+
+/* --- source data --- */
+const products = project.productionProducts || [];
+const expenses = project.expenses || [];
+
+/* --- helper: unit cost from expense allocation --- */
 function allocateExpenseToProduct(exp, product){
   if(exp.allocationType==="LS"){
     return exp.amount / products.length;
@@ -174,68 +205,91 @@ function allocateExpenseToProduct(exp, product){
   return 0;
 }
 
-/* -------- render -------- */
-function render(){
-  tables.innerHTML="";
-
-  if(products.length===0){
-    tables.innerHTML="<p>❗ Production मा उत्पादन भेटिएन।</p>";
-    return;
-  }
-
-  products.forEach(prod=>{
-    let variable=0, fixed=0;
-
-    expenses.forEach(e=>{
-      const alloc = allocateExpenseToProduct(e, prod);
-      if(
-        e.category==="पूर्वाधार निर्माण" ||
-        e.category==="मेशिन औजार"
-      ){
-        fixed += alloc;
-      }else{
-        variable += alloc;
-      }
-    });
-
-    const total = variable + fixed;
-    const unitCost =
-      prod.qty && prod.qty>0 ? (total / prod.qty) : 0;
-
-    tables.innerHTML += `
-    <div class="costBox">
-
-      <div class="costTitle">
-        <h3>${prod.name}</h3>
-        <span class="costBadge badge-total">कुल लागत</span>
-      </div>
-
-      <table>
-        <tr>
-          <th>लागत प्रकार</th>
-          <th class="right">रकम (रु)</th>
-        </tr>
-        <tr>
-          <td>चालु लागत (Variable)</td>
-          <td class="right highlight">${variable.toFixed(2)}</td>
-        </tr>
-        <tr>
-          <td>स्थिर लागत (Fixed)</td>
-          <td class="right highlight">${fixed.toFixed(2)}</td>
-        </tr>
-        <tr class="highlight">
-          <th>कुल लागत</th>
-          <th class="right">${total.toFixed(2)}</th>
-        </tr>
-      </table>
-
-      <div class="unitCost">
-        प्रति ${prod.unit || "इकाई"} लागत :
-        रु ${unitCost.toFixed(2)}
-      </div>
-
-    </div>`;
+function getUnitCost(product){
+  let total=0;
+  expenses.forEach(e=>{
+    total+=allocateExpenseToProduct(e,product);
   });
+  return product.qty && product.qty>0 ? total/product.qty : 0;
+}
+
+/* --- initialize income rows if empty --- */
+if(project.income.length===0){
+  products.forEach(p=>{
+    project.income.push({
+      id:Date.now()+Math.random(),
+      product:p.name,
+      unit:p.unit,
+      qty:p.qty||0,
+      marginType:"%",
+      marginValue:20,
+      sellingRate:0
+    });
+  });
+}
+
+/* --- save --- */
+function save(){
+  localStorage.setItem(key,JSON.stringify(project));
+  render();
+}
+
+/* --- render --- */
+function render(){
+  tbody.innerHTML="";
+  let total=0;
+
+  project.income.forEach((i,idx)=>{
+    const prod = products.find(p=>p.name===i.product);
+    const unitCost = prod ? getUnitCost(prod) : 0;
+
+    let sellRate = unitCost;
+    if(i.marginType==="%"){
+      sellRate = unitCost + (unitCost * (i.marginValue||0)/100);
+    }else{
+      sellRate = unitCost + (i.marginValue||0);
+    }
+    i.sellingRate = sellRate;
+
+    const amount = sellRate * (i.qty||0);
+    total+=amount;
+
+    tbody.innerHTML+=`
+    <tr>
+      <td>${i.product}</td>
+      <td>${i.unit||""}</td>
+      <td class="right">
+        <input type="number" value="${i.qty}"
+          oninput="project.income[${idx}].qty=+this.value||0;save()">
+      </td>
+      <td class="right">${unitCost.toFixed(2)}</td>
+      <td>
+        <select onchange="project.income[${idx}].marginType=this.value;save()">
+          <option value="%" ${i.marginType==="%"?"selected":""}>%</option>
+          <option value="LS" ${i.marginType==="LS"?"selected":""}>रु</option>
+        </select>
+      </td>
+      <td class="right">
+        <input type="number" value="${i.marginValue}"
+          oninput="project.income[${idx}].marginValue=+this.value||0;save()">
+      </td>
+      <td class="right">
+        <span class="finalRate">${sellRate.toFixed(2)}</span>
+        <span class="badge badge-final">Final</span>
+      </td>
+      <td class="right">${amount.toLocaleString()}</td>
+      <td class="del" onclick="removeRow(${idx})">✖</td>
+    </tr>`;
+  });
+
+  totalIncome.innerText=total.toLocaleString();
+}
+
+/* --- delete --- */
+function removeRow(i){
+  if(!confirm("यो आम्दानी हटाउने ?"))return;
+  project.income.splice(i,1);
+  save();
 }
 
 render();
