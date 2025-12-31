@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+<meta charset="UTF-8">
+<title>Livestock Production & Sales | FarmerBase BP Engine</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+body{
+  font-family:"Noto Sans Devanagari","Kalimati",system-ui;
+  background:#f4f7f6;
+  margin:0;
+}
+.wrap{
+  max-width:1100px;
+  margin:20px auto;
+  background:#fff;
+  padding:22px;
+  border-radius:12px;
+}
+h2,h3{color:#2e7d32;margin-top:0}
+.small{font-size:13px;color:#555}
+
+/* controls */
+.controls{
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr;
+  gap:10px;
+  margin-bottom:15px;
+}
+label{font-weight:600}
+input,select{
+  width:100%;
+  padding:6px;
+}
+
+/* table */
+table{
+  width:100%;
+  border-collapse:collapse;
+  margin-top:12px;
+}
+th,td{
+  border:1px solid #ccc;
+  padding:6px;
+  font-size:14px;
+  text-align:center;
+}
+th{background:#eef5ee}
+
+/* buttons */
+.btns{
+  margin-top:15px;
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+}
+button{
+  padding:8px 16px;
+  border:none;
+  border-radius:6px;
+  background:#2e7d32;
+  color:#fff;
+  cursor:pointer;
+}
+
+/* print */
+@media print{
+  .btns{display:none}
+}
+</style>
+</head>
+
+<body>
+
+<div class="wrap">
+
+<h2>🐐🐖 बाख्रा / बंगुर उत्पादन तथा बिक्री प्रक्षेपण</h2>
+<p class="small">
+यदि तपाईं <b>बाख्रा</b> वा <b>बंगुर</b> व्यवसायी हुनुहुन्छ भने,
+यहाँबाट ५ वर्षे उत्पादन–बिक्री हिसाब गर्नुहोस्।
+</p>
+
+<!-- ================= SELECT TYPE ================= -->
+<div class="controls">
+  <div>
+    <label>व्यवसाय प्रकार</label>
+    <select id="type" onchange="loadDefaults()">
+      <option value="goat">बाख्रा पालन</option>
+      <option value="pig">बंगुर पालन</option>
+    </select>
+  </div>
+
+  <div>
+    <label>सुरुवाती माउ संख्या</label>
+    <input type="number" id="startFemale" value="10">
+  </div>
+
+  <div>
+    <label>प्रति माउ जन्म दर</label>
+    <input type="number" step="0.1" id="birthRate">
+  </div>
+
+  <div>
+    <label>मृत्युदर %</label>
+    <input type="number" id="death">
+  </div>
+
+  <div>
+    <label>पोथी राख्ने %</label>
+    <input type="number" id="keepFemale">
+  </div>
+
+  <div>
+    <label>भाले राख्ने %</label>
+    <input type="number" id="keepMale">
+  </div>
+
+  <div>
+    <label>माउ प्रतिस्थापन बिक्री %</label>
+    <input type="number" id="replaceSell">
+  </div>
+</div>
+
+<!-- ================= OUTPUT TABLE ================= -->
+<h3 id="title"></h3>
+
+<table>
+<thead>
+<tr>
+  <th>वर्ष</th>
+  <th>माउ (सुरु)</th>
+  <th>जन्म</th>
+  <th>मृत</th>
+  <th>बिक्री (बच्चा)</th>
+  <th>बिक्री (माउ)</th>
+  <th>अर्को वर्ष माउ</th>
+</tr>
+</thead>
+<tbody id="rows"></tbody>
+</table>
+
+<div class="btns">
+  <button onclick="calculate()">📊 हिसाब गर्नुहोस्</button>
+  <button onclick="saveToIncome()">➡️ Income मा पठाउनुहोस्</button>
+</div>
+
+</div>
+
+<script>
+/* ================= CONFIG ================= */
+const CONFIG = {
+  goat:{ label:"🐐 बाख्रा", birth:1.6, death:5 },
+  pig:{ label:"🐖 बंगुर", birth:8, death:8 }
+};
+
+/* ================= LOAD DEFAULTS ================= */
+function loadDefaults(){
+  const c = CONFIG[type.value];
+  birthRate.value = c.birth;
+  death.value = c.death;
+  keepFemale.value = 30;
+  keepMale.value = 0;
+  replaceSell.value = 10;
+  title.innerText = `${c.label} पालन – ५ वर्षे उत्पादन तथा बिक्री प्रक्षेपण`;
+}
+loadDefaults();
+
+/* ================= CALC ================= */
+let year1SellKids = 0;
+let year1SellAdults = 0;
+
+function calculate(){
+  rows.innerHTML="";
+  let adult = Number(startFemale.value);
+
+  for(let y=1;y<=5;y++){
+    const birth = adult * Number(birthRate.value);
+    const dead = birth * Number(death.value)/100;
+    const alive = birth - dead;
+
+    const keepF = alive * Number(keepFemale.value)/100;
+    const keepM = alive * Number(keepMale.value)/100;
+    const sellKids = alive - keepF - keepM;
+
+    const sellAdult = adult * Number(replaceSell.value)/100;
+
+    if(y===1){
+      year1SellKids = Math.round(sellKids);
+      year1SellAdults = Math.round(sellAdult);
+    }
+
+    const nextAdult = adult + keepF - sellAdult;
+
+    rows.innerHTML += `
+      <tr>
+        <td>${y}</td>
+        <td>${Math.round(adult)}</td>
+        <td>${Math.round(birth)}</td>
+        <td>${Math.round(dead)}</td>
+        <td>${Math.round(sellKids)}</td>
+        <td>${Math.round(sellAdult)}</td>
+        <td>${Math.round(nextAdult)}</td>
+      </tr>
+    `;
+
+    adult = nextAdult;
+  }
+}
+
+/* ================= SAVE TO INCOME ================= */
+function saveToIncome(){
+  calculate();
+  localStorage.setItem(
+    "LIVESTOCK_PRODUCTION_SALES",
+    JSON.stringify({
+      type:type.value,
+      sellKids:year1SellKids,
+      sellAdults:year1SellAdults,
+      __used:false
+    })
+  );
+  alert("Year-1 बिक्री मात्रा Income page का लागि Save भयो");
+}
+</script>
+
+</body>
+</html>
