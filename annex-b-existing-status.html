@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+<meta charset="UTF-8">
+<title>Annex–B : Existing Status & Evidence</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+body{
+  font-family:"Noto Sans Devanagari","Kalimati","Mangal","Nirmala UI",system-ui;
+  background:#eaeaea;
+  margin:0;
+}
+.page{
+  max-width:210mm;
+  margin:20px auto;
+  background:#fff;
+  padding:25mm 20mm;
+}
+h1,h2,h3{
+  color:#2e7d32;
+  margin-top:0;
+}
+.small{font-size:13px;color:#555}
+
+/* cards */
+.card{
+  border:1px solid #ccc;
+  border-radius:8px;
+  padding:12px;
+  margin:10px 0;
+}
+.card img{
+  max-width:100%;
+  border-radius:6px;
+  margin-top:6px;
+}
+
+/* checklist table */
+table{
+  width:100%;
+  border-collapse:collapse;
+  margin-top:10px;
+}
+th,td{
+  border:1px solid #444;
+  padding:6px;
+  font-size:13px;
+}
+th{background:#f1f8e9}
+.yes{color:#2e7d32;font-weight:bold}
+.no{color:#c62828;font-weight:bold}
+
+/* print rules */
+@media print{
+  body{background:#fff}
+  h1,h2,h3{page-break-after:avoid}
+  .card{page-break-inside:avoid}
+  table{page-break-inside:auto}
+  tr{page-break-inside:avoid}
+}
+</style>
+</head>
+
+<body>
+
+<div class="page">
+
+<h1>📎 Annex–B : Existing Status & Evidence</h1>
+<p class="small">
+यस Annex मा संस्थाले यसअघि गरेका कार्यहरू, उपलब्ध पूर्वाधार,
+तयारी अवस्था तथा प्रमाणहरू प्रस्तुत गरिएको छ।
+</p>
+
+<hr>
+
+<!-- ================= B1. PAST WORKS ================= -->
+<h2>B1. यसअघि गरिएका कार्यहरू (Past Works)</h2>
+<div id="pastWorks"></div>
+
+<hr>
+
+<!-- ================= B2. CHECKLIST ================= -->
+<h2>B2. पूर्वाधार / तयारी अवस्था Checklist</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th style="width:70%">विवरण</th>
+      <th style="width:30%">स्थिति</th>
+    </tr>
+  </thead>
+  <tbody id="checklistTable"></tbody>
+</table>
+
+<hr>
+
+<!-- ================= B3. SUMMARY ================= -->
+<h2>B3. Readiness Summary</h2>
+<p id="readinessSummary"></p>
+
+</div>
+
+<script>
+/* ===== LOAD PROJECT ===== */
+const key = localStorage.getItem("activeProject");
+if(!key){
+  alert("Project not found");
+  location.href="index.html";
+}
+const p = JSON.parse(localStorage.getItem(key));
+
+/* ================= PAST WORKS ================= */
+const works = p.existingStatus?.works || [];
+if(!works.length){
+  pastWorks.innerHTML = "<i>कुनै कार्य विवरण उपलब्ध छैन</i>";
+}else{
+  pastWorks.innerHTML = works.map((w,i)=>`
+    <div class="card">
+      <h3>${i+1}. ${w.topic}</h3>
+      <p>${w.content}</p>
+      ${w.photo ? `<img src="${w.photo}">` : ""}
+    </div>
+  `).join("");
+}
+
+/* ================= CHECKLIST ================= */
+const checklist = p.existingStatus?.checklist || [];
+let yesCount = 0;
+
+if(!checklist.length){
+  checklistTable.innerHTML = `
+    <tr><td colspan="2"><i>Checklist उपलब्ध छैन</i></td></tr>`;
+}else{
+  checklistTable.innerHTML = checklist.map(c=>{
+    if(c.checked) yesCount++;
+    return `
+      <tr>
+        <td>${c.text}</td>
+        <td class="${c.checked?'yes':'no'}">
+          ${c.checked ? 'छ' : 'छैन'}
+        </td>
+      </tr>`;
+  }).join("");
+}
+
+/* ================= SUMMARY ================= */
+if(checklist.length){
+  const percent = Math.round((yesCount / checklist.length) * 100);
+  readinessSummary.innerText =
+    `उपलब्ध ${checklist.length} मध्ये ${yesCount} पूर्वाधार/तयारी अवस्था पूरा भएको छ।
+     यस आधारमा संस्थाको समग्र तयारी अवस्था करिब ${percent}% रहेको देखिन्छ।`;
+}else{
+  readinessSummary.innerText = "तयारी अवस्था मूल्याङ्कनका लागि पर्याप्त डाटा छैन।";
+}
+</script>
+
+</body>
+</html>
