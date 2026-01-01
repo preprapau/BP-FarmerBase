@@ -18,7 +18,7 @@ header{
 }
 header a{color:#2e7d32;font-weight:700;text-decoration:none}
 .wrap{
-  max-width:1100px;
+  max-width:1150px;
   margin:18px auto;
   background:#fff;
   padding:22px;
@@ -28,39 +28,45 @@ h2,h3{color:#2e7d32;margin-top:0}
 .small{font-size:13px;color:#555}
 hr{margin:20px 0}
 
-.row{
-  display:grid;
-  grid-template-columns:2fr 1fr 1fr auto;
-  gap:8px;
-  margin-bottom:8px;
-}
-input,select{padding:6px;width:100%}
 button{
-  padding:6px 12px;
-  border:none;border-radius:6px;
-  background:#2e7d32;color:#fff;cursor:pointer
+  padding:6px 14px;
+  border:none;
+  border-radius:6px;
+  background:#2e7d32;
+  color:#fff;
+  cursor:pointer;
 }
-.blue{background:#0277bd}
 .gray{background:#607d8b}
 .red{background:#c62828}
+.blue{background:#0277bd}
 
 .card{
   border:1px solid #c8e6c9;
-  border-radius:10px;
-  margin-bottom:18px;
+  border-radius:12px;
+  margin-bottom:20px;
 }
 .cardHead{
   background:#f1f8e9;
-  padding:8px 12px;
+  padding:10px 14px;
   display:flex;
   justify-content:space-between;
   cursor:pointer;
 }
-.cardBody{padding:10px;display:none}
+.cardBody{padding:14px;display:none}
+
+.row{
+  display:grid;
+  grid-template-columns:2fr 1.2fr 1fr 1fr 1fr 1.2fr;
+  gap:8px;
+  margin-bottom:8px;
+}
+input,select,textarea{
+  padding:6px;width:100%
+}
 
 .item{
   display:grid;
-  grid-template-columns:2fr 1fr 1fr auto auto;
+  grid-template-columns:2fr 1fr 1fr 1fr 1fr 1.2fr auto auto;
   gap:6px;
   margin-bottom:6px;
 }
@@ -77,9 +83,7 @@ button{
 </header>
 
 <div class="wrap">
-
 <div id="expenseRoot"></div>
-
 </div>
 
 <script>
@@ -91,7 +95,6 @@ let data = JSON.parse(localStorage.getItem(KEY)) || {
     "पुँजीगत खर्च":{ subs:[], items:[] }
   }
 };
-
 function save(){ localStorage.setItem(KEY,JSON.stringify(data)); }
 
 /* ===== SUB CATEGORY ===== */
@@ -121,25 +124,46 @@ function delSub(cat,sub){
   save(); render();
 }
 
-/* ===== EXPENSE ITEM ===== */
-function addItem(cat){
-  const name=prompt("खर्च शीर्षक");
-  if(!name) return;
-  const sub=prompt("उपशीर्षक (optional)");
-  const amt=Number(prompt("रकम"));
+/* ===== EXPENSE ENTRY ===== */
+function startAdd(cat){
+  data.categories[cat].adding=true;
+  render();
+}
+function cancelAdd(cat){
+  data.categories[cat].adding=false;
+  render();
+}
+function saveAdd(cat){
+  const f=data.categories[cat]._form;
+  if(!f || !f.name || !f.qty || !f.rate){
+    alert("खर्च शीर्षक, दर र परिमाण अनिवार्य"); return;
+  }
   data.categories[cat].items.push({
-    id:Date.now(), name, sub, amt, edit:false
+    id:Date.now(),
+    name:f.name,
+    sub:f.sub||"",
+    unit:f.unit||"",
+    rate:Number(f.rate),
+    qty:Number(f.qty),
+    amt:Number(f.rate)*Number(f.qty),
+    note:f.note||"",
+    edit:false
   });
+  data.categories[cat].adding=false;
+  data.categories[cat]._form=null;
   save(); render();
 }
 
+/* ===== ITEM EDIT ===== */
 function startEdit(cat,id){
   const i=data.categories[cat].items.find(x=>x.id===id);
   i._bak={...i}; i.edit=true; render();
 }
 function saveEdit(cat,id){
   const i=data.categories[cat].items.find(x=>x.id===id);
-  delete i._bak; i.edit=false; save(); render();
+  i.amt=i.rate*i.qty;
+  delete i._bak; i.edit=false;
+  save(); render();
 }
 function cancelEdit(cat,id){
   const idx=data.categories[cat].items.findIndex(x=>x.id===id);
@@ -154,7 +178,8 @@ function delItem(cat,id){
 }
 function e(cat,id,f,v){
   const i=data.categories[cat].items.find(x=>x.id===id);
-  i[f]=f==="amt"?Number(v):v;
+  i[f]=f==="rate"||f==="qty"?Number(v):v;
+  if(f==="rate"||f==="qty") i.amt=i.rate*i.qty;
 }
 
 /* ===== RENDER ===== */
@@ -163,22 +188,20 @@ function render(){
   Object.keys(data.categories).forEach(cat=>{
     const C=data.categories[cat];
     const total=C.items.reduce((s,i)=>s+i.amt,0);
+
     const card=document.createElement("div");
     card.className="card";
     card.innerHTML=`
       <div class="cardHead"
         onclick="this.nextElementSibling.style.display=
         this.nextElementSibling.style.display==='none'?'block':'none'">
-        <b>${cat}</b><span>जम्मा: ${total}</span>
+        <b>${cat}</b><span>जम्मा: रु. ${total}</span>
       </div>
       <div class="cardBody"></div>`;
     const body=card.querySelector(".cardBody");
 
-    body.innerHTML+=`
-      <button class="gray" onclick="addSub('${cat}')">➕ उपशीर्षक</button>
-      <button class="blue" onclick="addItem('${cat}')">➕ खर्च</button><hr>
-    `;
-
+    /* Sub category list */
+    body.innerHTML+=`<b>उपशीर्षक:</b><br>`;
     C.subs.forEach(s=>{
       body.innerHTML+=`
         <div class="small">
@@ -187,22 +210,53 @@ function render(){
           <button onclick="delSub('${cat}','${s}')">❌</button>
         </div>`;
     });
+    body.innerHTML+=`<button class="gray" onclick="addSub('${cat}')">➕ उपशीर्षक</button><hr>`;
 
+    /* Add form */
+    if(C.adding){
+      const opts=C.subs.map(s=>`<option>${s}</option>`).join("");
+      body.innerHTML+=`
+        <h3>➕ नयाँ खर्च</h3>
+        <div class="row">
+          <input placeholder="खर्च शीर्षक" oninput="C._form=C._form||{};C._form.name=this.value">
+          <select onchange="C._form=C._form||{};C._form.sub=this.value">
+            <option value="">उपशीर्षक</option>${opts}
+          </select>
+          <input placeholder="इकाई" oninput="C._form=C._form||{};C._form.unit=this.value">
+          <input type="number" placeholder="दर"
+            oninput="C._form=C._form||{};C._form.rate=this.value">
+          <input type="number" placeholder="परिमाण"
+            oninput="C._form=C._form||{};C._form.qty=this.value">
+          <input placeholder="कैफियत"
+            oninput="C._form=C._form||{};C._form.note=this.value">
+        </div>
+        <button onclick="saveAdd('${cat}')">💾 Save</button>
+        <button class="gray" onclick="cancelAdd('${cat}')">↩ Cancel</button>
+        <hr>`;
+    }else{
+      body.innerHTML+=`<button onclick="startAdd('${cat}')">➕ खर्च थप्नुहोस्</button><hr>`;
+    }
+
+    /* Items */
     C.items.forEach(i=>{
       body.innerHTML+=`
         <div class="item">
           <input ${i.edit?"":"disabled"} value="${i.name}"
             oninput="e('${cat}',${i.id},'name',this.value)">
-          <input ${i.edit?"":"disabled"} value="${i.sub||''}"
-            oninput="e('${cat}',${i.id},'sub',this.value)">
-          <input type="number" ${i.edit?"":"disabled"} value="${i.amt}"
-            oninput="e('${cat}',${i.id},'amt',this.value)">
+          <input ${i.edit?"":"disabled"} value="${i.sub}">
+          <input ${i.edit?"":"disabled"} value="${i.unit}"
+            oninput="e('${cat}',${i.id},'unit',this.value)">
+          <input type="number" ${i.edit?"":"disabled"} value="${i.rate}"
+            oninput="e('${cat}',${i.id},'rate',this.value)">
+          <input type="number" ${i.edit?"":"disabled"} value="${i.qty}"
+            oninput="e('${cat}',${i.id},'qty',this.value)">
+          <input disabled value="${i.amt}">
           ${
             i.edit
             ? `<button onclick="saveEdit('${cat}',${i.id})">💾</button>
-               <button onclick="cancelEdit('${cat}',${i.id})">↩</button>`
+               <button class="gray" onclick="cancelEdit('${cat}',${i.id})">↩</button>`
             : `<button onclick="startEdit('${cat}',${i.id})">✏️</button>
-               <button onclick="delItem('${cat}',${i.id})">❌</button>`
+               <button class="red" onclick="delItem('${cat}',${i.id})">❌</button>`
           }
         </div>`;
     });
