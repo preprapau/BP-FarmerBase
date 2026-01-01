@@ -11,18 +11,13 @@ body{
   background:#f4f7f6;
   margin:0;
 }
-header,footer{
+header{
   background:#e8f5e9;
   padding:10px 16px;
   display:flex;
   justify-content:space-between;
-  align-items:center;
 }
-header a{
-  color:#2e7d32;
-  font-weight:700;
-  text-decoration:none;
-}
+header a{color:#2e7d32;font-weight:700;text-decoration:none}
 .wrap{
   max-width:1100px;
   margin:18px auto;
@@ -34,17 +29,13 @@ h2,h3{color:#2e7d32;margin-top:0}
 .small{font-size:13px;color:#555}
 hr{margin:20px 0}
 
-/* form rows */
 .row{
   display:grid;
   grid-template-columns:2fr 1fr 1fr 1fr auto;
   gap:8px;
   margin-bottom:10px;
 }
-input,select,textarea{
-  padding:6px;
-  width:100%;
-}
+input,select,textarea{padding:6px;width:100%}
 button{
   padding:6px 14px;
   border:none;
@@ -53,38 +44,27 @@ button{
   color:#fff;
   cursor:pointer;
 }
-.gray{background:#607d8b}
 .red{background:#c62828}
+.gray{background:#607d8b}
 
-/* cards */
 .card{
   border:1px solid #c8e6c9;
   border-radius:10px;
-  margin-bottom:16px;
+  margin-bottom:14px;
 }
 .cardHead{
   background:#f1f8e9;
   padding:8px 12px;
   display:flex;
   justify-content:space-between;
-  align-items:center;
   cursor:pointer;
 }
-.cardBody{
-  padding:10px;
-  display:none;
-}
+.cardBody{padding:10px;display:none}
 .item{
   display:grid;
   grid-template-columns:2fr 1fr 1fr auto;
   gap:6px;
   margin-bottom:6px;
-}
-.item input:disabled{
-  background:#f5f5f5;
-}
-.typeNote{
-  margin-top:8px;
 }
 </style>
 </head>
@@ -93,29 +73,23 @@ button{
 
 <header>
   <a href="business-detail.html">⬅ Business Detail</a>
-  <strong>उत्पादन योजना (Production Plan)</strong>
+  <strong>उत्पादन योजना</strong>
   <a href="expense-demo.html">➡ Expense</a>
 </header>
 
 <div class="wrap">
 
-<!-- ================= TYPES ================= -->
-<h2>⚙️ उत्पादनका प्रकार व्यवस्थापन</h2>
-
+<h2>⚙️ उत्पादनका प्रकार</h2>
 <div class="row" style="grid-template-columns:3fr auto">
-  <input id="newType" placeholder="नयाँ उत्पादन प्रकार (जस्तै: तरकारी)">
+  <input id="newType" placeholder="नयाँ उत्पादन प्रकार">
   <button onclick="addType()">➕ Add Type</button>
 </div>
-
 <div id="typeList" class="small"></div>
 
 <hr>
 
-<!-- ================= ADD PRODUCT ================= -->
 <h2>➕ उत्पादन थप्नुहोस्</h2>
-<p class="small">
-पहिले उत्पादनको प्रकार बनाउनुहोस्, त्यसपछि मात्र उत्पादन थप्न सकिन्छ।
-</p>
+<p class="small">पहिले उत्पादनको प्रकार हुनुपर्छ</p>
 
 <div class="row">
   <input id="pName" placeholder="उत्पादन नाम">
@@ -127,50 +101,35 @@ button{
 
 <hr>
 
-<!-- ================= PRODUCTION LIST ================= -->
-<h2>📦 उत्पादन सूची (Type-wise)</h2>
+<h2>📦 उत्पादन सूची</h2>
 <div id="products"></div>
 
 <hr>
 
-<!-- ================= GLOBAL NARRATION ================= -->
 <h2>📝 समग्र उत्पादन Narration</h2>
-<textarea id="globalNarration" rows="4"
- placeholder="समग्र उत्पादन योजना सम्बन्धी विवरण..."></textarea>
-<button class="gray" onclick="autoGlobalNarration()">Auto Narration</button>
-
-<hr>
-
-<!-- ================= NEW TAB LINKS ================= -->
-<h3>🔗 अन्य दृश्य (New Tab)</h3>
-<ul class="small">
-  <li><a href="production-report.html" target="_blank">📊 Production Report</a></li>
-  <li><a href="production-print.html" target="_blank">🖨 Print View</a></li>
-  <li><a href="production-income-link.html" target="_blank">📈 Production → Income</a></li>
-</ul>
+<textarea id="globalNarration" rows="4"></textarea>
+<button class="gray" onclick="autoNarration()">Auto Narration</button>
 
 </div>
 
-<footer>
-  <span class="small">FarmerBase BP Engine – Unicode Friendly Production</span>
-</footer>
-
 <script>
-/* ================= LOAD ================= */
+/* ===== ACTIVE PROJECT CHECK ===== */
 const key = localStorage.getItem("activeProject");
+if(!key){
+  alert("पहिले Project सुरु गर्नुहोस् (index बाट)");
+}
 let project = JSON.parse(localStorage.getItem(key)) || {};
-
 project.productionTypes = project.productionTypes || [];
 project.production = project.production || [];
 project.typeNarrations = project.typeNarrations || {};
 project.globalNarration = project.globalNarration || "";
 
-/* ================= SAVE ================= */
+/* ===== SAVE ===== */
 function save(){
   localStorage.setItem(key,JSON.stringify(project));
 }
 
-/* ================= TYPES ================= */
+/* ===== TYPES ===== */
 function addType(){
   if(!newType.value) return;
   if(project.productionTypes.includes(newType.value)){
@@ -178,7 +137,8 @@ function addType(){
   }
   project.productionTypes.push(newType.value);
   newType.value="";
-  save(); render();
+  save();
+  render();
 }
 function renderTypes(){
   typeList.innerHTML="";
@@ -191,9 +151,17 @@ function renderTypes(){
   });
 }
 
-/* ================= PRODUCTS ================= */
+/* ===== PRODUCTS ===== */
 function addProduct(){
-  if(!pName.value || !pQty.value || !pType.value) return;
+  if(project.productionTypes.length===0){
+    alert("पहिले उत्पादनको प्रकार बनाउनुहोस्");
+    return;
+  }
+  if(!pName.value || !pQty.value){
+    alert("उत्पादन नाम र परिमाण अनिवार्य छ");
+    return;
+  }
+
   project.production.push({
     id:Date.now(),
     name:pName.value,
@@ -201,17 +169,19 @@ function addProduct(){
     qty:Number(pQty.value),
     type:pType.value
   });
+
   pName.value=pUnit.value=pQty.value="";
-  save(); render();
+  save();
+  render();
+  alert("उत्पादन थपियो ✔️");
 }
 
 function deleteProduct(id){
-  if(!confirm("यो उत्पादन हटाउने?")) return;
   project.production = project.production.filter(p=>p.id!==id);
   save(); render();
 }
 
-/* ================= RENDER PRODUCTS ================= */
+/* ===== RENDER PRODUCTS ===== */
 function renderProducts(){
   products.innerHTML="";
   const groups={};
@@ -228,18 +198,17 @@ function renderProducts(){
     card.className="card";
     card.innerHTML=`
       <div class="cardHead"
-        onclick="this.nextElementSibling.style.display=
-        this.nextElementSibling.style.display==='none'?'block':'none'">
+       onclick="this.nextElementSibling.style.display=
+       this.nextElementSibling.style.display==='none'?'block':'none'">
         <b>${type}</b>
-        <span>जम्मा परिमाण: ${total}</span>
+        <span>जम्मा: ${total}</span>
       </div>
       <div class="cardBody"></div>
     `;
-
-    const body = card.querySelector(".cardBody");
+    const body=card.querySelector(".cardBody");
 
     groups[type].forEach(p=>{
-      body.innerHTML += `
+      body.innerHTML+=`
         <div class="item">
           <input value="${p.name}" disabled>
           <input value="${p.unit}" disabled>
@@ -249,13 +218,10 @@ function renderProducts(){
       `;
     });
 
-    /* Type-wise Narration */
     const note=document.createElement("textarea");
-    note.className="typeNote";
-    note.rows=2;
-    note.placeholder=`${type} सम्बन्धी उत्पादन विवरण...`;
+    note.placeholder=`${type} सम्बन्धी विवरण...`;
     note.value = project.typeNarrations[type] || "";
-    note.oninput = ()=>{
+    note.oninput=()=>{
       project.typeNarrations[type]=note.value;
       save();
     };
@@ -265,12 +231,8 @@ function renderProducts(){
   });
 }
 
-/* ================= NARRATION ================= */
-function autoGlobalNarration(){
-  if(!project.productionTypes.length){
-    globalNarration.value="";
-    return;
-  }
+/* ===== NARRATION ===== */
+function autoNarration(){
   globalNarration.value =
     "यस व्यवसायमा " +
     project.productionTypes.join(", ") +
@@ -279,7 +241,7 @@ function autoGlobalNarration(){
   save();
 }
 
-/* ================= RENDER ================= */
+/* ===== RENDER ===== */
 function render(){
   renderTypes();
   renderProducts();
