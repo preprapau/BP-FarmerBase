@@ -18,7 +18,7 @@ header{
 }
 header a{color:#2e7d32;font-weight:700;text-decoration:none}
 .wrap{
-  max-width:1150px;
+  max-width:1200px;
   margin:18px auto;
   background:#fff;
   padding:22px;
@@ -56,7 +56,7 @@ button{
 
 .row{
   display:grid;
-  grid-template-columns:2fr 1.2fr 1fr 1fr 1fr 1.2fr;
+  grid-template-columns:2fr 1.3fr 1fr 1fr 1fr 1.3fr;
   gap:8px;
   margin-bottom:8px;
 }
@@ -66,7 +66,7 @@ input,select,textarea{
 
 .item{
   display:grid;
-  grid-template-columns:2fr 1fr 1fr 1fr 1fr 1.2fr auto auto;
+  grid-template-columns:2fr 1.3fr 1fr 1fr 1fr 1fr auto auto;
   gap:6px;
   margin-bottom:6px;
 }
@@ -83,7 +83,17 @@ input,select,textarea{
 </header>
 
 <div class="wrap">
+
 <div id="expenseRoot"></div>
+
+<hr>
+
+<h2>📝 समग्र खर्च Narration</h2>
+<textarea id="expenseNarration" rows="4"
+  placeholder="समग्र खर्चको विवरण यहाँ लेख्नुहोस्..."></textarea>
+<br><br>
+<button class="gray" onclick="autoNarration()">✨ Auto Narration</button>
+
 </div>
 
 <script>
@@ -91,11 +101,16 @@ input,select,textarea{
 const KEY="FB_EXPENSE_ENGINE";
 let data = JSON.parse(localStorage.getItem(KEY)) || {
   categories:{
-    "चालु खर्च":{ subs:[], items:[] },
-    "पुँजीगत खर्च":{ subs:[], items:[] }
-  }
+    "चालु खर्च":{ subs:[], items:[], adding:false },
+    "पुँजीगत खर्च":{ subs:[], items:[], adding:false }
+  },
+  narration:""
 };
-function save(){ localStorage.setItem(KEY,JSON.stringify(data)); }
+let tempForm = {};
+
+function save(){
+  localStorage.setItem(KEY,JSON.stringify(data));
+}
 
 /* ===== SUB CATEGORY ===== */
 function addSub(cat){
@@ -124,33 +139,34 @@ function delSub(cat,sub){
   save(); render();
 }
 
-/* ===== EXPENSE ENTRY ===== */
+/* ===== ADD EXPENSE ===== */
 function startAdd(cat){
+  tempForm={};
   data.categories[cat].adding=true;
   render();
 }
 function cancelAdd(cat){
+  tempForm={};
   data.categories[cat].adding=false;
   render();
 }
 function saveAdd(cat){
-  const f=data.categories[cat]._form;
-  if(!f || !f.name || !f.qty || !f.rate){
-    alert("खर्च शीर्षक, दर र परिमाण अनिवार्य"); return;
+  if(!tempForm.name || !tempForm.rate || !tempForm.qty){
+    alert("खर्च शीर्षक, दर र परिमाण अनिवार्य");
+    return;
   }
   data.categories[cat].items.push({
     id:Date.now(),
-    name:f.name,
-    sub:f.sub||"",
-    unit:f.unit||"",
-    rate:Number(f.rate),
-    qty:Number(f.qty),
-    amt:Number(f.rate)*Number(f.qty),
-    note:f.note||"",
+    name:tempForm.name,
+    sub:tempForm.sub||"",
+    unit:tempForm.unit||"",
+    rate:Number(tempForm.rate),
+    qty:Number(tempForm.qty),
+    amt:Number(tempForm.rate)*Number(tempForm.qty),
     edit:false
   });
+  tempForm={};
   data.categories[cat].adding=false;
-  data.categories[cat]._form=null;
   save(); render();
 }
 
@@ -182,6 +198,19 @@ function e(cat,id,f,v){
   if(f==="rate"||f==="qty") i.amt=i.rate*i.qty;
 }
 
+/* ===== NARRATION ===== */
+function autoNarration(){
+  let total=0;
+  Object.values(data.categories).forEach(c=>{
+    total+=c.items.reduce((s,i)=>s+i.amt,0);
+  });
+  data.narration =
+    "यस व्यवसायका लागि चालु तथा पुँजीगत खर्च शीर्षक अन्तर्गत विभिन्न खर्चहरू निर्धारण गरिएको छ। " +
+    "कुल अनुमानित खर्च रकम रु. "+total+" रहेको छ।";
+  expenseNarration.value=data.narration;
+  save();
+}
+
 /* ===== RENDER ===== */
 function render(){
   expenseRoot.innerHTML="";
@@ -200,8 +229,7 @@ function render(){
       <div class="cardBody"></div>`;
     const body=card.querySelector(".cardBody");
 
-    /* Sub category list */
-    body.innerHTML+=`<b>उपशीर्षक:</b><br>`;
+    body.innerHTML+=`<b>उपशीर्षक</b><br>`;
     C.subs.forEach(s=>{
       body.innerHTML+=`
         <div class="small">
@@ -212,23 +240,20 @@ function render(){
     });
     body.innerHTML+=`<button class="gray" onclick="addSub('${cat}')">➕ उपशीर्षक</button><hr>`;
 
-    /* Add form */
     if(C.adding){
       const opts=C.subs.map(s=>`<option>${s}</option>`).join("");
       body.innerHTML+=`
         <h3>➕ नयाँ खर्च</h3>
         <div class="row">
-          <input placeholder="खर्च शीर्षक" oninput="C._form=C._form||{};C._form.name=this.value">
-          <select onchange="C._form=C._form||{};C._form.sub=this.value">
+          <input placeholder="खर्च शीर्षक" oninput="tempForm.name=this.value">
+          <select onchange="tempForm.sub=this.value">
             <option value="">उपशीर्षक</option>${opts}
           </select>
-          <input placeholder="इकाई" oninput="C._form=C._form||{};C._form.unit=this.value">
-          <input type="number" placeholder="दर"
-            oninput="C._form=C._form||{};C._form.rate=this.value">
-          <input type="number" placeholder="परिमाण"
-            oninput="C._form=C._form||{};C._form.qty=this.value">
-          <input placeholder="कैफियत"
-            oninput="C._form=C._form||{};C._form.note=this.value">
+          <input placeholder="इकाई" oninput="tempForm.unit=this.value">
+          <input type="number" placeholder="दर" oninput="tempForm.rate=this.value">
+          <input type="number" placeholder="परिमाण" oninput="tempForm.qty=this.value">
+          <input disabled placeholder="रकम"
+            value="${(tempForm.rate||0)*(tempForm.qty||0)}">
         </div>
         <button onclick="saveAdd('${cat}')">💾 Save</button>
         <button class="gray" onclick="cancelAdd('${cat}')">↩ Cancel</button>
@@ -237,7 +262,6 @@ function render(){
       body.innerHTML+=`<button onclick="startAdd('${cat}')">➕ खर्च थप्नुहोस्</button><hr>`;
     }
 
-    /* Items */
     C.items.forEach(i=>{
       body.innerHTML+=`
         <div class="item">
@@ -263,6 +287,8 @@ function render(){
 
     expenseRoot.appendChild(card);
   });
+
+  expenseNarration.value=data.narration||"";
 }
 render();
 </script>
