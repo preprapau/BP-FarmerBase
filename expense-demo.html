@@ -2,234 +2,214 @@
 <html lang="ne">
 <head>
 <meta charset="UTF-8">
-<title>Expense | FarmerBase BP Engine</title>
+<title>खर्च विवरण | FarmerBase BP Engine</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
 body{
   font-family:"Noto Sans Devanagari","Kalimati",system-ui;
-  background:#f4f7f6;
-  margin:0;
+  background:#f4f7f6;margin:0
 }
-header,footer{
+header{
   background:#e8f5e9;
   padding:10px 16px;
   display:flex;
   justify-content:space-between;
-  align-items:center;
 }
-header a,footer a{
-  text-decoration:none;
-  font-weight:700;
-  color:#2e7d32;
-}
-.container{
-  max-width:1200px;
-  margin:0 auto;
-  padding:20px;
-}
-h2,h3{color:#2e7d32;margin:8px 0}
-.small{font-size:13px;color:#555}
-
-.section{
+header a{color:#2e7d32;font-weight:700;text-decoration:none}
+.wrap{
+  max-width:1100px;
+  margin:18px auto;
   background:#fff;
-  padding:14px;
-  border-radius:10px;
-  margin-bottom:14px;
+  padding:22px;
+  border-radius:12px;
 }
+h2,h3{color:#2e7d32;margin-top:0}
+.small{font-size:13px;color:#555}
+hr{margin:20px 0}
 
-table{
-  width:100%;
-  border-collapse:collapse;
+.row{
+  display:grid;
+  grid-template-columns:2fr 1fr 1fr auto;
+  gap:8px;
+  margin-bottom:8px;
 }
-th,td{
-  border:1px solid #ccc;
-  padding:6px;
-  font-size:14px;
-}
-th{background:#eef5ee}
-.right{text-align:right}
-
-input,select,textarea{
-  width:100%;
-  padding:6px;
-  box-sizing:border-box;
-}
-
-.inline{
-  display:flex;
-  gap:6px;
-  flex-wrap:wrap;
-  align-items:center;
-}
-
-.btn{
+input,select{padding:6px;width:100%}
+button{
   padding:6px 12px;
-  background:#2e7d32;
-  color:#fff;
-  border:none;
-  cursor:pointer;
+  border:none;border-radius:6px;
+  background:#2e7d32;color:#fff;cursor:pointer
 }
+.blue{background:#0277bd}
+.gray{background:#607d8b}
+.red{background:#c62828}
 
-.del{
-  color:#c62828;
-  cursor:pointer;
-  font-weight:700;
+.card{
+  border:1px solid #c8e6c9;
+  border-radius:10px;
+  margin-bottom:18px;
 }
-
-.footerNav{
+.cardHead{
+  background:#f1f8e9;
+  padding:8px 12px;
   display:flex;
   justify-content:space-between;
-  width:100%;
+  cursor:pointer;
 }
+.cardBody{padding:10px;display:none}
 
-@media print{
-  header, footer, button{display:none}
-  body{background:#fff}
+.item{
+  display:grid;
+  grid-template-columns:2fr 1fr 1fr auto auto;
+  gap:6px;
+  margin-bottom:6px;
 }
+.item input:disabled{background:#f5f5f5}
 </style>
 </head>
 
 <body>
 
-<!-- TOP NAV -->
 <header>
-  <a href="production.html">⬅️ Production</a>
-  <strong>💸 Expense</strong>
-  <a href="production-cost-summary.html">➡️ Cost Summary</a>
+  <a href="production.html">⬅ Production</a>
+  <strong>खर्च विवरण (Expense)</strong>
+  <a href="income-demo.html">➡ Income</a>
 </header>
 
-<div class="container">
+<div class="wrap">
 
-<h2>खर्च विवरण (Expense Entry)</h2>
-<p class="small">
-उत्पादनसँग सम्बन्धित सम्पूर्ण खर्च यहाँ प्रविष्ट गर्नुहोस्।
-</p>
-
-<!-- ADD EXPENSE -->
-<div class="section">
-<h3>➕ नयाँ खर्च थप्नुहोस्</h3>
-
-<div class="inline">
-  <input id="eHead" placeholder="खर्च शीर्षक (दाना, मजदुरी…)">
-  <input type="number" id="eAmount" placeholder="रकम">
-  <select id="eCategory">
-    <option>चालु खर्च</option>
-    <option>पूर्वाधार निर्माण</option>
-    <option>मेशिन औजार</option>
-    <option>अन्य</option>
-  </select>
-
-  <select id="eAllocation">
-    <option value="LS">सबै उत्पादन (LS)</option>
-    <option value="DIRECT">एक उत्पादन</option>
-    <option value="%">प्रतिशत अनुसार</option>
-  </select>
-
-  <button class="btn" onclick="addExpense()">Add</button>
-</div>
-
-<p class="small">
-ℹ️ खर्च कसरी उत्पादनमा बाँड्ने भन्ने कुरा Allocation Type ले निर्धारण गर्छ।
-</p>
-</div>
-
-<!-- EXPENSE TABLE -->
-<div class="section">
-<h3>📋 खर्च सूची</h3>
-
-<table>
-<thead>
-<tr>
-  <th>खर्च शीर्षक</th>
-  <th>श्रेणी</th>
-  <th>Allocation</th>
-  <th class="right">रकम (रु)</th>
-  <th></th>
-</tr>
-</thead>
-<tbody id="tbody"></tbody>
-<tr>
-  <th colspan="3">कुल खर्च</th>
-  <th class="right" id="totalExpense">0</th>
-  <th></th>
-</tr>
-</table>
-</div>
+<div id="expenseRoot"></div>
 
 </div>
-
-<!-- BOTTOM NAV -->
-<footer>
-  <div class="footerNav">
-    <a href="production.html">⬅️ Production</a>
-    <span class="small">FarmerBase BP Engine – Expense Module</span>
-    <a href="production-cost-summary.html">➡️ Cost Summary</a>
-  </div>
-</footer>
 
 <script>
-/* ===============================
-   EXPENSE DEMO – FINAL
-   =============================== */
+/* ===== STORAGE ===== */
+const KEY="FB_EXPENSE_ENGINE";
+let data = JSON.parse(localStorage.getItem(KEY)) || {
+  categories:{
+    "चालु खर्च":{ subs:[], items:[] },
+    "पुँजीगत खर्च":{ subs:[], items:[] }
+  }
+};
 
-const key = localStorage.getItem("activeProject");
-if(!key){ alert("Active योजना भेटिएन"); }
+function save(){ localStorage.setItem(KEY,JSON.stringify(data)); }
 
-const project = JSON.parse(localStorage.getItem(key)) || {};
-project.expenses = project.expenses || [];
-const expenses = project.expenses;
+/* ===== SUB CATEGORY ===== */
+function addSub(cat){
+  const n=prompt("नयाँ उपशीर्षक");
+  if(!n) return;
+  if(data.categories[cat].subs.includes(n)){
+    alert("पहिले नै छ"); return;
+  }
+  data.categories[cat].subs.push(n);
+  save(); render();
+}
+function editSub(cat,old){
+  const n=prompt("नयाँ नाम",old);
+  if(!n) return;
+  const c=data.categories[cat];
+  c.subs=c.subs.map(s=>s===old?n:s);
+  c.items.forEach(i=>{ if(i.sub===old) i.sub=n; });
+  save(); render();
+}
+function delSub(cat,sub){
+  const c=data.categories[cat];
+  if(c.items.some(i=>i.sub===sub)){
+    alert("पहिले खर्च हटाउनुहोस्"); return;
+  }
+  c.subs=c.subs.filter(s=>s!==sub);
+  save(); render();
+}
 
-/* -------- SAVE -------- */
-function save(){
-  localStorage.setItem(key, JSON.stringify(project));
+/* ===== EXPENSE ITEM ===== */
+function addItem(cat){
+  const name=prompt("खर्च शीर्षक");
+  if(!name) return;
+  const sub=prompt("उपशीर्षक (optional)");
+  const amt=Number(prompt("रकम"));
+  data.categories[cat].items.push({
+    id:Date.now(), name, sub, amt, edit:false
+  });
+  save(); render();
+}
+
+function startEdit(cat,id){
+  const i=data.categories[cat].items.find(x=>x.id===id);
+  i._bak={...i}; i.edit=true; render();
+}
+function saveEdit(cat,id){
+  const i=data.categories[cat].items.find(x=>x.id===id);
+  delete i._bak; i.edit=false; save(); render();
+}
+function cancelEdit(cat,id){
+  const idx=data.categories[cat].items.findIndex(x=>x.id===id);
+  data.categories[cat].items[idx]=data.categories[cat].items[idx]._bak;
+  data.categories[cat].items[idx].edit=false;
   render();
 }
-
-/* -------- ADD -------- */
-function addExpense(){
-  if(!eHead.value || !eAmount.value) return;
-
-  expenses.push({
-    id:Date.now(),
-    head:eHead.value,
-    amount:+eAmount.value||0,
-    category:eCategory.value,
-    allocationType:eAllocation.value
-  });
-
-  eHead.value="";
-  eAmount.value="";
-  save();
+function delItem(cat,id){
+  if(!confirm("हटाउने?"))return;
+  data.categories[cat].items=data.categories[cat].items.filter(i=>i.id!==id);
+  save(); render();
+}
+function e(cat,id,f,v){
+  const i=data.categories[cat].items.find(x=>x.id===id);
+  i[f]=f==="amt"?Number(v):v;
 }
 
-/* -------- DELETE -------- */
-function remove(i){
-  if(!confirm("यो खर्च हटाउने ?")) return;
-  expenses.splice(i,1);
-  save();
-}
-
-/* -------- RENDER -------- */
+/* ===== RENDER ===== */
 function render(){
-  tbody.innerHTML="";
-  let sum=0;
+  expenseRoot.innerHTML="";
+  Object.keys(data.categories).forEach(cat=>{
+    const C=data.categories[cat];
+    const total=C.items.reduce((s,i)=>s+i.amt,0);
+    const card=document.createElement("div");
+    card.className="card";
+    card.innerHTML=`
+      <div class="cardHead"
+        onclick="this.nextElementSibling.style.display=
+        this.nextElementSibling.style.display==='none'?'block':'none'">
+        <b>${cat}</b><span>जम्मा: ${total}</span>
+      </div>
+      <div class="cardBody"></div>`;
+    const body=card.querySelector(".cardBody");
 
-  expenses.forEach((e,i)=>{
-    sum+=e.amount||0;
-    tbody.innerHTML+=`
-    <tr>
-      <td>${e.head}</td>
-      <td>${e.category}</td>
-      <td>${e.allocationType}</td>
-      <td class="right">${e.amount.toLocaleString()}</td>
-      <td class="del" onclick="remove(${i})">✖</td>
-    </tr>`;
+    body.innerHTML+=`
+      <button class="gray" onclick="addSub('${cat}')">➕ उपशीर्षक</button>
+      <button class="blue" onclick="addItem('${cat}')">➕ खर्च</button><hr>
+    `;
+
+    C.subs.forEach(s=>{
+      body.innerHTML+=`
+        <div class="small">
+          • ${s}
+          <button onclick="editSub('${cat}','${s}')">✏️</button>
+          <button onclick="delSub('${cat}','${s}')">❌</button>
+        </div>`;
+    });
+
+    C.items.forEach(i=>{
+      body.innerHTML+=`
+        <div class="item">
+          <input ${i.edit?"":"disabled"} value="${i.name}"
+            oninput="e('${cat}',${i.id},'name',this.value)">
+          <input ${i.edit?"":"disabled"} value="${i.sub||''}"
+            oninput="e('${cat}',${i.id},'sub',this.value)">
+          <input type="number" ${i.edit?"":"disabled"} value="${i.amt}"
+            oninput="e('${cat}',${i.id},'amt',this.value)">
+          ${
+            i.edit
+            ? `<button onclick="saveEdit('${cat}',${i.id})">💾</button>
+               <button onclick="cancelEdit('${cat}',${i.id})">↩</button>`
+            : `<button onclick="startEdit('${cat}',${i.id})">✏️</button>
+               <button onclick="delItem('${cat}',${i.id})">❌</button>`
+          }
+        </div>`;
+    });
+
+    expenseRoot.appendChild(card);
   });
-
-  totalExpense.innerText=sum.toLocaleString();
 }
-
 render();
 </script>
 
