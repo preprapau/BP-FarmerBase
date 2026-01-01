@@ -33,18 +33,18 @@ header a,footer a{
 h2,h3{color:#2e7d32;margin-top:0}
 .small{font-size:13px;color:#555}
 
-/* Add bar */
+/* ADD BAR */
 .addBar{
   display:grid;
   grid-template-columns:2fr 1fr 1fr 1fr auto;
   gap:8px;
   margin-bottom:14px;
 }
-.addBar input, .addBar select{
+.addBar input,.addBar select{
   padding:6px;
 }
 
-/* Type cards */
+/* TYPE CARD */
 .typeCard{
   border:1px solid #c8e6c9;
   border-radius:10px;
@@ -61,23 +61,26 @@ h2,h3{color:#2e7d32;margin-top:0}
 .typeHead b{color:#2e7d32}
 .typeBody{padding:10px;display:none}
 
-/* Product row */
+/* PRODUCT ROW */
 .prod{
   display:grid;
   grid-template-columns:2fr 1fr 1fr 2fr auto;
   gap:6px;
   margin-bottom:6px;
 }
-.prod input{
-  padding:5px;
+.prod input{padding:5px}
+.del{color:#c62828;cursor:pointer;font-weight:700}
+
+/* TYPE MANAGER */
+.typeMgr div{
+  margin:4px 0;
 }
-.del{
-  color:#c62828;
-  cursor:pointer;
-  font-weight:700;
+.typeMgr button{
+  margin-left:6px;
+  padding:2px 6px;
 }
 
-/* Narration */
+/* NARRATION */
 textarea{
   width:100%;
   padding:8px;
@@ -85,13 +88,7 @@ textarea{
   resize:vertical;
 }
 
-/* Buttons */
-.btns{
-  margin-top:12px;
-  display:flex;
-  gap:10px;
-  flex-wrap:wrap;
-}
+/* BUTTONS */
 button{
   padding:6px 14px;
   border:none;
@@ -101,7 +98,6 @@ button{
   cursor:pointer;
 }
 .gray{background:#607d8b}
-
 </style>
 </head>
 
@@ -121,21 +117,26 @@ button{
 दर तथा रकम Income पेजमा निर्धारण हुनेछ।
 </p>
 
-<!-- ADD BAR -->
+<!-- ADD PRODUCT -->
 <div class="addBar">
   <input id="pName" placeholder="उत्पादन (जस्तै: गोलभेडा, बाख्रा)">
   <input id="pUnit" placeholder="इकाई (kg, वटा, माउ)">
   <input id="pQty" type="number" placeholder="परिमाण">
-  <select id="pType">
-    <option>तरकारी</option>
-    <option>पशुपालन</option>
-    <option>दुग्ध</option>
-    <option>अन्य</option>
-  </select>
+  <select id="pType"></select>
   <button onclick="add()">➕ Add</button>
 </div>
 
-<!-- TYPE CONTAINER -->
+<!-- TYPE MANAGER -->
+<h3>⚙️ उत्पादनका प्रकार व्यवस्थापन</h3>
+<div class="addBar" style="grid-template-columns:3fr auto">
+  <input id="newType" placeholder="नयाँ उत्पादन प्रकार">
+  <button onclick="addType()">➕ Add Type</button>
+</div>
+<div id="typeManager" class="typeMgr small"></div>
+
+<hr>
+
+<!-- PRODUCTION LIST -->
 <div id="types"></div>
 
 <!-- GLOBAL NARRATION -->
@@ -144,9 +145,7 @@ button{
  placeholder="समग्र उत्पादन योजना सम्बन्धी विवरण..."
  oninput="save()"></textarea>
 
-<div class="btns">
-  <button class="gray" onclick="autoNarration()">⚙️ Auto Narration</button>
-</div>
+<button class="gray" onclick="autoNarration()">⚙️ Auto Narration</button>
 
 </div>
 
@@ -155,22 +154,24 @@ button{
 </footer>
 
 <script>
-/* ================= DATA ================= */
+/* ===== LOAD PROJECT ===== */
 const key = localStorage.getItem("activeProject");
-if(!key){
-  alert("Project भेटिएन");
-}
+if(!key){ alert("Project भेटिएन"); }
 let project = JSON.parse(localStorage.getItem(key)) || {};
+
 project.production = project.production || [];
 project.productionNarration = project.productionNarration || "";
+project.productionTypes = project.productionTypes || [
+  "तरकारी","पशुजन्य","दुग्ध","अन्य"
+];
 
-/* ================= SAVE ================= */
+/* ===== SAVE ===== */
 function save(){
   project.productionNarration = globalNarration.value;
   localStorage.setItem(key,JSON.stringify(project));
 }
 
-/* ================= ADD ================= */
+/* ===== ADD PRODUCT ===== */
 function add(){
   if(!pName.value || !pQty.value) return;
   project.production.push({
@@ -182,21 +183,81 @@ function add(){
     remark:""
   });
   pName.value=pUnit.value=pQty.value="";
-  save();
-  render();
+  save(); render();
 }
 
-/* ================= DELETE ================= */
-function del(id){
+/* ===== DELETE PRODUCT ===== */
+function delProd(id){
   if(!confirm("यो उत्पादन हटाउने?")) return;
   project.production = project.production.filter(p=>p.id!==id);
   save(); render();
 }
 
-/* ================= RENDER ================= */
+/* ===== EDIT PRODUCT ===== */
+function editProd(id,f,v){
+  const p = project.production.find(x=>x.id===id);
+  if(!p) return;
+  p[f] = f==="qty"?Number(v):v;
+  save();
+}
+
+/* ===== TYPE MANAGEMENT ===== */
+function renderTypes(){
+  pType.innerHTML="";
+  project.productionTypes.forEach(t=>{
+    const o=document.createElement("option");
+    o.textContent=t;
+    pType.appendChild(o);
+  });
+
+  typeManager.innerHTML="";
+  project.productionTypes.forEach((t,i)=>{
+    const d=document.createElement("div");
+    d.innerHTML = `
+      ${t}
+      <button onclick="editType(${i})">✏️</button>
+      <button onclick="deleteType(${i})">❌</button>
+    `;
+    typeManager.appendChild(d);
+  });
+}
+
+function addType(){
+  if(!newType.value) return;
+  if(project.productionTypes.includes(newType.value)){
+    alert("यो प्रकार पहिले नै छ"); return;
+  }
+  project.productionTypes.push(newType.value);
+  newType.value="";
+  save(); render();
+}
+
+function editType(i){
+  const old = project.productionTypes[i];
+  const n = prompt("नयाँ नाम", old);
+  if(!n) return;
+  project.productionTypes[i]=n;
+  project.production.forEach(p=>{
+    if(p.type===old) p.type=n;
+  });
+  save(); render();
+}
+
+function deleteType(i){
+  const t = project.productionTypes[i];
+  if(project.production.some(p=>p.type===t)){
+    alert("यो प्रकार प्रयोग भइरहेको छ"); return;
+  }
+  if(!confirm(`"${t}" हटाउने?`)) return;
+  project.productionTypes.splice(i,1);
+  save(); render();
+}
+
+/* ===== RENDER ===== */
 function render(){
+  renderTypes();
   types.innerHTML="";
-  const groups = {};
+  const groups={};
   project.production.forEach(p=>{
     if(!groups[p.type]) groups[p.type]=[];
     groups[p.type].push(p);
@@ -206,8 +267,9 @@ function render(){
     const card=document.createElement("div");
     card.className="typeCard";
     card.innerHTML=`
-      <div class="typeHead" onclick="this.nextElementSibling.style.display=
-      this.nextElementSibling.style.display==='none'?'block':'none'">
+      <div class="typeHead"
+       onclick="this.nextElementSibling.style.display=
+       this.nextElementSibling.style.display==='none'?'block':'none'">
         <b>${t}</b>
         <span>${groups[t].length} item</span>
       </div>
@@ -219,13 +281,14 @@ function render(){
       const d=document.createElement("div");
       d.className="prod";
       d.innerHTML=`
-        <input value="${p.name}" oninput="edit(${p.id},'name',this.value)">
-        <input value="${p.unit}" oninput="edit(${p.id},'unit',this.value)">
-        <input type="number" value="${p.qty}" oninput="edit(${p.id},'qty',this.value)">
+        <input value="${p.name}" oninput="editProd(${p.id},'name',this.value)">
+        <input value="${p.unit}" oninput="editProd(${p.id},'unit',this.value)">
+        <input type="number" value="${p.qty}"
+          oninput="editProd(${p.id},'qty',this.value)">
         <input placeholder="Remarks / टिप्पणी"
           value="${p.remark||""}"
-          oninput="edit(${p.id},'remark',this.value)">
-        <span class="del" onclick="del(${p.id})">✖</span>
+          oninput="editProd(${p.id},'remark',this.value)">
+        <span class="del" onclick="delProd(${p.id})">✖</span>
       `;
       body.appendChild(d);
     });
@@ -236,29 +299,18 @@ function render(){
   globalNarration.value = project.productionNarration || "";
 }
 
-/* ================= EDIT ================= */
-function edit(id,f,v){
-  const p = project.production.find(x=>x.id===id);
-  if(!p) return;
-  p[f] = f==="qty"?Number(v):v;
-  save();
-}
-
-/* ================= AUTO NARRATION ================= */
+/* ===== AUTO NARRATION ===== */
 function autoNarration(){
-  if(!project.production.length){
-    globalNarration.value="";
-    return;
-  }
-  const byType={};
+  if(!project.production.length){ globalNarration.value=""; save(); return; }
+  const c={};
   project.production.forEach(p=>{
-    if(!byType[p.type]) byType[p.type]=0;
-    byType[p.type]++;
+    c[p.type]=(c[p.type]||0)+1;
   });
-  const parts = Object.keys(byType)
-    .map(t=>`${t} (${byType[t]} प्रकार)`);
+  const txt = Object.keys(c)
+    .map(t=>`${t} (${c[t]} प्रकार)`)
+    .join(" तथा ");
   globalNarration.value =
-    `यस व्यवसायमा ${parts.join(" तथा ")} मार्फत उत्पादन योजना तयार गरिएको छ।`;
+    `यस व्यवसायमा ${txt} मार्फत उत्पादन योजना तयार गरिएको छ।`;
   save();
 }
 
