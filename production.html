@@ -2,7 +2,7 @@
 <html lang="ne">
 <head>
 <meta charset="UTF-8">
-<title>Production Plan | FarmerBase BP Engine</title>
+<title>उत्पादन योजना | FarmerBase BP Engine</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
@@ -18,13 +18,13 @@ header,footer{
   justify-content:space-between;
   align-items:center;
 }
-header a,footer a{
+header a{
   text-decoration:none;
   font-weight:700;
   color:#2e7d32;
 }
 .wrap{
-  max-width:1100px;
+  max-width:1150px;
   margin:18px auto;
   background:#fff;
   padding:22px;
@@ -48,7 +48,7 @@ h2,h3{color:#2e7d32;margin-top:0}
 .typeCard{
   border:1px solid #c8e6c9;
   border-radius:10px;
-  margin-bottom:14px;
+  margin-bottom:16px;
 }
 .typeHead{
   background:#f1f8e9;
@@ -59,45 +59,53 @@ h2,h3{color:#2e7d32;margin-top:0}
   cursor:pointer;
 }
 .typeHead b{color:#2e7d32}
-.typeBody{padding:10px;display:none}
+.typeBody{padding:10px}
 
 /* PRODUCT ROW */
 .prod{
   display:grid;
-  grid-template-columns:2fr 1fr 1fr 2fr auto;
+  grid-template-columns:2fr 1fr 1fr 2fr auto auto;
   gap:6px;
   margin-bottom:6px;
 }
-.prod input{padding:5px}
-.del{color:#c62828;cursor:pointer;font-weight:700}
-
-/* TYPE MANAGER */
-.typeMgr div{
-  margin:4px 0;
+.prod input{
+  padding:5px;
 }
-.typeMgr button{
-  margin-left:6px;
-  padding:2px 6px;
+.prod input:disabled{
+  background:#f5f5f5;
+  color:#333;
+}
+.actionBtn{
+  padding:4px 8px;
+  border:none;
+  border-radius:6px;
+  cursor:pointer;
+}
+.edit{background:#0277bd;color:#fff}
+.save{background:#2e7d32;color:#fff}
+.cancel{background:#607d8b;color:#fff}
+.del{background:#c62828;color:#fff}
+
+/* TYPE NARRATION */
+.typeNote{
+  margin-top:10px;
 }
 
-/* NARRATION */
+/* GLOBAL NARRATION */
 textarea{
   width:100%;
   padding:8px;
-  margin-top:10px;
   resize:vertical;
 }
-
-/* BUTTONS */
-button{
+.grayBtn{
+  margin-top:8px;
+  background:#607d8b;
+  color:#fff;
   padding:6px 14px;
   border:none;
   border-radius:6px;
-  background:#2e7d32;
-  color:#fff;
   cursor:pointer;
 }
-.gray{background:#607d8b}
 </style>
 </head>
 
@@ -114,25 +122,28 @@ button{
 <h2>🌱 उत्पादन योजना</h2>
 <p class="small">
 यहाँ के–कुन उत्पादन गर्ने र कति परिमाणमा गर्ने भन्ने योजना बनाइन्छ।
-दर तथा रकम Income पेजमा निर्धारण हुनेछ।
+<b>दर तथा रकम Income पेजमा निर्धारण हुनेछ।</b>
 </p>
 
 <!-- ADD PRODUCT -->
 <div class="addBar">
-  <input id="pName" placeholder="उत्पादन (जस्तै: गोलभेडा, बाख्रा)">
-  <input id="pUnit" placeholder="इकाई (kg, वटा, माउ)">
+  <input id="pName" placeholder="उत्पादन">
+  <input id="pUnit" placeholder="इकाई">
   <input id="pQty" type="number" placeholder="परिमाण">
   <select id="pType"></select>
-  <button onclick="add()">➕ Add</button>
+  <button onclick="addProduct()">➕ Add</button>
 </div>
 
-<!-- TYPE MANAGER -->
-<h3>⚙️ उत्पादनका प्रकार व्यवस्थापन</h3>
-<div class="addBar" style="grid-template-columns:3fr auto">
+<!-- TYPE MANAGEMENT (INLINE WITH DROPDOWN) -->
+<p class="small">
+🔧 प्रकार सच्याउन / हटाउन ड्रपडाउनबाट प्रकार छानेर तलको बटन प्रयोग गर्नुहोस्
+</p>
+
+<div class="addBar" style="grid-template-columns:2fr auto auto">
   <input id="newType" placeholder="नयाँ उत्पादन प्रकार">
   <button onclick="addType()">➕ Add Type</button>
+  <button onclick="editSelectedType()">✏️ Edit Type</button>
 </div>
-<div id="typeManager" class="typeMgr small"></div>
 
 <hr>
 
@@ -143,9 +154,9 @@ button{
 <h3>📝 समग्र उत्पादन Narration</h3>
 <textarea id="globalNarration" rows="4"
  placeholder="समग्र उत्पादन योजना सम्बन्धी विवरण..."
- oninput="save()"></textarea>
+ oninput="saveProject()"></textarea>
 
-<button class="gray" onclick="autoNarration()">⚙️ Auto Narration</button>
+<button class="grayBtn" onclick="autoNarration()">⚙️ Auto Narration</button>
 
 </div>
 
@@ -154,7 +165,7 @@ button{
 </footer>
 
 <script>
-/* ===== LOAD PROJECT ===== */
+/* ================= LOAD PROJECT ================= */
 const key = localStorage.getItem("activeProject");
 if(!key){ alert("Project भेटिएन"); }
 let project = JSON.parse(localStorage.getItem(key)) || {};
@@ -164,64 +175,27 @@ project.productionNarration = project.productionNarration || "";
 project.productionTypes = project.productionTypes || [
   "तरकारी","पशुजन्य","दुग्ध","अन्य"
 ];
+project.typeNarrations = project.typeNarrations || {};
 
-/* ===== SAVE ===== */
-function save(){
+/* ================= SAVE ================= */
+function saveProject(){
   project.productionNarration = globalNarration.value;
   localStorage.setItem(key,JSON.stringify(project));
 }
 
-/* ===== ADD PRODUCT ===== */
-function add(){
-  if(!pName.value || !pQty.value) return;
-  project.production.push({
-    id:Date.now(),
-    name:pName.value,
-    unit:pUnit.value,
-    qty:Number(pQty.value),
-    type:pType.value,
-    remark:""
-  });
-  pName.value=pUnit.value=pQty.value="";
-  save(); render();
-}
-
-/* ===== DELETE PRODUCT ===== */
-function delProd(id){
-  if(!confirm("यो उत्पादन हटाउने?")) return;
-  project.production = project.production.filter(p=>p.id!==id);
-  save(); render();
-}
-
-/* ===== EDIT PRODUCT ===== */
-function editProd(id,f,v){
-  const p = project.production.find(x=>x.id===id);
-  if(!p) return;
-  p[f] = f==="qty"?Number(v):v;
-  save();
-}
-
-/* ===== TYPE MANAGEMENT ===== */
-function renderTypes(){
+/* ================= TYPE DROPDOWN ================= */
+function renderTypeDropdown(){
+  const current = pType.value;
   pType.innerHTML="";
   project.productionTypes.forEach(t=>{
     const o=document.createElement("option");
-    o.textContent=t;
+    o.value=o.textContent=t;
     pType.appendChild(o);
   });
-
-  typeManager.innerHTML="";
-  project.productionTypes.forEach((t,i)=>{
-    const d=document.createElement("div");
-    d.innerHTML = `
-      ${t}
-      <button onclick="editType(${i})">✏️</button>
-      <button onclick="deleteType(${i})">❌</button>
-    `;
-    typeManager.appendChild(d);
-  });
+  if(current) pType.value=current;
 }
 
+/* ================= TYPE ACTIONS ================= */
 function addType(){
   if(!newType.value) return;
   if(project.productionTypes.includes(newType.value)){
@@ -229,34 +203,91 @@ function addType(){
   }
   project.productionTypes.push(newType.value);
   newType.value="";
-  save(); render();
+  saveProject();
+  render();
 }
 
-function editType(i){
-  const old = project.productionTypes[i];
-  const n = prompt("नयाँ नाम", old);
+function editSelectedType(){
+  const t = pType.value;
+  if(!t) return;
+  const n = prompt("नयाँ नाम", t);
   if(!n) return;
-  project.productionTypes[i]=n;
+
+  project.productionTypes =
+    project.productionTypes.map(x=>x===t?n:x);
+
   project.production.forEach(p=>{
-    if(p.type===old) p.type=n;
+    if(p.type===t) p.type=n;
   });
-  save(); render();
+
+  project.typeNarrations[n] = project.typeNarrations[t] || "";
+  delete project.typeNarrations[t];
+
+  saveProject();
+  render();
 }
 
-function deleteType(i){
-  const t = project.productionTypes[i];
-  if(project.production.some(p=>p.type===t)){
-    alert("यो प्रकार प्रयोग भइरहेको छ"); return;
-  }
-  if(!confirm(`"${t}" हटाउने?`)) return;
-  project.productionTypes.splice(i,1);
-  save(); render();
+/* ================= PRODUCT CRUD ================= */
+function addProduct(){
+  if(!pName.value || !pQty.value) return;
+  project.production.push({
+    id:Date.now(),
+    name:pName.value,
+    unit:pUnit.value,
+    qty:Number(pQty.value),
+    type:pType.value,
+    remark:"",
+    _edit:false
+  });
+  pName.value=pUnit.value=pQty.value="";
+  saveProject();
+  render();
 }
 
-/* ===== RENDER ===== */
+function startEdit(id){
+  const p = project.production.find(x=>x.id===id);
+  if(!p) return;
+  p._backup = {...p};
+  p._edit = true;
+  render();
+}
+
+function tempEdit(id,f,v){
+  const p = project.production.find(x=>x.id===id);
+  if(!p) return;
+  p[f] = f==="qty"?Number(v):v;
+}
+
+function saveEdit(id){
+  const p = project.production.find(x=>x.id===id);
+  if(!p) return;
+  delete p._backup;
+  p._edit = false;
+  saveProject();
+  render();
+}
+
+function cancelEdit(id){
+  const i = project.production.findIndex(x=>x.id===id);
+  if(i<0) return;
+  project.production[i] = project.production[i]._backup;
+  delete project.production[i]._backup;
+  project.production[i]._edit=false;
+  render();
+}
+
+function delProd(id){
+  if(!confirm("यो उत्पादन हटाउने?")) return;
+  project.production = project.production.filter(p=>p.id!==id);
+  saveProject();
+  render();
+}
+
+/* ================= RENDER ================= */
 function render(){
-  renderTypes();
+  renderTypeDropdown();
   types.innerHTML="";
+
   const groups={};
   project.production.forEach(p=>{
     if(!groups[p.type]) groups[p.type]=[];
@@ -264,34 +295,57 @@ function render(){
   });
 
   Object.keys(groups).forEach(t=>{
+    const total = groups[t].reduce((s,p)=>s+p.qty,0);
+
     const card=document.createElement("div");
     card.className="typeCard";
     card.innerHTML=`
       <div class="typeHead"
-       onclick="this.nextElementSibling.style.display=
-       this.nextElementSibling.style.display==='none'?'block':'none'">
+        onclick="this.nextElementSibling.style.display=
+        this.nextElementSibling.style.display==='none'?'block':'none'">
         <b>${t}</b>
-        <span>${groups[t].length} item</span>
+        <span>जम्मा परिमाण: ${total}</span>
       </div>
       <div class="typeBody"></div>
     `;
+
     const body=card.querySelector(".typeBody");
 
     groups[t].forEach(p=>{
       const d=document.createElement("div");
       d.className="prod";
       d.innerHTML=`
-        <input value="${p.name}" oninput="editProd(${p.id},'name',this.value)">
-        <input value="${p.unit}" oninput="editProd(${p.id},'unit',this.value)">
-        <input type="number" value="${p.qty}"
-          oninput="editProd(${p.id},'qty',this.value)">
-        <input placeholder="Remarks / टिप्पणी"
-          value="${p.remark||""}"
-          oninput="editProd(${p.id},'remark',this.value)">
-        <span class="del" onclick="delProd(${p.id})">✖</span>
+        <input value="${p.name}" ${p._edit?"":"disabled"}
+          oninput="tempEdit(${p.id},'name',this.value)">
+        <input value="${p.unit}" ${p._edit?"":"disabled"}
+          oninput="tempEdit(${p.id},'unit',this.value)">
+        <input type="number" value="${p.qty}" ${p._edit?"":"disabled"}
+          oninput="tempEdit(${p.id},'qty',this.value)">
+        <input placeholder="Remarks"
+          value="${p.remark||""}" ${p._edit?"":"disabled"}
+          oninput="tempEdit(${p.id},'remark',this.value)">
+
+        ${
+          p._edit
+          ? `<button class="actionBtn save" onclick="saveEdit(${p.id})">💾</button>
+             <button class="actionBtn cancel" onclick="cancelEdit(${p.id})">↩</button>`
+          : `<button class="actionBtn edit" onclick="startEdit(${p.id})">✏️</button>
+             <button class="actionBtn del" onclick="delProd(${p.id})">❌</button>`
+        }
       `;
       body.appendChild(d);
     });
+
+    /* TYPE NARRATION */
+    const note=document.createElement("textarea");
+    note.className="typeNote";
+    note.placeholder=`${t} सम्बन्धी टिप्पणी...`;
+    note.value = project.typeNarrations[t] || "";
+    note.oninput = ()=>{
+      project.typeNarrations[t]=note.value;
+      saveProject();
+    };
+    body.appendChild(note);
 
     types.appendChild(card);
   });
@@ -299,19 +353,22 @@ function render(){
   globalNarration.value = project.productionNarration || "";
 }
 
-/* ===== AUTO NARRATION ===== */
+/* ================= AUTO NARRATION ================= */
 function autoNarration(){
-  if(!project.production.length){ globalNarration.value=""; save(); return; }
+  if(!project.production.length){
+    globalNarration.value="";
+    saveProject();
+    return;
+  }
   const c={};
   project.production.forEach(p=>{
     c[p.type]=(c[p.type]||0)+1;
   });
-  const txt = Object.keys(c)
-    .map(t=>`${t} (${c[t]} प्रकार)`)
-    .join(" तथा ");
   globalNarration.value =
-    `यस व्यवसायमा ${txt} मार्फत उत्पादन योजना तयार गरिएको छ।`;
-  save();
+    "यस व्यवसायमा " +
+    Object.keys(c).map(t=>`${t} (${c[t]} प्रकार)`).join(" तथा ") +
+    " मार्फत उत्पादन योजना तयार गरिएको छ।";
+  saveProject();
 }
 
 /* INIT */
