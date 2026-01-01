@@ -12,29 +12,35 @@ body{
 }
 header{
   background:#e8f5e9;
-  padding:10px 16px;
+  padding:12px 18px;
   display:flex;
   justify-content:space-between;
+  font-size:16px;
 }
 header a{color:#2e7d32;font-weight:700;text-decoration:none}
+
 .wrap{
   max-width:1200px;
-  margin:18px auto;
+  margin:20px auto;
   background:#fff;
-  padding:22px;
-  border-radius:12px;
+  padding:24px;
+  border-radius:14px;
 }
-h2,h3{color:#2e7d32;margin-top:0}
-.small{font-size:13px;color:#555}
-hr{margin:20px 0}
+
+h2,h3{
+  color:#2e7d32;
+  margin-top:0;
+}
+.small{font-size:14px;color:#555}
 
 button{
-  padding:6px 14px;
+  padding:8px 16px;
   border:none;
-  border-radius:6px;
+  border-radius:8px;
   background:#2e7d32;
   color:#fff;
   cursor:pointer;
+  font-size:14px;
 }
 .gray{background:#607d8b}
 .red{background:#c62828}
@@ -42,35 +48,45 @@ button{
 
 .card{
   border:1px solid #c8e6c9;
-  border-radius:12px;
-  margin-bottom:20px;
+  border-radius:14px;
+  margin-bottom:22px;
 }
 .cardHead{
   background:#f1f8e9;
-  padding:10px 14px;
+  padding:14px 18px;
   display:flex;
   justify-content:space-between;
   cursor:pointer;
+  font-size:18px;
 }
-.cardBody{padding:14px;display:none}
+.cardBody{
+  padding:18px;
+}
 
 .row{
   display:grid;
-  grid-template-columns:2fr 1.3fr 1fr 1fr 1fr 1.3fr;
-  gap:8px;
-  margin-bottom:8px;
+  grid-template-columns:2fr 1.4fr 1fr 1fr 1fr 1.2fr;
+  gap:10px;
+  margin-bottom:12px;
 }
 input,select,textarea{
-  padding:6px;width:100%
+  padding:8px;
+  width:100%;
+  font-size:15px;
 }
 
 .item{
   display:grid;
-  grid-template-columns:2fr 1.3fr 1fr 1fr 1fr 1fr auto auto;
-  gap:6px;
-  margin-bottom:6px;
+  grid-template-columns:2fr 1.4fr 1fr 1fr 1fr 1fr auto auto;
+  gap:10px;
+  margin-bottom:10px;
+  align-items:center;
 }
-.item input:disabled{background:#f5f5f5}
+.item input:disabled{
+  background:#f5f5f5;
+  border:1px solid #ddd;
+}
+hr{margin:18px 0}
 </style>
 </head>
 
@@ -101,8 +117,8 @@ input,select,textarea{
 const KEY="FB_EXPENSE_ENGINE";
 let data = JSON.parse(localStorage.getItem(KEY)) || {
   categories:{
-    "चालु खर्च":{ subs:[], items:[], adding:false },
-    "पुँजीगत खर्च":{ subs:[], items:[], adding:false }
+    "चालु खर्च":{ subs:[], items:[], adding:false, open:true },
+    "पुँजीगत खर्च":{ subs:[], items:[], adding:false, open:true }
   },
   narration:""
 };
@@ -125,17 +141,17 @@ function addSub(cat){
 function editSub(cat,old){
   const n=prompt("नयाँ नाम",old);
   if(!n) return;
-  const c=data.categories[cat];
-  c.subs=c.subs.map(s=>s===old?n:s);
-  c.items.forEach(i=>{ if(i.sub===old) i.sub=n; });
+  const C=data.categories[cat];
+  C.subs=C.subs.map(s=>s===old?n:s);
+  C.items.forEach(i=>{ if(i.sub===old) i.sub=n; });
   save(); render();
 }
 function delSub(cat,sub){
-  const c=data.categories[cat];
-  if(c.items.some(i=>i.sub===sub)){
+  const C=data.categories[cat];
+  if(C.items.some(i=>i.sub===sub)){
     alert("पहिले खर्च हटाउनुहोस्"); return;
   }
-  c.subs=c.subs.filter(s=>s!==sub);
+  C.subs=C.subs.filter(s=>s!==sub);
   save(); render();
 }
 
@@ -143,6 +159,7 @@ function delSub(cat,sub){
 function startAdd(cat){
   tempForm={};
   data.categories[cat].adding=true;
+  data.categories[cat].open=true;
   render();
 }
 function cancelAdd(cat){
@@ -160,9 +177,9 @@ function saveAdd(cat){
     name:tempForm.name,
     sub:tempForm.sub||"",
     unit:tempForm.unit||"",
-    rate:Number(tempForm.rate),
-    qty:Number(tempForm.qty),
-    amt:Number(tempForm.rate)*Number(tempForm.qty),
+    rate:+tempForm.rate,
+    qty:+tempForm.qty,
+    amt:(+tempForm.rate)*(+tempForm.qty),
     edit:false
   });
   tempForm={};
@@ -173,7 +190,9 @@ function saveAdd(cat){
 /* ===== ITEM EDIT ===== */
 function startEdit(cat,id){
   const i=data.categories[cat].items.find(x=>x.id===id);
-  i._bak={...i}; i.edit=true; render();
+  i._bak={...i}; i.edit=true;
+  data.categories[cat].open=true;
+  render();
 }
 function saveEdit(cat,id){
   const i=data.categories[cat].items.find(x=>x.id===id);
@@ -182,19 +201,21 @@ function saveEdit(cat,id){
   save(); render();
 }
 function cancelEdit(cat,id){
-  const idx=data.categories[cat].items.findIndex(x=>x.id===id);
-  data.categories[cat].items[idx]=data.categories[cat].items[idx]._bak;
-  data.categories[cat].items[idx].edit=false;
+  const C=data.categories[cat];
+  const idx=C.items.findIndex(x=>x.id===id);
+  C.items[idx]=C.items[idx]._bak;
+  C.items[idx].edit=false;
   render();
 }
 function delItem(cat,id){
   if(!confirm("हटाउने?"))return;
-  data.categories[cat].items=data.categories[cat].items.filter(i=>i.id!==id);
+  data.categories[cat].items=
+    data.categories[cat].items.filter(i=>i.id!==id);
   save(); render();
 }
 function e(cat,id,f,v){
   const i=data.categories[cat].items.find(x=>x.id===id);
-  i[f]=f==="rate"||f==="qty"?Number(v):v;
+  i[f]=f==="rate"||f==="qty"?+v:v;
   if(f==="rate"||f==="qty") i.amt=i.rate*i.qty;
 }
 
@@ -204,8 +225,8 @@ function autoNarration(){
   Object.values(data.categories).forEach(c=>{
     total+=c.items.reduce((s,i)=>s+i.amt,0);
   });
-  data.narration =
-    "यस व्यवसायका लागि चालु तथा पुँजीगत खर्च शीर्षक अन्तर्गत विभिन्न खर्चहरू निर्धारण गरिएको छ। " +
+  data.narration=
+    "यस व्यवसायका लागि चालु तथा पुँजीगत खर्च अन्तर्गत आवश्यक खर्चहरू निर्धारण गरिएको छ। "+
     "कुल अनुमानित खर्च रकम रु. "+total+" रहेको छ।";
   expenseNarration.value=data.narration;
   save();
@@ -220,14 +241,18 @@ function render(){
 
     const card=document.createElement("div");
     card.className="card";
-    card.innerHTML=`
-      <div class="cardHead"
-        onclick="this.nextElementSibling.style.display=
-        this.nextElementSibling.style.display==='none'?'block':'none'">
-        <b>${cat}</b><span>जम्मा: रु. ${total}</span>
-      </div>
-      <div class="cardBody"></div>`;
-    const body=card.querySelector(".cardBody");
+
+    const head=document.createElement("div");
+    head.className="cardHead";
+    head.innerHTML=`<b>${cat}</b><span>जम्मा: रु. ${total}</span>`;
+    head.onclick=()=>{
+      C.open=!C.open;
+      save(); render();
+    };
+
+    const body=document.createElement("div");
+    body.className="cardBody";
+    body.style.display=C.open?"block":"none";
 
     body.innerHTML+=`<b>उपशीर्षक</b><br>`;
     C.subs.forEach(s=>{
@@ -252,8 +277,7 @@ function render(){
           <input placeholder="इकाई" oninput="tempForm.unit=this.value">
           <input type="number" placeholder="दर" oninput="tempForm.rate=this.value">
           <input type="number" placeholder="परिमाण" oninput="tempForm.qty=this.value">
-          <input disabled placeholder="रकम"
-            value="${(tempForm.rate||0)*(tempForm.qty||0)}">
+          <input disabled value="${(tempForm.rate||0)*(tempForm.qty||0)}">
         </div>
         <button onclick="saveAdd('${cat}')">💾 Save</button>
         <button class="gray" onclick="cancelAdd('${cat}')">↩ Cancel</button>
@@ -285,6 +309,8 @@ function render(){
         </div>`;
     });
 
+    card.appendChild(head);
+    card.appendChild(body);
     expenseRoot.appendChild(card);
   });
 
