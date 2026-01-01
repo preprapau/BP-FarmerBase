@@ -2,435 +2,267 @@
 <html lang="ne">
 <head>
 <meta charset="UTF-8">
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>Production Plan | FarmerBase BP Engine</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
 body{
   font-family:"Noto Sans Devanagari","Kalimati",system-ui;
-  background:#f4f7f6;margin:0
+  background:#f4f7f6;
+  margin:0;
 }
 header,footer{
   background:#e8f5e9;
   padding:10px 16px;
   display:flex;
   justify-content:space-between;
-  align-items:center
+  align-items:center;
 }
 header a,footer a{
   text-decoration:none;
   font-weight:700;
-  color:#2e7d32
+  color:#2e7d32;
 }
-.container{
-  max-width:1200px;
-  margin:auto;
-  padding:20px
+.wrap{
+  max-width:1100px;
+  margin:18px auto;
+  background:#fff;
+  padding:22px;
+  border-radius:12px;
 }
-h2,h3{color:#2e7d32;margin-bottom:6px}
+h2,h3{color:#2e7d32;margin-top:0}
 .small{font-size:13px;color:#555}
 
-.section{
-  background:#fff;
-  padding:14px;
+/* Add bar */
+.addBar{
+  display:grid;
+  grid-template-columns:2fr 1fr 1fr 1fr auto;
+  gap:8px;
+  margin-bottom:14px;
+}
+.addBar input, .addBar select{
+  padding:6px;
+}
+
+/* Type cards */
+.typeCard{
+  border:1px solid #c8e6c9;
   border-radius:10px;
-  margin-bottom:14px
+  margin-bottom:14px;
 }
-
-table{
-  width:100%;
-  border-collapse:collapse;
-  margin-top:8px
-}
-th,td{
-  border:1px solid #ccc;
-  padding:6px;
-  font-size:14px
-}
-th{background:#eef5ee}
-input,select,textarea{
-  width:100%;
-  padding:6px;
-  box-sizing:border-box
-}
-textarea{resize:vertical}
-
-.inline{
-  display:flex;
-  gap:6px;
-  flex-wrap:wrap;
-  align-items:center
-}
-.inline input{max-width:160px}
-
-.btn{
-  padding:6px 12px;
-  background:#2e7d32;
-  color:#fff;
-  border:none;
-  cursor:pointer
-}
-
-.del{
-  color:#c62828;
-  font-weight:700;
-  cursor:pointer;
-  position:relative
-}
-.del:hover::after{
-  content:"हटाउने";
-  position:absolute;
-  top:-22px;
-  left:0;
-  background:#c62828;
-  color:#fff;
-  font-size:11px;
-  padding:2px 6px;
-  border-radius:4px;
-}
-
-.totalBox{
-  font-size:16px;
-  font-weight:700;
-  color:#2e7d32;
-  margin-top:10px
-}
-
-.reportBar{
-  margin-top:16px;
-  display:flex;
-  gap:10px;
-  flex-wrap:wrap
-}
-.reportBar a{
-  background:#fff;
-  border:2px solid #2e7d32;
+.typeHead{
+  background:#f1f8e9;
   padding:8px 12px;
-  font-weight:700;
-  color:#2e7d32;
-  text-decoration:none
-}
-
-.typeHeader{
   display:flex;
   justify-content:space-between;
   align-items:center;
   cursor:pointer;
-  user-select:none
 }
-.typeHeader span{font-size:13px}
+.typeHead b{color:#2e7d32}
+.typeBody{padding:10px;display:none}
 
-.stickyBar{
-  position:sticky;
-  top:0;
-  z-index:20;
-  background:#f4f7f6;
-  padding-bottom:8px
+/* Product row */
+.prod{
+  display:grid;
+  grid-template-columns:2fr 1fr 1fr 2fr auto;
+  gap:6px;
+  margin-bottom:6px;
+}
+.prod input{
+  padding:5px;
+}
+.del{
+  color:#c62828;
+  cursor:pointer;
+  font-weight:700;
 }
 
-.undoBar{
-  position:fixed;
-  bottom:20px;
-  left:50%;
-  transform:translateX(-50%);
-  background:#263238;
-  color:#fff;
-  padding:10px 14px;
-  border-radius:8px;
-  display:none;
+/* Narration */
+textarea{
+  width:100%;
+  padding:8px;
+  margin-top:10px;
+  resize:vertical;
+}
+
+/* Buttons */
+.btns{
+  margin-top:12px;
+  display:flex;
   gap:10px;
-  align-items:center
+  flex-wrap:wrap;
 }
-.undoBar button{
+button{
+  padding:6px 14px;
+  border:none;
+  border-radius:6px;
   background:#2e7d32;
   color:#fff;
-  border:none;
-  padding:4px 10px;
-  cursor:pointer
+  cursor:pointer;
 }
+.gray{background:#607d8b}
 
-.footerNav{
-  display:flex;
-  justify-content:space-between;
-  width:100%
-}
 </style>
 </head>
 
 <body>
 
 <header>
-  <a href="business-detail.html">⬅️ Business</a>
-  <strong>📦 Production Plan</strong>
-  <a href="expense-demo.html">➡️ Expense</a>
+  <a href="business-detail.html">⬅ Business Detail</a>
+  <strong>उत्पादन योजना (Production Plan)</strong>
+  <a href="expense-demo.html">➡ Expense</a>
 </header>
 
-<div class="container">
+<div class="wrap">
 
-<h2>उत्पादन योजना (Production Plan)</h2>
+<h2>🌱 उत्पादन योजना</h2>
+<p class="small">
+यहाँ के–कुन उत्पादन गर्ने र कति परिमाणमा गर्ने भन्ने योजना बनाइन्छ।
+दर तथा रकम Income पेजमा निर्धारण हुनेछ।
+</p>
 
-<!-- STICKY CONTROLS -->
-<div class="stickyBar">
-
-<div class="section">
-<h3>➕ छिटो उत्पादन थप्नुहोस्</h3>
-<div class="inline">
-  <input id="qName" placeholder="उत्पादन">
-  <input id="qUnit" placeholder="इकाई">
-  <input type="number" id="qRate" placeholder="दर">
-  <input type="number" id="qQty" placeholder="परिमाण">
-  <select id="qType"></select>
-  <button class="btn" onclick="quickAdd()">Add</button>
-</div>
-</div>
-
-<div class="section" style="text-align:right">
-  <button class="btn" onclick="expandAll()">➕ सबै खोल्नुहोस्</button>
-  <button class="btn" onclick="collapseAll()">➖ सबै बन्द गर्नुहोस्</button>
+<!-- ADD BAR -->
+<div class="addBar">
+  <input id="pName" placeholder="उत्पादन (जस्तै: गोलभेडा, बाख्रा)">
+  <input id="pUnit" placeholder="इकाई (kg, वटा, माउ)">
+  <input id="pQty" type="number" placeholder="परिमाण">
+  <select id="pType">
+    <option>तरकारी</option>
+    <option>पशुपालन</option>
+    <option>दुग्ध</option>
+    <option>अन्य</option>
+  </select>
+  <button onclick="add()">➕ Add</button>
 </div>
 
-</div>
+<!-- TYPE CONTAINER -->
+<div id="types"></div>
 
-<!-- CATEGORY MANAGER -->
-<div class="section">
-<h3 onclick="toggleType()" style="cursor:pointer">⚙️ उत्पादनका प्रकार व्यवस्थापन</h3>
-<div id="typeSection" style="display:none">
-  <div id="typeBox"></div>
-  <div class="inline">
-    <input id="newType" placeholder="नयाँ प्रकार">
-    <button class="btn" onclick="addType()">Add</button>
-  </div>
-</div>
-</div>
-
-<!-- NARRATION -->
-<div class="section">
+<!-- GLOBAL NARRATION -->
 <h3>📝 समग्र उत्पादन Narration</h3>
-<textarea id="tableNarration" rows="3"></textarea>
-<button class="btn" onclick="generateNarration()">✨ Auto Generate</button>
-</div>
+<textarea id="globalNarration" rows="4"
+ placeholder="समग्र उत्पादन योजना सम्बन्धी विवरण..."
+ oninput="save()"></textarea>
 
-<!-- TABLES -->
-<div id="tables"></div>
-
-<div class="totalBox">
-कुल उत्पादन मूल्य: रु <span id="grandTotal">0</span>
-</div>
-
-<div class="reportBar">
-  <a href="#" onclick="mapToIncome()">🔁 Map to Income</a>
-  <a href="production-report.html" target="_blank">📊 Report</a>
-  <a href="production-chart.html" target="_blank">📈 Chart</a>
+<div class="btns">
+  <button class="gray" onclick="autoNarration()">⚙️ Auto Narration</button>
 </div>
 
 </div>
 
 <footer>
-  <div class="footerNav">
-    <a href="business-detail.html">⬅️ Business</a>
-    <span class="small" id="saveStatus"></span>
-    <a href="expense-demo.html">➡️ Expense</a>
-  </div>
+  <span class="small">FarmerBase BP Engine – Production (Quantity Only)</span>
 </footer>
 
-<div id="undoBar" class="undoBar">
-  <span>उत्पादन हटाइयो</span>
-  <button onclick="undoDelete()">Undo</button>
-</div>
-
 <script>
-/* ========= CORE ========= */
+/* ================= DATA ================= */
 const key = localStorage.getItem("activeProject");
-if(!key) alert("Active योजना भेटिएन ।");
-let project = JSON.parse(localStorage.getItem(key))||{};
-project.production = project.production || {
-  types:["पशु","तरकारी","दुग्ध","अन्य"],
-  items:[],
-  narration:""
-};
+if(!key){
+  alert("Project भेटिएन");
+}
+let project = JSON.parse(localStorage.getItem(key)) || {};
+project.production = project.production || [];
+project.productionNarration = project.productionNarration || "";
 
-const TYPES = project.production.types;
-const ITEMS = project.production.items;
-
-/* ========= SAVE ========= */
+/* ================= SAVE ================= */
 function save(){
+  project.productionNarration = globalNarration.value;
   localStorage.setItem(key,JSON.stringify(project));
-  saveStatus.innerText="💾 Saved";
-  setTimeout(()=>saveStatus.innerText="",1000);
+}
+
+/* ================= ADD ================= */
+function add(){
+  if(!pName.value || !pQty.value) return;
+  project.production.push({
+    id:Date.now(),
+    name:pName.value,
+    unit:pUnit.value,
+    qty:Number(pQty.value),
+    type:pType.value,
+    remark:""
+  });
+  pName.value=pUnit.value=pQty.value="";
+  save();
   render();
 }
 
-/* ========= TYPE ========= */
-function toggleType(){
-  typeSection.style.display =
-    typeSection.style.display==="none"?"block":"none";
-}
-function renderTypes(){
-  typeBox.innerHTML="";
-  TYPES.forEach((t,i)=>{
-    typeBox.innerHTML+=`
-    <div class="inline">
-      <input value="${t}" oninput="editType(${i},this.value)">
-      <span class="del" onclick="delType(${i})">✖</span>
-    </div>`;
-  });
-}
-function addType(){
-  if(!newType.value) return;
-  TYPES.push(newType.value);
-  newType.value="";
-  save();
-}
-function editType(i,v){TYPES[i]=v;save();}
-function delType(i){
-  if(!confirm("प्रकार हटाउने ?"))return;
-  const t=TYPES[i];
-  TYPES.splice(i,1);
-  project.production.items=ITEMS.filter(p=>p.type!==t);
-  save();
+/* ================= DELETE ================= */
+function del(id){
+  if(!confirm("यो उत्पादन हटाउने?")) return;
+  project.production = project.production.filter(p=>p.id!==id);
+  save(); render();
 }
 
-/* ========= QUICK ADD ========= */
-function fillQuickTypes(){
-  qType.innerHTML="";
-  TYPES.forEach(t=>qType.innerHTML+=`<option>${t}</option>`);
-}
-function quickAdd(){
-  if(!qName.value) return;
-  ITEMS.push({
-    id:Date.now(),
-    name:qName.value,
-    unit:qUnit.value,
-    rate:+qRate.value||0,
-    qty:+qQty.value||0,
-    type:qType.value,
-    note:""
-  });
-  qName.value=qUnit.value=qRate.value=qQty.value="";
-  save();
-}
-
-/* ========= COLLAPSE ========= */
-function getState(){
-  return JSON.parse(localStorage.getItem("PROD_COLLAPSE"))||{};
-}
-function saveState(t,v){
-  const s=getState();s[t]=v;
-  localStorage.setItem("PROD_COLLAPSE",JSON.stringify(s));
-}
-function toggleTypeTable(t){
-  const b=document.getElementById("box-"+t);
-  const i=document.getElementById("icon-"+t);
-  const open=b.style.display!=="none";
-  b.style.display=open?"none":"block";
-  i.innerText=open?"➕ Show":"➖ Hide";
-  saveState(t,!open);
-}
-function expandAll(){TYPES.forEach(t=>saveState(t,true));render();}
-function collapseAll(){TYPES.forEach(t=>saveState(t,false));render();}
-
-/* ========= DELETE + UNDO ========= */
-let lastDeleted=null,undoTimer=null;
-function remove(id){
-  if(!confirm("उत्पादन हटाउने ?"))return;
-  const i=ITEMS.findIndex(x=>x.id==id);
-  lastDeleted=ITEMS[i];
-  ITEMS.splice(i,1);
-  undoBar.style.display="flex";
-  clearTimeout(undoTimer);
-  undoTimer=setTimeout(()=>undoBar.style.display="none",10000);
-  save();
-}
-function undoDelete(){
-  if(lastDeleted){
-    ITEMS.push(lastDeleted);
-    lastDeleted=null;
-    undoBar.style.display="none";
-    save();
-  }
-}
-
-/* ========= NARRATION ========= */
-tableNarration.value=project.production.narration;
-function generateNarration(){
-  let sum={};
-  ITEMS.forEach(p=>{
-    const a=p.rate*p.qty;
-    sum[p.type]=(sum[p.type]||0)+a;
-  });
-  let txt="यस व्यवसायमा ";
-  Object.keys(sum).forEach((t,i)=>{
-    txt+=`${t} उत्पादनबाट रु ${sum[t].toLocaleString()}`;
-    if(i<Object.keys(sum).length-1)txt+=" र ";
-  });
-  txt+=" बराबरको उत्पादन योजना तयार गरिएको छ।";
-  tableNarration.value=txt;
-  project.production.narration=txt;
-  save();
-}
-tableNarration.oninput=()=>{project.production.narration=tableNarration.value;save();};
-
-/* ========= MAP TO INCOME ========= */
-function mapToIncome(){
-  project.income=project.income||[];
-  ITEMS.forEach(p=>{
-    project.income.push({
-      source:p.name,unit:p.unit,rate:p.rate,qty:p.qty,
-      amount:p.rate*p.qty
-    });
-  });
-  localStorage.setItem(key,JSON.stringify(project));
-  alert("Income draft तयार भयो");
-}
-
-/* ========= RENDER ========= */
+/* ================= RENDER ================= */
 function render(){
-  renderTypes();
-  fillQuickTypes();
-  tables.innerHTML="";
-  let g=0,s=getState();
-
-  TYPES.forEach(t=>{
-    const rows=ITEMS.filter(p=>p.type===t);
-    if(!rows.length)return;
-    let sub=0;
-    let html=`<div class="section">
-    <div class="typeHeader" onclick="toggleTypeTable('${t}')">
-      <h3>${t}</h3><span id="icon-${t}">➖ Hide</span>
-    </div>
-    <div id="box-${t}">
-    <table>
-    <tr><th>उत्पादन</th><th>इकाई</th><th>दर</th><th>परिमाण</th><th>रकम</th><th></th></tr>`;
-    rows.forEach(p=>{
-      const a=p.rate*p.qty;sub+=a;g+=a;
-      html+=`<tr>
-<td><input value="${p.name}" oninput="p.name=this.value;save()"></td>
-<td><input value="${p.unit}" oninput="p.unit=this.value;save()"></td>
-<td><input type="number" value="${p.rate}" oninput="p.rate=+this.value;save()"></td>
-<td><input type="number" value="${p.qty}" oninput="p.qty=+this.value;save()"></td>
-<td>${a.toLocaleString()}</td>
-<td class="del" onclick="remove('${p.id}')">✖</td>
-</tr>`;
-    });
-    html+=`<tr><th colspan="4">उप–जम्मा</th><th>${sub.toLocaleString()}</th><th></th></tr>
-    </table></div></div>`;
-    tables.innerHTML+=html;
-
-    if(s[t]===false){
-      document.getElementById("box-"+t).style.display="none";
-      document.getElementById("icon-"+t).innerText="➕ Show";
-    }
+  types.innerHTML="";
+  const groups = {};
+  project.production.forEach(p=>{
+    if(!groups[p.type]) groups[p.type]=[];
+    groups[p.type].push(p);
   });
-  grandTotal.innerText=g.toLocaleString();
+
+  Object.keys(groups).forEach(t=>{
+    const card=document.createElement("div");
+    card.className="typeCard";
+    card.innerHTML=`
+      <div class="typeHead" onclick="this.nextElementSibling.style.display=
+      this.nextElementSibling.style.display==='none'?'block':'none'">
+        <b>${t}</b>
+        <span>${groups[t].length} item</span>
+      </div>
+      <div class="typeBody"></div>
+    `;
+    const body=card.querySelector(".typeBody");
+
+    groups[t].forEach(p=>{
+      const d=document.createElement("div");
+      d.className="prod";
+      d.innerHTML=`
+        <input value="${p.name}" oninput="edit(${p.id},'name',this.value)">
+        <input value="${p.unit}" oninput="edit(${p.id},'unit',this.value)">
+        <input type="number" value="${p.qty}" oninput="edit(${p.id},'qty',this.value)">
+        <input placeholder="Remarks / टिप्पणी"
+          value="${p.remark||""}"
+          oninput="edit(${p.id},'remark',this.value)">
+        <span class="del" onclick="del(${p.id})">✖</span>
+      `;
+      body.appendChild(d);
+    });
+
+    types.appendChild(card);
+  });
+
+  globalNarration.value = project.productionNarration || "";
 }
 
-/* ========= SHORTCUT ========= */
-document.addEventListener("keydown",e=>{
-  if(e.altKey&&e.key==="ArrowUp"){e.preventDefault();expandAll();}
-  if(e.altKey&&e.key==="ArrowDown"){e.preventDefault();collapseAll();}
-});
+/* ================= EDIT ================= */
+function edit(id,f,v){
+  const p = project.production.find(x=>x.id===id);
+  if(!p) return;
+  p[f] = f==="qty"?Number(v):v;
+  save();
+}
 
+/* ================= AUTO NARRATION ================= */
+function autoNarration(){
+  if(!project.production.length){
+    globalNarration.value="";
+    return;
+  }
+  const byType={};
+  project.production.forEach(p=>{
+    if(!byType[p.type]) byType[p.type]=0;
+    byType[p.type]++;
+  });
+  const parts = Object.keys(byType)
+    .map(t=>`${t} (${byType[t]} प्रकार)`);
+  globalNarration.value =
+    `यस व्यवसायमा ${parts.join(" तथा ")} मार्फत उत्पादन योजना तयार गरिएको छ।`;
+  save();
+}
+
+/* INIT */
 render();
 </script>
 
