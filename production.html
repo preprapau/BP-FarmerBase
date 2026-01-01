@@ -25,7 +25,7 @@ header a{color:#2e7d32;font-weight:700;text-decoration:none}
   padding:22px;
   border-radius:12px;
 }
-h2,h3{color:#2e7d32;margin-top:0}
+h2{color:#2e7d32;margin-top:0}
 .small{font-size:13px;color:#555}
 hr{margin:20px 0}
 
@@ -37,15 +37,16 @@ hr{margin:20px 0}
 }
 input,select,textarea{padding:6px;width:100%}
 button{
-  padding:6px 14px;
+  padding:6px 12px;
   border:none;
   border-radius:6px;
   background:#2e7d32;
   color:#fff;
   cursor:pointer;
 }
-.red{background:#c62828}
 .gray{background:#607d8b}
+.red{background:#c62828}
+.blue{background:#0277bd}
 
 .card{
   border:1px solid #c8e6c9;
@@ -62,10 +63,11 @@ button{
 .cardBody{padding:10px;display:none}
 .item{
   display:grid;
-  grid-template-columns:2fr 1fr 1fr auto;
+  grid-template-columns:2fr 1fr 1fr auto auto auto;
   gap:6px;
   margin-bottom:6px;
 }
+.item input:disabled{background:#f5f5f5}
 </style>
 </head>
 
@@ -89,8 +91,6 @@ button{
 <hr>
 
 <h2>➕ उत्पादन थप्नुहोस्</h2>
-<p class="small">पहिले उत्पादनको प्रकार हुनुपर्छ</p>
-
 <div class="row">
   <input id="pName" placeholder="उत्पादन नाम">
   <input id="pUnit" placeholder="इकाई">
@@ -104,46 +104,35 @@ button{
 <h2>📦 उत्पादन सूची</h2>
 <div id="products"></div>
 
-<hr>
-
-<h2>📝 समग्र उत्पादन Narration</h2>
-<textarea id="globalNarration" rows="4"></textarea>
-<button class="gray" onclick="autoNarration()">Auto Narration</button>
-
 </div>
 
 <script>
-/* ===== ACTIVE PROJECT CHECK ===== */
-const key = localStorage.getItem("activeProject");
-if(!key){
-  alert("पहिले Project सुरु गर्नुहोस् (index बाट)");
-}
-let project = JSON.parse(localStorage.getItem(key)) || {};
-project.productionTypes = project.productionTypes || [];
-project.production = project.production || [];
-project.typeNarrations = project.typeNarrations || {};
-project.globalNarration = project.globalNarration || "";
+/* ===== STORAGE (STABLE) ===== */
+const STORAGE_KEY = "FB_PRODUCTION_PLAN";
+let data = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {
+  types: [],
+  products: [],
+  typeNotes: {}
+};
 
-/* ===== SAVE ===== */
 function save(){
-  localStorage.setItem(key,JSON.stringify(project));
+  localStorage.setItem(STORAGE_KEY,JSON.stringify(data));
 }
 
 /* ===== TYPES ===== */
 function addType(){
   if(!newType.value) return;
-  if(project.productionTypes.includes(newType.value)){
+  if(data.types.includes(newType.value)){
     alert("यो प्रकार पहिले नै छ"); return;
   }
-  project.productionTypes.push(newType.value);
+  data.types.push(newType.value);
   newType.value="";
-  save();
-  render();
+  save(); render();
 }
 function renderTypes(){
   typeList.innerHTML="";
   pType.innerHTML="";
-  project.productionTypes.forEach(t=>{
+  data.types.forEach(t=>{
     typeList.innerHTML += `• ${t}<br>`;
     const o=document.createElement("option");
     o.textContent=t;
@@ -153,100 +142,97 @@ function renderTypes(){
 
 /* ===== PRODUCTS ===== */
 function addProduct(){
-  if(project.productionTypes.length===0){
-    alert("पहिले उत्पादनको प्रकार बनाउनुहोस्");
+  if(!pName.value || !pQty.value || !pType.value){
+    alert("उत्पादन नाम, परिमाण र प्रकार अनिवार्य छ");
     return;
   }
-  if(!pName.value || !pQty.value){
-    alert("उत्पादन नाम र परिमाण अनिवार्य छ");
-    return;
-  }
-
-  project.production.push({
+  data.products.push({
     id:Date.now(),
     name:pName.value,
     unit:pUnit.value,
     qty:Number(pQty.value),
-    type:pType.value
+    type:pType.value,
+    edit:false
   });
-
   pName.value=pUnit.value=pQty.value="";
-  save();
-  render();
-  alert("उत्पादन थपियो ✔️");
-}
-
-function deleteProduct(id){
-  project.production = project.production.filter(p=>p.id!==id);
   save(); render();
 }
 
-/* ===== RENDER PRODUCTS ===== */
-function renderProducts(){
-  products.innerHTML="";
-  const groups={};
-
-  project.production.forEach(p=>{
-    if(!groups[p.type]) groups[p.type]=[];
-    groups[p.type].push(p);
-  });
-
-  Object.keys(groups).forEach(type=>{
-    const total = groups[type].reduce((s,p)=>s+p.qty,0);
-
-    const card=document.createElement("div");
-    card.className="card";
-    card.innerHTML=`
-      <div class="cardHead"
-       onclick="this.nextElementSibling.style.display=
-       this.nextElementSibling.style.display==='none'?'block':'none'">
-        <b>${type}</b>
-        <span>जम्मा: ${total}</span>
-      </div>
-      <div class="cardBody"></div>
-    `;
-    const body=card.querySelector(".cardBody");
-
-    groups[type].forEach(p=>{
-      body.innerHTML+=`
-        <div class="item">
-          <input value="${p.name}" disabled>
-          <input value="${p.unit}" disabled>
-          <input value="${p.qty}" disabled>
-          <button class="red" onclick="deleteProduct(${p.id})">❌</button>
-        </div>
-      `;
-    });
-
-    const note=document.createElement("textarea");
-    note.placeholder=`${type} सम्बन्धी विवरण...`;
-    note.value = project.typeNarrations[type] || "";
-    note.oninput=()=>{
-      project.typeNarrations[type]=note.value;
-      save();
-    };
-    body.appendChild(note);
-
-    products.appendChild(card);
-  });
+function startEdit(id){
+  const p = data.products.find(x=>x.id===id);
+  p._backup = {...p};
+  p.edit=true;
+  render();
 }
-
-/* ===== NARRATION ===== */
-function autoNarration(){
-  globalNarration.value =
-    "यस व्यवसायमा " +
-    project.productionTypes.join(", ") +
-    " अन्तर्गत उत्पादन योजना तयार गरिएको छ।";
-  project.globalNarration = globalNarration.value;
-  save();
+function saveEdit(id){
+  const p = data.products.find(x=>x.id===id);
+  delete p._backup;
+  p.edit=false;
+  save(); render();
+}
+function cancelEdit(id){
+  const i = data.products.findIndex(x=>x.id===id);
+  data.products[i]=data.products[i]._backup;
+  data.products[i].edit=false;
+  render();
+}
+function del(id){
+  if(!confirm("हटाउने?")) return;
+  data.products=data.products.filter(p=>p.id!==id);
+  save(); render();
 }
 
 /* ===== RENDER ===== */
 function render(){
   renderTypes();
-  renderProducts();
-  globalNarration.value = project.globalNarration || "";
+  products.innerHTML="";
+  const g={};
+  data.products.forEach(p=>{
+    if(!g[p.type]) g[p.type]=[];
+    g[p.type].push(p);
+  });
+
+  Object.keys(g).forEach(t=>{
+    const total=g[t].reduce((s,p)=>s+p.qty,0);
+    const c=document.createElement("div");
+    c.className="card";
+    c.innerHTML=`
+      <div class="cardHead"
+        onclick="this.nextElementSibling.style.display=
+        this.nextElementSibling.style.display==='none'?'block':'none'">
+        <b>${t}</b><span>जम्मा: ${total}</span>
+      </div>
+      <div class="cardBody"></div>`;
+    const b=c.querySelector(".cardBody");
+
+    g[t].forEach(p=>{
+      b.innerHTML+=`
+        <div class="item">
+          <input ${p.edit?"":"disabled"} value="${p.name}"
+            oninput="pEdit(${p.id},'name',this.value)">
+          <input ${p.edit?"":"disabled"} value="${p.unit}"
+            oninput="pEdit(${p.id},'unit',this.value)">
+          <input type="number" ${p.edit?"":"disabled"} value="${p.qty}"
+            oninput="pEdit(${p.id},'qty',this.value)">
+          ${
+            p.edit
+            ? `<button class="blue" onclick="saveEdit(${p.id})">💾</button>
+               <button class="gray" onclick="cancelEdit(${p.id})">↩</button>`
+            : `<button class="blue" onclick="startEdit(${p.id})">✏️</button>
+               <button class="red" onclick="del(${p.id})">❌</button>`
+          }
+        </div>`;
+    });
+
+    products.appendChild(c);
+  });
 }
+
+function pEdit(id,f,v){
+  const p=data.products.find(x=>x.id===id);
+  p[f]=f==="qty"?Number(v):v;
+}
+
 render();
 </script>
 
